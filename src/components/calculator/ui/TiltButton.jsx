@@ -1,22 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { usePrefersReducedMotion } from "../../../lib/usePrefersReducedMotion.js";
-
-// Echte Hover-Fähigkeit statt bloßem `hover:`-Media-Feature prüfen: Touch-
-// Geräte (auch Hybrid-Tablets) haben keinen Mauszeiger, auf denen ein
-// Cursor-Tracking-Tilt nie ausgelöst wird. Dort bleibt der bestehende
-// Tap-Zustand — kein Tilt.
-function useSupportsHover() {
-  const [hover, setHover] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches
-  );
-  useEffect(() => {
-    const mql = window.matchMedia("(hover: hover) and (pointer: fine)");
-    const onChange = () => setHover(mql.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
-  return hover;
-}
+import { useSupportsHover } from "../../../lib/useSupportsHover.js";
 
 // Dezent er Tilt-on-Hover für Auswahl-Karten (Vorbild vercel/linear): Die
 // Karte neigt sich leicht in Richtung der Mausposition (max ~7°, plus ein
