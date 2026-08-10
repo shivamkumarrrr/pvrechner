@@ -287,35 +287,40 @@ export default function Wizard() {
                 ← Zurück
               </button>
             )}
-            {(() => {
-              const subFlowPending = SUB_FLOW_STEPS.includes(step) && !stepReady;
-              return (
-                <button
-                  onClick={() => {
-                    if (step < steps.length - 1) goStep(step + 1);
-                    else goResult();
-                  }}
-                  disabled={subFlowPending}
-                  style={{
-                    flex: step === 0 ? 1 : 2,
-                    padding: "14px",
-                    borderRadius: 12,
-                    border: "none",
-                    background: step === steps.length - 1 ? theme.color.accent : theme.color.textPrimary,
-                    color: theme.color.white,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    cursor: subFlowPending ? "not-allowed" : "pointer",
-                    opacity: subFlowPending ? 0.45 : 1,
-                    transition: "background-color 0.15s, transform 0.1s, opacity 0.15s",
-                  }}
-                  onMouseDown={(e) => { if (!subFlowPending) e.target.style.transform = "scale(0.98)"; }}
-                  onMouseUp={(e) => e.target.style.transform = "scale(1)"}
-                >
-                  {step === steps.length - 1 ? "Ergebnis berechnen" : "Weiter →"}
-                </button>
-              );
-            })()}
+            {/* Bei Sub-Flow-Schritten (Dach, Verbrauch) übernimmt der jeweilige
+                Sub-Screen die Navigation (Auto-Advance ODER eigener "Weiter"-
+                Button) — der übergeordnete Button hier wird erst sichtbar,
+                sobald der Sub-Flow den letzten Screen erreicht hat (stepReady).
+                Vorher: der Button war zwar über `stepReady` gesteuert deklariert,
+                wurde in diesem JSX aber nie ausgewertet — dadurch war er auf
+                JEDEM Sub-Screen sofort klickbar und sprang bei Klick direkt zum
+                nächsten Hauptschritt, unabhängig vom Sub-Flow-Fortschritt (auf
+                der Dachfläche z.B. zusätzlich zum eigenen ContinueButton sichtbar
+                → zwei Buttons mit unterschiedlicher Wirkung). */}
+            {(!SUB_FLOW_STEPS.includes(step) || stepReady) && (
+              <button
+                onClick={() => {
+                  if (step < steps.length - 1) goStep(step + 1);
+                  else goResult();
+                }}
+                style={{
+                  flex: step === 0 ? 1 : 2,
+                  padding: "14px",
+                  borderRadius: 12,
+                  border: "none",
+                  background: step === steps.length - 1 ? theme.color.accent : theme.color.textPrimary,
+                  color: theme.color.white,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "background-color 0.15s, transform 0.1s",
+                }}
+                onMouseDown={(e) => e.target.style.transform = "scale(0.98)"}
+                onMouseUp={(e) => e.target.style.transform = "scale(1)"}
+              >
+                {step === steps.length - 1 ? "Ergebnis berechnen" : "Weiter →"}
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -353,3 +358,8 @@ export default function Wizard() {
   );
 }
 
+
+
+
+
+// dachneigung is a bit odd 

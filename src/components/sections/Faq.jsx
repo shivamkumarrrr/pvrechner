@@ -1,5 +1,8 @@
+import { useState } from "react";
 import theme from "../../theme.js";
 import Reveal from "../Reveal.jsx";
+import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion.js";
+import { IconChevronDown } from "../Icons.jsx";
 
 const FAQS = [
   {
@@ -48,7 +51,25 @@ const FAQS = [
   },
 ];
 
-export default function Faq() {
+// Personalisierung GENAU EINES FAQ-Eintrags (Speicher) nach abgeschlossenem
+// Wizard-Durchlauf. Werte kommen ausschließlich aus dem bereits berechneten
+// Ergebnis (result.autarkie, speicherKwh) — keine neue Rechnung, keine
+// erfundenen Zahlen. Ohne abgeschlossenen Durchlauf bleibt der Eintrag generisch.
+const SPEICHER_FAQ_Q = "Lohnt sich ein Batteriespeicher?";
+function antwortMitPersoenlich(original, wizardResult) {
+  if (!wizardResult) return original;
+  const pct = Math.round(wizardResult.result.autarkie);
+  const speicher = wizardResult.speicherKwh > 0;
+  const satz = speicher
+    ? ` In Ihrer Berechnung oben erreichen Sie mit ${wizardResult.speicherKwh} kWh Speicher einen Autarkiegrad von ${pct}% Ihres Verbrauchs.`
+    : ` In Ihrer Berechnung oben liegt Ihre Autarkie ohne Speicher bei ${pct}%.`;
+  return `${original}${satz}`;
+}
+
+export default function Faq({ wizardResult }) {
+  const reduced = usePrefersReducedMotion();
+  const [openIndex, setOpenIndex] = useState(null);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -68,31 +89,65 @@ export default function Faq() {
             Häufig gestellte Fragen
           </h2>
         </Reveal>
-        {FAQS.map((faq, i) => (
-          <Reveal key={faq.q} delay={Math.min(i, 4) * 40}>
-            <details style={{
-              marginBottom: 8,
-              border: `1.5px solid ${theme.color.border}`,
-              borderRadius: 10,
-              overflow: "hidden",
-            }}>
-              <summary style={{
-                padding: "13px 16px",
-                fontSize: 14,
-                fontWeight: 500,
-                color: theme.color.textPrimary,
-                cursor: "pointer",
-                background: theme.color.bg,
-                listStyle: "none",
+        {FAQS.map((faq, i) => {
+          const open = openIndex === i;
+          return (
+            <Reveal key={faq.q} delay={Math.min(i, 4) * 40}>
+              <div style={{
+                marginBottom: 8,
+                border: `1.5px solid ${open ? theme.color.accent : theme.color.border}`,
+                borderRadius: 10,
+                overflow: "hidden",
+                background: theme.color.white,
+                transition: reduced ? "none" : "border-color 0.2s",
               }}>
-                {faq.q}
-              </summary>
-              <div style={{ padding: "8px 16px 15px", fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.65 }}>
-                {faq.a}
+                <button
+                  onClick={() => setOpenIndex(open ? null : i)}
+                  aria-expanded={open}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    padding: "13px 16px",
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: theme.color.textPrimary,
+                    cursor: "pointer",
+                    background: open ? theme.color.bg : theme.color.white,
+                    border: "none",
+                    textAlign: "left",
+                    fontFamily: "inherit",
+                    transition: reduced ? "none" : "background-color 0.2s",
+                  }}
+                >
+                  {faq.q}
+                  <span style={{
+                    color: open ? theme.color.accent : theme.color.textMuted,
+                    display: "flex",
+                    flexShrink: 0,
+                    transform: `rotate(${open ? 180 : 0}deg)`,
+                    transition: reduced ? "none" : "transform 0.3s ease",
+                  }}>
+                    <IconChevronDown size={16} />
+                  </span>
+                </button>
+                <div style={{
+                  display: "grid",
+                  gridTemplateRows: open ? "1fr" : "0fr",
+                  transition: reduced ? "none" : "grid-template-rows 0.35s ease",
+                }}>
+                  <div style={{ overflow: "hidden", minHeight: 0 }}>
+                    <div style={{ padding: open ? "0 16px 15px" : "0 16px", fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.65 }}>
+                      {faq.q === SPEICHER_FAQ_Q ? antwortMitPersoenlich(faq.a, wizardResult) : faq.a}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </details>
-          </Reveal>
-        ))}
+            </Reveal>
+          );
+        })}
       </div>
     </section>
   );

@@ -1,43 +1,81 @@
 import theme from "../../theme.js";
 import Reveal from "../Reveal.jsx";
+import bydLogo from "../../assets/partners/byd.svg";
+import e3dcLogo from "../../assets/partners/e3dc.svg";
+import smaLogo from "../../assets/partners/sma.svg";
+import sungrowLogo from "../../assets/partners/sungrow.svg";
+import sonnenLogo from "../../assets/partners/sonnen.svg";
+import canadianSolarLogo from "../../assets/partners/canadian-solar.png";
+import trinaSolarLogo from "../../assets/partners/trina-solar.svg";
+import wallboxLogo from "../../assets/partners/wallbox.svg";
 
-// Placeholder partner/module brands — replace with real logos before launch.
-const PARTNER = ["Modulmarke A", "Wechselrichter B", "Speicher C", "Montagesystem D", "Zertifizierung E"];
+// Reale, bestätigte Partner-Marken (offizielle Logos aus Press-/Brand-Assets
+// der Hersteller, unverändert in Original-Farben). Nicht ohne Freigabe neue
+// Marken ergänzen — erfundene/imaginäre Logos sind ein §5-UWG-Risiko.
+const PARTNER = [
+  { name: "BYD", src: bydLogo },
+  { name: "E3/DC", src: e3dcLogo },
+  { name: "SMA", src: smaLogo },
+  { name: "Sungrow", src: sungrowLogo },
+  { name: "sonnen", src: sonnenLogo },
+  { name: "Canadian Solar", src: canadianSolarLogo },
+  { name: "Trina Solar", src: trinaSolarLogo },
+  { name: "Wallbox", src: wallboxLogo },
+];
 
 export default function PartnerLogos() {
   return (
-    <section aria-labelledby="partner-heading">
+    <section aria-labelledby="partner-heading" style={{ background: theme.color.bg }}>
+      <style>{`
+        .partner-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-items: center; }
+        @media (min-width: 720px){ .partner-grid{ grid-template-columns: repeat(4, 1fr); } }
+      `}</style>
       <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "40px 20px" }}>
         <Reveal>
-          <h2 id="partner-heading" style={{ fontSize: 13, fontWeight: 600, color: theme.color.textMuted, textAlign: "center", textTransform: "uppercase", letterSpacing: 1, margin: "0 0 24px" }}>
-            Qualitätskomponenten unserer Partner
+          <h2 id="partner-heading" style={{ fontFamily: theme.font.display, fontSize: 20, fontWeight: 600, color: theme.color.textPrimary, textAlign: "center", margin: "0 0 6px" }}>
+            Marken, mit denen wir arbeiten
           </h2>
-          <div style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            gap: 14,
-          }}>
-            {PARTNER.map((p) => (
-              <div
-                key={p}
-                role="img"
-                aria-label={`Partner-Logo: ${p}`}
-                style={{
-                  padding: "14px 22px",
-                  borderRadius: 10,
-                  border: `1.5px dashed ${theme.color.border}`,
-                  color: theme.color.textMuted,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  background: theme.color.bg,
-                }}
-              >
-                {p}
-              </div>
+          <p style={{ fontSize: 13, color: theme.color.textSecondary, textAlign: "center", margin: "0 auto 28px", maxWidth: 520 }}>
+            Module, Wechselrichter, Speicher und Ladeinfrastruktur kommen von diesen Herstellern.
+          </p>
+        </Reveal>
+        <div style={{
+          background: theme.color.white,
+          border: `1.5px solid ${theme.color.border}`,
+          borderRadius: theme.radius.lg,
+          padding: "20px",
+        }}>
+          <div className="partner-grid">
+            {PARTNER.map((p, i) => (
+              <Reveal key={p.name} delay={i * 60}>
+                <div
+                  role="img"
+                  aria-label={`Logo: ${p.name}`}
+                  style={{
+                    height: 64,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "0 8px",
+                  }}
+                >
+                  <img
+                    src={p.src}
+                    alt={p.name}
+                    loading="lazy"
+                    style={{
+                      maxWidth: 150,
+                      maxHeight: 32,
+                      width: "auto",
+                      objectFit: "contain",
+                      display: "block",
+                    }}
+                  />
+                </div>
+              </Reveal>
             ))}
           </div>
-        </Reveal>
+        </div>
       </div>
     </section>
   );

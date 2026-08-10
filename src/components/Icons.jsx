@@ -131,3 +131,7 @@ export function IconHeatpump(props) {
 export function IconClock(props) {
   return <Svg {...props}><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3.2 2" /></Svg>;
 }
+
+export function IconChevronDown(props) {
+  return <Svg {...props}><path d="m6 9 6 6 6-6" /></Svg>;
+}

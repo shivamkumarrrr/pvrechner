@@ -5,7 +5,7 @@ import BarCompare from "./ui/BarCompare.jsx";
 import MonthlyChart from "./ui/MonthlyChart.jsx";
 import MonthlyBalanceChart from "./ui/MonthlyBalanceChart.jsx";
 import SunArc from "../SunArc.jsx";
-import { IconSearch, IconCheck, IconCalendar, IconMail, IconHouse, IconSatellite, IconChart, IconLoader, IconLock, IconClock } from "../Icons.jsx";
+import { IconSearch, IconCheck, IconCalendar, IconMail, IconHouse, IconSatellite, IconLoader, IconLock, IconClock } from "../Icons.jsx";
 import { STROMPREIS, EINSPEISE, M2_PRO_KWP, M2_PRO_KWP_FLACHDACH, PVGIS_SYSTEM_LOSS, DEGRADATION_PRO_JAHR, WARTUNG_PROZENT_PRO_JAHR, wechselrichterKosten, STROMPREIS_STEIGERUNG_PRO_JAHR, formatSpan } from "../../lib/calculate.js";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion.js";
 import { useCountUpOnView } from "../../lib/useCountUpOnView.js";
@@ -329,9 +329,12 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
         </div>
       </div>
 
-      {/* Transparency: how the numbers came to be */}
-      <details style={{ marginBottom: 20, border: `1.5px solid ${theme.color.border}`, borderRadius: 12, overflow: "hidden" }}>
-        <summary style={{ padding: "12px 16px", fontSize: 13, fontWeight: 600, color: theme.color.textPrimary, cursor: "pointer", background: theme.color.bg, display: "flex", alignItems: "center", gap: 7 }}>
+      {/* Transparency: how the numbers came to be — nur gezeigt, solange noch
+          KEINE PLZ eingegeben wurde (dann erklären die Texte den Schätzwert).
+          Nach Eingabe einer PLZ ist die Stelle redundant und wird ausgeblendet. */}
+      {plz?.length !== 5 && (
+        <details style={{ marginBottom: 20, border: `1.5px solid ${theme.color.border}`, borderRadius: 12, overflow: "hidden" }}>
+          <summary style={{ padding: "12px 16px", fontSize: 13, fontWeight: 600, color: theme.color.textPrimary, cursor: "pointer", background: theme.color.bg, display: "flex", alignItems: "center", gap: 7 }}>
           <IconSearch size={15} /> So haben wir das berechnet
         </summary>
         <div style={{ padding: "4px 16px 16px", fontSize: 12.5, color: theme.color.textSecondary, lineHeight: 1.7 }}>
@@ -348,14 +351,9 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
           <p style={{ margin: "8px 0" }}>
             Die 25-Jahres-Prognose berücksichtigt {(DEGRADATION_PRO_JAHR * 100).toFixed(1)}% Ertragsverlust pro Jahr durch Moduldegradation, laufende Betriebskosten von ca. {(WARTUNG_PROZENT_PRO_JAHR * 100).toFixed(0)}% der Investitionssumme pro Jahr sowie einen einmaligen Wechselrichter-Austausch (ca. {Math.round(wechselrichterKosten(result.kwp)).toLocaleString("de-DE")} € nach 12–15 Jahren). Der Jahres-Ersparnis-Wert oben rechnet mit dem heutigen Strompreis; nur die 25-Jahres-Zahl unterstellt zusätzlich vorsichtig eine Strompreissteigerung von {(STROMPREIS_STEIGERUNG_PRO_JAHR * 100).toFixed(0)}%/Jahr.
           </p>
-          <p style={{ margin: "8px 0 0" }}>
-            Diese Werte sind Richtwerte für eine erste Einschätzung, keine physikalische Lastgang-Simulation und keine Rechtsverbindlichkeit. Ein Fachbetrieb aus unserem Partnernetzwerk ermittelt bei einer Vor-Ort-Prüfung die exakten Zahlen für Ihr Dach.
-          </p>
-          <p style={{ margin: "8px 0 0" }}>
-            Standortdaten stammen vom EU-Programm PVGIS, Kartenmaterial von OpenStreetMap — beides öffentliche, gemeinnützig betriebene Dienste. Ihre Berechnung verlässt Ihren Browser erst, wenn Sie selbst ein Angebot anfragen.
-          </p>
         </div>
-      </details>
+        </details>
+      )}
 
       {/* Urgency + Monthly savings */}
       <div style={{
@@ -688,25 +686,28 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
         Neu berechnen
       </button>
 
-      <div style={{ textAlign: "center", fontSize: 11, color: theme.color.textMuted, marginTop: 16, lineHeight: 1.6, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
-        Diese Berechnung ist eine unverbindliche Modellrechnung auf Basis von PVGIS-Satellitendaten und branchentypischen Standard-Annahmen (siehe „So haben wir das berechnet" oben) — keine Ertragsgarantie und keine Rechtsverbindlichkeit. Die tatsächlichen Werte hängen von individuellen Gegebenheiten vor Ort ab, für die wir keine Haftung übernehmen können. Ein konkretes, verbindliches Angebot erhalten Sie von einem Fachbetrieb aus unserem Partnernetzwerk nach einer Vor-Ort-Prüfung.
-      </div>
-      <div style={{
-        textAlign: "center",
-        marginTop: 8,
-        padding: "6px 12px",
-        background: result.dataSource?.includes("PVGIS") ? theme.color.successSubtle : theme.color.bg,
-        borderRadius: 6,
-        fontSize: 11,
-        color: result.dataSource?.includes("PVGIS") ? theme.color.success : theme.color.textMuted,
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 4,
-        width: "100%",
-        justifyContent: "center",
-      }}>
-        {result.dataSource?.includes("PVGIS") ? <IconSatellite size={13} /> : <IconChart size={13} />} Datenquelle: {result.dataSource || "Schätzung"}
-      </div>
+      {/* Datenquelle-Badge: nur wenn echte PVGIS-Daten vorliegen. Beim Fallback
+          ("Schätzung (Durchschnitt DE)") wird die Angabe ausgeblendet — kein
+          negativer Hinweis, der das Ergebnis unnötig untergräbt. */}
+      {result.dataSource?.includes("PVGIS") && (
+        <div style={{
+          textAlign: "center",
+          marginTop: 12,
+          padding: "6px 12px",
+          background: theme.color.successSubtle,
+          borderRadius: 6,
+          fontSize: 11,
+          color: theme.color.success,
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 4,
+          width: "100%",
+          justifyContent: "center",
+        }}>
+          <IconSatellite size={13} /> Datenquelle: {result.dataSource}
+        </div>
+      )}
     </div>
   );
 }
+// 

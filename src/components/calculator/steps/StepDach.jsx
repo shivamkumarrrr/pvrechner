@@ -3,6 +3,7 @@ import Slider from "../ui/Slider.jsx";
 import OptionGroup from "../ui/OptionGroup.jsx";
 import DachformCard from "../ui/DachformCard.jsx";
 import Roof3DPreview from "../ui/Roof3DPreview.jsx";
+import AusrichtungIcon from "../ui/AusrichtungIcon.jsx";
 import SubFlow from "../ui/SubFlow.jsx";
 import ContinueButton from "../ui/ContinueButton.jsx";
 import { AUSRICHTUNG, NEIGUNG, DACHFORM } from "../../../lib/calculate.js";
@@ -43,7 +44,13 @@ export default function StepDach({ dachform, setDachform, dach, setDach, ausrich
           {index === 2 && (
             <div>
               <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 10 }}>Wohin zeigt die Hauptdachfläche?</div>
-              <OptionGroup options={AUSRICHTUNG} selected={ausrichtung} onSelect={(label) => autoAdvance(() => setAusrichtung(label))} minCol={62} />
+              <OptionGroup
+                options={AUSRICHTUNG}
+                selected={ausrichtung}
+                onSelect={(label) => autoAdvance(() => setAusrichtung(label))}
+                minCol={72}
+                renderIcon={(opt, active) => <AusrichtungIcon label={typeof opt === "string" ? opt : opt.label} active={active} />}
+              />
               {ausrichtung === "Nord" && (
                 <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 8, lineHeight: 1.5 }}>
                   Nordausrichtung liefert deutlich weniger Ertrag — eine Beratung vor Ort ist hier besonders empfehlenswert.
