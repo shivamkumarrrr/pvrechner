@@ -25,6 +25,13 @@ import heroFreiburgHouse from "../assets/hero/hero-freiburg-house.jpg";
 // behind them here and read as unverifiable marketing slop.
 const HERO_IMAGES = [heroPanelsSky, heroRoofFull, heroInstallationTeam, heroFreiburgHouse];
 
+// Preload the first hero photo immediately on page load so the initial view
+// never sits on an empty background while a ~700KB image downloads.
+if (typeof window !== "undefined") {
+  const first = new Image();
+  first.src = HERO_IMAGES[0];
+}
+
 function HeroBackground({ reducedMotion }) {
   const [active, setActive] = useState(0);
 
@@ -50,7 +57,7 @@ function HeroBackground({ reducedMotion }) {
           height: "100%",
           objectFit: "cover",
           opacity: 1,
-          animation: reducedMotion ? "none" : "hero-fade-in 1.2s ease",
+          animation: reducedMotion ? "none" : "hero-fade-in 0.4s ease",
         }}
       />
       {!reducedMotion && (

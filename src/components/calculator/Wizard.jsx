@@ -33,6 +33,9 @@ export default function Wizard() {
   const [animKey, setAnimKey] = useState(0);
   const [pvgisData, setPvgisData] = useState(null);
   const [pvgisLoading, setPvgisLoading] = useState(false);
+  // Incremented on every successfully loaded PVGIS result — LivePanel uses it
+  // as flashKey to pulse when a NEW location's data has finished calculating.
+  const [pvgisVersion, setPvgisVersion] = useState(0);
   // Precise coordinates from clicking/dragging the marker on the map,
   // overriding the coarse PLZ-prefix center used by default. Stored together
   // with the PLZ it was captured for, so a changed PLZ immediately invalidates
@@ -56,6 +59,7 @@ export default function Wizard() {
     const data = await fetchPVGIS(coords.lat, coords.lon, 1, angle, aspect);
     if (seq !== pvgisReqSeq.current) return;
     setPvgisData(data);
+    setPvgisVersion((v) => v + 1);
     setPvgisLoading(false);
   }, [coords, neigung, ausrichtung]);
 
@@ -307,11 +311,12 @@ export default function Wizard() {
               nicht mehr über die volle Seitenbreite. Auf Mobile (<960px)
               stapelt sie sich zwischen Wizard-Card und Live-Vorschau. */}
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
               {contextItems.map((c) => (
                 <div key={c.label} style={{
                   flexShrink: 0,
                   minWidth: 92,
+                  flex: "1 1 auto",
                   padding: "7px 10px",
                   background: theme.color.white,
                   border: `1px solid ${theme.color.border}`,
@@ -325,7 +330,7 @@ export default function Wizard() {
                 </div>
               ))}
             </div>
-            <LivePanel result={result} speicherKwh={speicherKwh} />
+            <LivePanel result={result} speicherKwh={speicherKwh} flashKey={pvgisVersion} />
           </div>
         </>
       )}

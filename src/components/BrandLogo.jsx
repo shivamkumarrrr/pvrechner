@@ -5,7 +5,7 @@ import { siteConfig } from "../config.js";
 // Logo-Asset und alt-Text kommen aus config.js, damit ein Kunde nur die
 // Konfiguration tauschen muss.
 export default function BrandLogo({ size = "md" }) {
-  const height = size === "sm" ? 26 : 36;
+  const height = size === "sm" ? 30 : 46;
   return (
     <img
       src={siteConfig.brand.logo}

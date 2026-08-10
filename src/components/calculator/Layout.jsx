@@ -16,7 +16,7 @@ export default function Layout({ main, sidebar }) {
           padding: 0 16px;
         }
         @media (min-width: 960px) {
-          .calc-layout { grid-template-columns: minmax(0, 1fr) 320px; }
+          .calc-layout { grid-template-columns: minmax(0, 1fr) 400px; }
           .calc-layout__sidebar { position: sticky; top: 84px; }
         }
       `}</style>
