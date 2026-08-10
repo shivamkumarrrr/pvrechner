@@ -1,2 +1,6 @@
 .vercel
 .env*
+node_modules
+dist
+.impeccable
+.DS_Store

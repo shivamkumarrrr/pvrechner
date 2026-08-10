@@ -3,11 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Photovoltaik-Rechner: Berechnen Sie Ertrag, Ersparnis und Amortisation Ihrer Solaranlage." />
-    <title>Photovoltaik-Rechner | Lohnt sich Solar für Sie?</title>
+    <meta name="description" content="Photovoltaik-Rechner für Ihr Dach: Berechnen Sie Anlagengröße, Jahresertrag, Ersparnis und Amortisation auf Basis realer PVGIS-Satellitendaten für Ihren Standort — bundesweit, in 60 Sekunden, kostenlos." />
+    <title>Photovoltaik-Rechner | Lohnt sich Solar für Ihr Dach?</title>
+    <link rel="canonical" href="https://solarrechner.example/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:title" content="Photovoltaik-Rechner | Lohnt sich Solar für Ihr Dach?" />
+    <meta property="og:description" content="Berechnen Sie in 60 Sekunden Ertrag, Ersparnis und Amortisation Ihrer Solaranlage — auf Basis echter EU-Satellitendaten für Ihren Standort." />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:url" content="https://solarrechner.example/" />
+
+    <meta name="theme-color" content="#141B22" />
+
+    <!-- Body text stays on the system font stack (no webfont load needed for
+         90% of the page) — only the display face (headlines, big numbers) is
+         a webfont. See PRODUCT_DESIGN.md. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font-family: 'Inter', 'Helvetica Neue', sans-serif; background: #f8f9fb; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F6F8F7; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+
+      /* Global reduced-motion kill-switch: shuts transitions/animations off
+         entirely rather than just shortening them, per CLAUDE.md. Component-
+         level JS (see Reveal.jsx) additionally skips the scroll-reveal state
+         entirely so content isn't gated behind an IntersectionObserver at all. */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
     </style>
   </head>
   <body>

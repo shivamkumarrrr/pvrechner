@@ -1,0 +1,149 @@
+# CLAUDE.md — solar-rechner Projekt-Gedächtnis
+
+Diese Datei wird von Claude Code am Anfang jeder Session gelesen. Ziel: Arbeit fortsetzen können ohne das Projekt erneut zu erklären.
+
+## Project Overview
+
+Produkt: PV-Rechner — Photovoltaik-Ertrags-/Ersparnis-Rechner mit echten PVGIS-Satellitendaten (EU Joint Research Centre), eingebettet in eine Solar-Leadgen-Landingpage. **Marke/Betreiber der Seite (Entscheidung, Stand August 2026): PPC GmbH DIREKT — kein Zwischenname, kein Fantasie-Unternehmen.** Das PPC-Logo ist die primäre Seitenidentität (Navbar), nicht nur ein Footer-Attributions-Badge. Die Seite positioniert sich als Solar-Produkt für Hausbesitzer **bundesweit** — nicht als Saarland-regionales Angebot. Landingpage-Vorbild (Struktur/Sektionen, nicht Markenfarbe): solarseiten.photovoltaik.marketing (Kunde: Envion). Sprache: Deutsch durchgehend. Stack: React + Vite.
+
+### Was das Produkt macht
+
+Besucher landet auf der Seite → sieht direkt unter dem Hero den 4-Schritte-Wizard (Standort/Dach/Verbrauch/Speicher) → bekommt SOFORT ein echtes Ergebnis (kWp, Jahresertrag, Ersparnis, Autarkiegrad, Amortisation, CO2) → Lead-Formular/Calendly-CTA. Unterschied zum Vorbild Envion: Envion zeigt nie eine echte Zahl (nur Klick-Quiz → Kontaktformular) — unser Rechner schon, das ist das Alleinstellungsmerkmal.
+
+### Aktueller Stand
+
+Modulare Struktur ist umgesetzt (siehe Architektur-Regeln). Design ist auf die `PRODUCT_DESIGN.md`-Ziel-Tokens migriert (echtes PPC-Orange `#FF5200` exakt aus dem offiziellen Logo-File, 12px-Radius-Cap, keine Card-Shadows, kein Logo-Chip — echtes transparentes Logo liegt direkt auf heller Fläche, kein Glassmorphism/backdrop-blur, Space Grotesk als Display-Font). Testimonials- und PartnerLogos-Sektionen sind bewusst NICHT gerendert (siehe Verbot-Abschnitte unten) — Testimonials bleibt komplett draußen, ohne Platzhalter-Box, bis echte freigegebene Kundenzitate vorliegen.
+
+## Architektur-Regeln
+
+- Modulare Struktur, NICHT alles in einer App.jsx sammeln. Komponenten in `src/components/`, Berechnungslogik in `src/lib/`, Design-Tokens zentral in `src/theme.js` (siehe PRODUCT_DESIGN.md).
+- **Tenant-Konfiguration:** Alle Kunden-Abhängigkeiten (Marke/Logo, Meta, Kontakt/Calendly, Lead-Endpunkt, Farb-Overrides, optionale Wirtschaftlichkeits-Konstanten, Sektionen-Schalter) zentral in `src/config.js` (`siteConfig`). White-Label = eine Config-Datei ändern, keine Komponenten-Edits. `theme.js` merged `siteConfig.theme` über die Basis-Palette. **`calculate.js` importiert bewusst NICHT `config.js`** — kundenspezifische Wirtschaftlichkeits-Konstanten werden per `configureEconomics(siteConfig.economics)` injiziert (Aufruf am Ende von `config.js`), damit die Rechner-Logik seiten-/asset-frei und node- bzw. bundler-unabhängig einbettbar bleibt. Lead-Submit (Web3Forms/Formspree/**webhook ins Kundensystem**/demo) und Calendly werden in `ResultScreen.jsx` aus `siteConfig.lead`/`.contact` gelesen.
+- Rechner-Logik (`calculate()`, PVGIS-Integration, PLZ-Lookup) ist eigenständig und darf nicht an einen bestimmten Seiten-Kontext gekoppelt sein — muss auch losgelöst von der Landingpage einbettbar bleiben.
+
+## Design System
+
+Volle Spec in `PRODUCT_DESIGN.md` (als implementiert dokumentiert). Kurzreferenz:
+
+```
+Background:    #F6F8F7  (kühles Off-White, NICHT cremig)
+Cards:         #FFFFFF
+Text/primary:  #141B22
+Text/secondary:#5A6570
+Accent:        #FF5200  (echtes PPC-Orange, exakte Farbe aus dem offiziellen Logo-File)
+Accent hover:  #D64700
+Accent subtle: #FFE9DD
+Brand-Navy:    #382E4A  (echte "pp"-Wortmarken-Farbe — optional für dunkle
+                Headline-Akzente; KEIN Logo-Hintergrund-Chip mehr)
+Sky (2nd):     #2E6F95  (nur für Daten-Elemente, z.B. Ertragskurve)
+Border:        #E1E5E4  (bewusst NICHT #e2e8f0 Tailwind-Slate)
+Display-Font:  'Space Grotesk' (Headlines/Zahlen)
+Body-Font:     system-ui-Stack (wie bisher)
+```
+
+PPC-Logo: echtes transparentes PNG-Asset (`src/assets/ppc-logo.png`, offiziell, navy Schriftzug + oranges "C", transparenter Hintergrund). Liest direkt auf der hellen Seiten-Fläche — KEIN dunkler Hintergrund-Chip nötig, kein Logo-Verlauf. Platzierung direkt auf heller Fläche: Navbar (`Header.jsx`) und Footer.
+
+**Wichtig (korrigiert, Stand August 2026): PPC ist die primäre Seitenidentität, kein reines Attributions-Element.** PPC GmbH betreibt die Seite direkt — das echte PPC-Logo (transparentes PNG) steht in der Navbar (`Header.jsx` via `BrandLogo.jsx`, vor August 2026 `PpcLogo.jsx`) und im Footer, direkt auf hellem Hintergrund. KEIN Fantasie-Markenname ("SonnenPartner" o.ä.) mehr verwenden — das war eine erfundene Zwischen-Identität und ist ab sofort falsch (siehe Verbot-Abschnitt unten). Der frühere dunkle Logo-Chip-Verlauf (`#3D324C→#7D4E57`) existiert nicht mehr (Asset hat Transparenz) — taucht nirgends als Hintergrund auf. Die Seite soll optisch primär nach Solar/PV aussehen (helle Basis-Palette aus `PRODUCT_DESIGN.md`), mit dem echten PPC-Logo als klar sichtbarem, aber nicht flächendeckendem Absender.
+
+### Absolute Design-Regeln (nicht verhandelbar, bei jedem UI-Task prüfen)
+
+1. Keine Emoji als Icons. Handgezeichnete Inline-SVGs, Stil der vorhandenen Dachform-Icons fortführen.
+2. Kein wiederholter Gradient für alles. EIN Akzent für EINEN klaren Zweck (primärer CTA / die eine Ergebnis-Zahl), nicht überall derselbe Verlauf.
+3. Keine Tailwind-Default-Palette. Werte aus PRODUCT_DESIGN.md nutzen (echtes PPC-Orange `#FF5200`, nicht `#f59e0b`/`#e2e8f0`).
+4. Kein Glassmorphism/backdrop-blur irgendwo. Kein dunkler Logo-Chip/Logo-Verlauf mehr (Asset hat Transparenz). `brandNavy` (`#382E4A`) darf für dunkle Text-/Headline-Akzente auf hellem Grund verwendet werden — nicht flächendeckend, nicht als Button-Füllung.
+5. Keine cremig+terracotta+Serif-Kombination — das ist andernorts bereits als klar erkennbarer "AI-Tell" dokumentiert. Ebenso keine dunkler-Hintergrund+Neon-Akzent-Kombination (zweiter verbreiteter Tell). Beides hier vermeiden.
+6. Keine wiederholten Icon-Text-Pillen als Trust-Badge-Muster über die ganze Seite verteilt — max. eine konsolidierte Vertrauens-Sektion.
+7. Card-Monotonie vermeiden. Nicht jede Sektion als weiße abgerundete Box mit Schatten — Rhythmus zwischen Sektionen variieren. Cards nutzen 1px-Border statt Schatten; Schatten nur für echte Overlay-Elemente (offenes Modal, Karten-Popup).
+8. Kein Radius über 12px, außer echte Pill-Formen (Buttons, Badges) und Kreise (Autarkie-Ring).
+9. Keine nummerierten Kreise (01/02/03) als reine Deko — nur wenn eine echte feste Reihenfolge existiert (der 4-Schritte-Wizard qualifiziert, eine "Warum wir"-Liste mit 3 Punkten NICHT).
+10. Keine Branchen-Floskeln ("Unverbindlich · Kostenlos · Regionaler Fachbetrieb"). Eigene, konkrete Formulierungen statt austauschbarer Marketing-Sprache.
+11. Ein Signature-Element statt vieler Mini-Dekorationen.
+
+Bei jedem Vorschlag kurz selbst gegenprüfen: "Sieht das aus wie jede zweite AI-generierte SaaS-Landingpage gerade?" Wenn ja, nochmal überarbeiten, bevor der Code geschrieben wird.
+
+### Motion System (Kurzreferenz, volle Details in PRODUCT_DESIGN.md)
+
+- Scroll-Reveals: IntersectionObserver, opacity 0→1 + translateY 24px→0, ~500ms ease, einmalig.
+- Wizard-Schritte: translateX-Slide (vor/zurück), kein reines Fade.
+- Hover: translateY(-1px) + Farbwechsel, nie kombiniert mit Schatten-Änderung.
+- `prefers-reduced-motion` immer respektieren — Übergänge ganz abschalten, nicht nur verkürzen.
+
+## Daten-/Berechnungs-Regeln
+
+- Alle Konstanten mit realem Geldbezug (Strompreis, Einspeisevergütung, Systemkosten, CO2-Faktor) MÜSSEN einen Kommentar mit Quelle + Stand + Prüf-Rhythmus haben. Nie einen Wert ohne Quelle einfach ändern.
+- Aktueller Stand (August 2026, bei Bedarf neu recherchieren statt aus dem Kontext übernehmen — diese Werte verändern sich):
+  - Strompreis Haushalt: ~0,37 €/kWh (BDEW-Durchschnitt)
+  - Einspeisevergütung Teileinspeisung ≤10kWp: ~0,077 €/kWh (EEG-Degression halbjährlich -1%)
+  - Systemkosten: ~1.000–1.300 €/kWp schlüsselfertig (Fraunhofer ISE)
+  - Speicherkosten: ~300–470 €/kWh Kapazität (nie als Pauschalbetrag)
+  - CO2-Faktor Strommix: 0,344 kg/kWh (UBA, Jahreswert 2025)
+  - m²/kWp: 4,7 (ADAC: ~2m² Planungsfläche pro 420-Wp-Modul inkl. Abstand/Rahmen — realistischer als reine Panelmaße)
+  - Wechselrichter-Austauschkosten: 1.000–3.000 € (ADAC), größenabhängig aber auf diese Spanne gedeckelt (`wechselrichterKosten()`), NICHT als fester %-Satz der Investition (würde bei großen Anlagen darüber hinausschießen)
+  - CO2-Baum-Äquivalent: 12,5 kg CO2/Baum/Jahr (ADAC) — für die "≈X Bäume/Jahr"-Anzeige im Ergebnis-Screen
+  - Fallback-Ertrag ohne PVGIS: 950 kWh/kWp (Fraunhofer ISE "Aktuelle Fakten zur Photovoltaik": ~922 kWh/kWp Schnitt der ÜNB-Mittelfristprognose; Praxis-Spanne 850–1.150 kWh/kWp)
+  - Modul-Degradation: 0,5 %/Jahr (NREL-Feldstudie Median; Hersteller-Leistungsgarantien ~0,4 %/Jahr linear)
+  - Betriebskosten: 1 %/Jahr der Investition (Praxis-Spanne 1–2 %, echtsolar.de/photovoltaik.info)
+  - Monatsverbrauch: angelehnt an BDEW-Standardlastprofil H0 (Winter ~44 %, Sommer ~29 % des Jahresverbrauchs)
+- **Autarkiegrad vs. Eigenverbrauchsquote — nicht verwechseln:** Autarkiegrad = Eigenverbrauch/Gesamtverbrauch (steigt mit Anlagengröße relativ zum Verbrauch). Eigenverbrauchsquote = Eigenverbrauch/Jahresertrag (SINKT mit Anlagengröße relativ zum Verbrauch — Gegenrichtung!). Die Kennlinie in `calculate.js` (`autarkieSchaetzung()`) modelliert Autarkiegrad direkt, gebunden auf ADACs offiziell kommunizierte Spannen (30–55% ohne Speicher, bis 85% mit Speicher). Eigenverbrauchsquote ist nur noch ein abgeleiteter Anzeigewert (`eigenverbrauch/jahresertrag`), nicht eigenständig modelliert. Frühere Version hatte hier eine Verwechslung — beim Ändern der Kennlinie darauf achten, welche der beiden Kennzahlen tatsächlich gemeint ist.
+- Amortisation und andere Kennzahlen gegen echte Branchen-Richtwerte validieren (z.B. Amortisation 8–13 Jahre, ADAC-Beispielrechnung 15kWp+Speicher+E-Auto: 13 Jahre bei 36.500€), nicht einfach so lange an Formeln drehen, bis das Ergebnis "gut aussieht". Wenn ein Wert unrealistisch wirkt: erst die zugrunde liegende Annahme/Konstante prüfen, dann ggf. recherchieren — nicht die Formel verbiegen.
+- Speicher darf niemals die Amortisation VERKÜRZEN gegenüber der gleichen Anlage ohne Speicher (das wäre wirtschaftlich unplausibel) — bei jeder Änderung an `SPEICHER_BONUS` oder `AUTARKIE_OHNE_SPEICHER` gegenprüfen.
+- **Produktphilosophie-Unterschied zu ADAC:** ADAC zeigt in ihrem eigenen Rechner bewusst KEINE konkrete Investitionssumme/Amortisation ("zu ungenau"), nur Ertrag/Autarkie. Unser Rechner zeigt beides — das ist unser Alleinstellungsmerkmal ggü. Envion, bedeutet aber mehr Verantwortung für die Genauigkeit dieser Zahlen. Deshalb: eigener Disclaimer am Ende des Ergebnis-Screens (unverbindliche Modellrechnung, keine Rechtsverbindlichkeit) nicht entfernen.
+
+## Verbot: erfundene Testimonials/Bewertungen/Kundennamen
+
+**Status: erledigt (siehe unten) — aber die Regel bleibt aktiv, damit es nicht wieder passiert.**
+
+Fabrizierte Kundenstimmen (erfundene Namen, Orte, Zitate) sind in Deutschland ein Wettbewerbsrechts-Verstoß (§ 5 UWG) und keine Kleinigkeit — Abmahnrisiko für PPC. Diese Regel gilt für JEDE Sektion, nicht nur "Testimonials": Kundennamen, Ortsangaben, Bewertungssterne, Kundenzahlen/Statistiken, Partner-Logos.
+
+- Niemals realistisch klingende erfundene Zitate/Namen/Orte erzeugen — auch nicht als "Platzhalter", wenn der Platzhalter selbst plausibel wirkt.
+- Platzhalter müssen UNMISSVERSTÄNDLICH als Platzhalter erkennbar sein, z.B. `[Kundenname folgt]`, ein leerer State mit "Kundenstimme folgt in Kürze", oder die Sektion komplett ausblenden bis echte Inhalte vorliegen. Kein "Markus B. · Saarbrücken" mit einem plausiblen Zitat — das sieht aus wie eine echte, aber gefälschte Bewertung, nicht wie ein Platzhalter.
+- Gleiches gilt für Statistik-Zahlen ("316 Kampagnen", "123.779 Conversions" o.ä.) und Partner-/Modul-Logos: nur echte, belegbare Werte/Logos verwenden, oder die Sektion auslassen.
+
+**Umgesetzt:** `Testimonials.jsx` (hatte erfundene Namen/Orte/Zitate) und `PartnerLogos.jsx` (unbelegte Marken-Platzhalter) sind aus `LandingPage.jsx` entfernt — sie werden nicht gerendert (kein Import in `LandingPage.jsx`).
+
+**Entscheidung (Stand August 2026):** Testimonials-Sektion bleibt KOMPLETT draußen — kein Platzhalter, keine "Bewertungen folgen"-Box — bis echte, freigegebene Kundenzitate vorliegen. Hinweis: `Testimonials.jsx` enthält noch den älteren "Kundenstimmen folgen in Kürze"-Platzhalter-State und darf NICHT (auch nicht mit dieser Box) gerendert werden. Einsatzgebiet für spätere echte Kundenstimmen: **bundesweit**, nicht auf Saarland begrenzt — keine regionale Fake-Verteilung (Saarbrücken/Völklingen/etc.) verwenden.
+
+## Verbot: erfundene Firmen-/Markenidentität
+
+Genau wie bei Testimonials gilt: KEINEN Fantasie-Firmennamen, keine erfundene Vermittler-Marke mit erfundenen Fähigkeiten/Behauptungen ("XY vermittelt bundesweit an geprüfte Fachbetriebe") erzeugen. Die Marke dieser Seite ist entschieden: **PPC GmbH direkt** — kein Zwischenname. Falls in einer anderen Konstellation die Marke doch unklar sein sollte: nachfragen oder einen eindeutig als Platzhalter erkennbaren Namen verwenden (z.B. `[FIRMENNAME]`), niemals einen plausibel klingenden erfundenen Namen, der wie eine echte Firma wirkt.
+
+## Regionale Positionierung: bundesweit, nicht Saarland-lokal
+
+Die Seite/das beworbene Solar-Angebot ist bundesweit positioniert, nicht auf Saarland begrenzt (auch wenn PPC selbst in Saarbrücken sitzt — das ist Agentur-Standort, nicht Zielmarkt). Feste Formulierungen wie "regionaler Fachbetrieb", "im Saarland" o.ä. wurden durch bundesweit-neutrale Varianten ersetzt (z.B. "Fachbetrieb aus unserem Partnernetzwerk", "bundesweit"). Bei neuer Copy: gleiche Prüfung anwenden — klingt es nach "wir sind eine lokale Agentur" oder "wir helfen bundesweit bei der Solar-Entscheidung"? Zweiteres ist der richtige Ton.
+
+## Was NICHT anfassen ohne expliziten Auftrag
+
+- PVGIS-API-Integration (Berechnungs-Parameter: lat/lon/peakpower/loss/angle/aspect). Der Transport-Layer wurde am 10.8.2026 bewusst geändert (siehe "Bereits erledigt" unten, PVGIS-Proxy) — das war ein expliziter Bug-Fix-Auftrag, keine Ausnahme von dieser Regel für zukünftige Änderungen.
+- Lead-Formular-Submit-Logik
+- Sprache (bleibt Deutsch)
+
+## Bereits erledigt — nicht zurückbauen
+
+- Design ist auf `PRODUCT_DESIGN.md`-Tokens migriert (echtes PPC-Orange `#FF5200` exakt aus dem offiziellen Logo-File, 12px-Radius-Cap, 1px-Border statt Schatten, kein Glassmorphism/backdrop-blur, Space Grotesk als Display-Font).
+- PPC ist als direkte Marke/Seitenidentität umgesetzt (August 2026): "SonnenPartner" vollständig aus Header/WarumWir/Footer entfernt, echtes transparentes PPC-Logo (`src/assets/ppc-logo.png`) in Navbar und Footer direkt auf heller Fläche (kein dunkler Chip), überflüssiges Footer-Attributions-Badge entfernt, Hero auf helle Palette umgestellt (kein dunkler-Navy+Orange-First-Screen).
+- Hero zeigt echte Pexels-Fotos als Rotations-Hintergrund (4 Bilder, alle auf 3:2 vorbeschnitten, alle 7s) statt der Haus+Sonne-Illustration: Installations-Team / Panel-Untersicht (Budapest) / Ziegeldächer / Solarhaus in Freiburg. Bilder sind bewusst **europäisch/deutsch ausgerichtet** (Budapest, Freiburg) — keine mediterranen/wüstenartigen Motive. `prefers-reduced-motion` schaltet die Rotation ab. Die frühere Familie-am-Ski-Resort-Bild wurde entfernt (passte nicht zur Solar-Thematik). **Komposition (Option A):** Text-Zone (Headline/Subline) linksbündig in einer Spalte, dahinter durchgehender Links-nach-rechts-Scrim (`linear-gradient(90deg, rgba(20,27,34,…))`) statt schwebender Einzelboxen — jeder Text bleibt auf jedem Foto lesbar, die rechte Bildhälfte bleibt hell. Die ruhige Panel-Untersicht ist das erste Bild.
+- **Hero-Ghost-Bug gefixt (Aug 2026):** Die frühere Crossfade-Variante stackte alle 4 Fotos als `<img>` mit `opacity: 0/1` + CSS-Transition übereinander — ein eingefrorener Übergang konnte zwei halbtransparente Kopien dauerhaft überlagern (sichtbarer Doppel-Effekt am Panel-Raster). Fix: pro Zeitpunkt existiert GENAU EIN `<img>` im DOM (`key`-Swap, kurzes Fade-in über den Scrim), Doppelbelichtung ist damit strukturell unmöglich. **Hero-Höhe begrenzt:** `.hero-photo` nutzt `min-height: min(560px, 88vh)` Desktop / `min(440px, 60vh)` Mobile statt `aspect-ratio 3/2` (das machte die Sektion bei 1180px-Breite unnötig hoch); `object-fit: cover` füllt den Bereich sauber, Text-Block zentriert via `display:flex`.
+- Scroll-Reveal-Fix: `useInView` blendet Elemente ein, die höher als der Viewport sind (threshold 0 statt fixer 0.2) — Sektionen bleiben nie dauerhaft auf opacity 0.
+- `GoogleMapEmbed` wurde zu `LocationMap` umbenannt und auf OpenStreetMap-Kacheln umgestellt.
+- Rechen-Konstanten sind auf recherchierte, quellenbelegte Werte migriert (siehe Daten-Regeln oben) — nicht ohne neue Recherche wieder ändern.
+- `prefers-reduced-motion` wird respektiert (`usePrefersReducedMotion`-Hook + globaler CSS-Kill-Switch in `index.html`).
+- Testimonials/PartnerLogos sind aus dem Render entfernt; Testimonials bleibt komplett draußen ohne Platzhalter-Box (siehe Verbot-Abschnitt oben).
+- Copy ist bundesweit-neutral (kein Saarland-/"regional"-Bezug mehr, siehe Abschnitt oben).
+- SMA/ADAC-inspirierte Rechner-Verbesserungen umgesetzt (Aug 2026): prominente €-Ergebnisse werden als **Spanne** angezeigt (`formatSpan` in `calculate.js`, ±12% für den Jahres-Ersparnis-Wert, bewusst breiter ±22% für die 25-Jahres-Zahl wegen der kumulierten Unsicherheit) statt als falsch-präziser Einzelwert; **Autarkiegrad und Eigenverbrauchsanteil sind im Ergebnis-Screen getrennt ausgewiesen** mit je einer kurzen Erklärung (des gesamten Verbrauchs vs. des selbst erzeugten Stroms); Tageszeit-Verbrauchsmuster (`tageszeit`), 3-Zustände für E-Auto/Wärmepumpe ("nein"/"ja"/"geplant", "geplant" zählt nicht in die Berechnung), E-Auto-Nutzungsprofil, Live-Panel neben dem Wizard, Kontext-Leiste, gestapeltes Monats-Balance-Chart und Personen-Avatare sind umgesetzt. Der Verbrauch-Schritt zeigt seit dem SMA-Review eigene Szenen-Illustrationen (`CarChargeScene`, `HeatpumpScene` in `StepVerbrauch.jsx`, Stil der Dachform-Karten) statt kleiner Glyphen.
+- Weitere Korrekturen (Aug 2026): `AUSRICHTUNG` hat jetzt auch **Nord** (Faktor 0,29, Quelle photovoltaik.org; `PVGIS_ASPECT["Nord"]=180`, damit PVGIS-Daten die Nordfläche echt berechnen statt den Süd-Fallback zu nutzen) inkl. Hinweistext im Dach-Schritt; `HAUSHALT` nutzt ADACs präzise Pro-Personen-Werte (1–5+ Personen, 5 Karten statt 3 Bänder); `EINSPEISEVERGUETUNG_TEIL` leitet sich von `EINSPEISE` ab (eine Quelle der Wahrheit, `configureEconomics` hält beide synchron); `computeGesamtVerbrauch` ist gegen negative Eingaben abgesichert.
+- PPC-Logo (`src/assets/ppc-logo.png`) hat wieder internes transparentes Padding (Wordmark ~85% der Höhe, davor BBox-Trim mit 0px Rand → Buchstaben wirkten am oberen Rand abgeschnitten). Header-Logo: feste Höhe 36px (sm: 26px), `width:auto`, vertikales Padding + `align-items:center` — vollständig sichtbar.
+- **Monats-Balance-Chart auf Diverging-BarChart umgebaut (Aug 2026):** Das gestapelte Chart (`MonthlyBalanceChart.jsx`) stapelte vorher Eigenverbrauch + Einspeisung + Netzbezug in EINEM Balken — die Gesamthöhe (Verbrauch + Einspeisung) entspricht keiner realen Größe und wirkte optisch unstimmig. Fix: Nulllinie in der Mitte, oben Eigenverbrauch (orange, an der Linie) + Einspeisung (blau) = Monatsertrag, unten Netzbezug (grau). Jede Hälfte summiert zu einer echten Größe; Eigenverbrauch verbindet beide Konzepte. Datenquelle `monatlicheBalance()` in `calculate.js` blieb unverändert (liefert alle drei Werte pro Monat). Untertitel: "Oben: Erzeugung Ihrer Anlage · Unten: zugekaufter Netzstrom".
+- **PVGIS-Stale-Response-Race gefixt (Aug 2026):** `loadPVGIS` in `Wizard.jsx` hatte keinen Stale-Guard — bei schnell aufeinanderfolgenden PLZ-/Adress-/Marker-Änderungen konnte eine langsamer antwortende ältere Anfrage das Ergebnis der neueren überschreiben (Live-Vorschau blieb auf dem ersten Eingabe-Ergebnis stehen). Fix: Sequenznummer (`pvgisReqSeq` via `useRef`) — nur die neueste Antwort schreibt `pvgisData`. Zusätzlich wird `manualCoords` jetzt zusammen mit der zugehörigen PLZ gespeichert (`{lat, lon, plz}`) und bei PLZ-Wechsel sofort im Render unwirksam (`coords = manualCoords?.plz === plz ? manualCoords : plzCoords`), statt über einen nachgelagerten Reset-Effekt — das beseitigt einen zweiten Race-Pfad (Fetch startete mit alter Marker-Position).
+- **PVGIS-CORS-Bug tatsächlich gefixt, nicht nur Race-Condition (10.8.2026):** Der obige Race-Fix war korrekt, hat aber nicht den Hauptbug behoben — Live-Vorschau blieb bei jeder PLZ identisch. Per echtem Browser-Test (Playwright, nicht nur Code-Lesen) diagnostiziert: `re.jrc.ec.europa.eu` sendet keinen `Access-Control-Allow-Origin`-Header, ein direkter Browser-`fetch()` wurde also IMMER per CORS blockiert (Konsole: "has been blocked by CORS policy"). `fetchPVGIS()`s try/catch schluckte das lautlos zu `null`, `calculate()` griff deshalb IMMER auf den standortunabhängigen Schätzwert zurück — die React-State-Kette (PLZ→coords→loadPVGIS→calculate) war die ganze Zeit korrekt, das Problem lag im Netzwerk-Layer, nicht in React. Fix: `api/pvgis.js` (Vercel-Serverless-Function, proxied same-origin, kein CORS) + passender Vite-Dev-Proxy in `vite.config.js` für `npm run dev`. `fetchPVGIS()` in `pvgis.js` ruft jetzt `/api/pvgis` statt der externen URL direkt auf. Berechnungs-Parameter (lat/lon/peakpower/loss/angle/aspect) unverändert, nur der Transport-Layer geändert.
+- **Kontext-Leiste (Breadcrumb) aus der Wizard-Card gelöst (10.8.2026):** Lag vorher innerhalb der `main`-Spalte von `Layout.jsx`, dadurch auf Desktop (≥960px, 2-Spalten-Grid mit sticky `LivePanel` ab `top:84`) optisch UNTER dem Live-Vorschau-Panel, weil die Card-Kopfzeile+Fortschrittsbalken sie erst darunter erscheinen ließen. Fix: Kontext-Leiste wird jetzt als eigenes volles Element VOR `<Layout>` gerendert (`Wizard.jsx`), nicht mehr in `main` verschachtelt — dadurch bei jeder Breite eindeutig die oberste Zeile.
+- **Manuelles-kWh-Feld-Bug gefixt (10.8.2026):** `StepVerbrauch.jsx` committete den getippten Wert in `onBlur` zwar korrekt an `verbrauch`, setzte das eigene Anzeige-`customKwh` danach aber auf `""` zurück — der gerade eingegebene Wert verschwand deshalb sofort wieder zum grauen Placeholder-Text, obwohl `verbrauch` selbst tatsächlich aktualisiert wurde. Fix analog zu `Slider.jsx`s Muster: `customKwh` synchronisiert per `useEffect` mit `verbrauch`, außer während das Feld fokussiert ist; nach Commit wird der bestätigte Wert angezeigt statt geleert; bei ungültiger Eingabe zurück auf den aktuellen `verbrauch`-Wert statt auf leer.
+- **PVGIS-CORS-Fix verifiziert, aber bisher NICHT deployed (10.8.2026):** `git log` zeigt nur den `initial commit` — der komplette Refactor/Design-Migration/ADAC-Realismus-Fix/PVGIS-Proxy-Fix (alles bisher in diesem Projekt-Gedächtnis dokumentierte) liegt ausschließlich uncommitted im lokalen Arbeitsverzeichnis. Falls ein gemeldeter Bug auf einer deployten/Vorschau-URL (nicht `npm run dev` lokal) reproduziert wird, prüfen, ob der Fix überhaupt schon committed+deployed ist, bevor erneut debuggt wird — sonst wird ein bereits gelöstes Problem wiederholt "neu" diagnostiziert.
+
+## Session Checklist
+
+Vor jedem Code-Task kurz bestätigen:
+
+- [ ] PRODUCT_DESIGN.md für die Ziel-Tokens gelesen (bei UI-Arbeit)
+- [ ] Design-Regeln oben gegengecheckt (kein Emoji, keine Tailwind-Defaults, keine bekannten AI-Tell-Kombinationen)
+- [ ] Neue/geänderte Geldbeträge oder Prozentwerte haben Quelle+Stand-Kommentar
+- [ ] Deutsch durchgehend, mobile-first
+- [ ] `npm run dev` / `npm run build` laufen fehlerfrei nach der Änderung
