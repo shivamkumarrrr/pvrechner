@@ -31,6 +31,11 @@ export default function Wizard() {
   const [showResult, setShowResult] = useState(false);
   const [animDir, setAnimDir] = useState("right");
   const [animKey, setAnimKey] = useState(0);
+  // Schritte mit Sub-Screens (Dach, Verbrauch): der übergeordnete "Weiter →"
+  // ist erst freigeschaltet, wenn der Sub-Flow den letzten Screen erreicht
+  // hat (one decision per screen) — die Steps melden das über onReadyChange.
+  const [stepReady, setStepReady] = useState(false);
+  const SUB_FLOW_STEPS = [1, 2];
   const [pvgisData, setPvgisData] = useState(null);
   const [pvgisLoading, setPvgisLoading] = useState(false);
   // Incremented on every successfully loaded PVGIS result — LivePanel uses it
@@ -71,6 +76,7 @@ export default function Wizard() {
     setAnimDir(newStep > step ? "right" : "left");
     setAnimKey((k) => k + 1);
     setStep(newStep);
+    setStepReady(!SUB_FLOW_STEPS.includes(newStep));
   };
 
   const goResult = () => {
@@ -123,6 +129,7 @@ export default function Wizard() {
           dach={dach} setDach={setDach}
           ausrichtung={ausrichtung} setAusrichtung={setAusrichtung}
           neigung={neigung} setNeigung={setNeigung}
+          onReadyChange={setStepReady}
         />
       ),
     },
@@ -137,6 +144,7 @@ export default function Wizard() {
           eautoProfil={eautoProfil} setEautoProfil={setEautoProfil}
           waermepumpe={waermepumpe} setWaermepumpe={setWaermepumpe}
           tageszeit={tageszeit} setTageszeit={setTageszeit}
+          onReadyChange={setStepReady}
         />
       ),
     },
@@ -279,28 +287,35 @@ export default function Wizard() {
                 ← Zurück
               </button>
             )}
-            <button
-              onClick={() => {
-                if (step < steps.length - 1) goStep(step + 1);
-                else goResult();
-              }}
-              style={{
-                flex: step === 0 ? 1 : 2,
-                padding: "14px",
-                borderRadius: 12,
-                border: "none",
-                background: step === steps.length - 1 ? theme.color.accent : theme.color.textPrimary,
-                color: theme.color.white,
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "background-color 0.15s, transform 0.1s",
-              }}
-              onMouseDown={(e) => e.target.style.transform = "scale(0.98)"}
-              onMouseUp={(e) => e.target.style.transform = "scale(1)"}
-            >
-              {step === steps.length - 1 ? "Ergebnis berechnen" : "Weiter →"}
-            </button>
+            {(() => {
+              const subFlowPending = SUB_FLOW_STEPS.includes(step) && !stepReady;
+              return (
+                <button
+                  onClick={() => {
+                    if (step < steps.length - 1) goStep(step + 1);
+                    else goResult();
+                  }}
+                  disabled={subFlowPending}
+                  style={{
+                    flex: step === 0 ? 1 : 2,
+                    padding: "14px",
+                    borderRadius: 12,
+                    border: "none",
+                    background: step === steps.length - 1 ? theme.color.accent : theme.color.textPrimary,
+                    color: theme.color.white,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: subFlowPending ? "not-allowed" : "pointer",
+                    opacity: subFlowPending ? 0.45 : 1,
+                    transition: "background-color 0.15s, transform 0.1s, opacity 0.15s",
+                  }}
+                  onMouseDown={(e) => { if (!subFlowPending) e.target.style.transform = "scale(0.98)"; }}
+                  onMouseUp={(e) => e.target.style.transform = "scale(1)"}
+                >
+                  {step === steps.length - 1 ? "Ergebnis berechnen" : "Weiter →"}
+                </button>
+              );
+            })()}
           </div>
         </div>
       )}
@@ -337,3 +352,4 @@ export default function Wizard() {
     />
   );
 }
+

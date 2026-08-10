@@ -1,7 +1,9 @@
 import theme from "../../../theme.js";
+import TiltButton from "./TiltButton.jsx";
 
 // Auto-Fit-Grid statt fester Spaltenzahl: breite Container zeigen die gewünschte Zahl an
 // Spalten, schmale (Mobil) lassen die Optionen umbrechen statt sie auf Mini-Größe zu quetschen.
+// Die Optionen sind Auswahl-Karten mit dezentem Tilt-on-Hover (TiltButton).
 export default function OptionGroup({ options, selected, onSelect, minCol = 96 }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fit, minmax(${minCol}px, 1fr))`, gap: 8 }}>
@@ -9,7 +11,7 @@ export default function OptionGroup({ options, selected, onSelect, minCol = 96 }
         const label = typeof opt === "string" ? opt : opt.label;
         const active = selected === label;
         return (
-          <button
+          <TiltButton
             key={label}
             onClick={() => onSelect(label)}
             style={{
@@ -25,7 +27,7 @@ export default function OptionGroup({ options, selected, onSelect, minCol = 96 }
             }}
           >
             {label}
-          </button>
+          </TiltButton>
         );
       })}
     </div>

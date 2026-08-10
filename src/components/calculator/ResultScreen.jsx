@@ -7,6 +7,8 @@ import MonthlyBalanceChart from "./ui/MonthlyBalanceChart.jsx";
 import SunArc from "../SunArc.jsx";
 import { IconSearch, IconCheck, IconCalendar, IconMail, IconHouse, IconSatellite, IconChart, IconLoader, IconLock, IconClock } from "../Icons.jsx";
 import { STROMPREIS, EINSPEISE, M2_PRO_KWP, M2_PRO_KWP_FLACHDACH, PVGIS_SYSTEM_LOSS, DEGRADATION_PRO_JAHR, WARTUNG_PROZENT_PRO_JAHR, wechselrichterKosten, STROMPREIS_STEIGERUNG_PRO_JAHR, formatSpan } from "../../lib/calculate.js";
+import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion.js";
+import { useCountUpOnView } from "../../lib/useCountUpOnView.js";
 
 // ─── CONFIGURATION ───
 // Lead-Ziel & Calendly kommen aus src/config.js (siteConfig.lead / .contact):
@@ -15,6 +17,10 @@ import { STROMPREIS, EINSPEISE, M2_PRO_KWP, M2_PRO_KWP_FLACHDACH, PVGIS_SYSTEM_L
 import { siteConfig } from "../../config.js";
 
 export default function ResultScreen({ result, displayLocation, resolvedCity, dach, dachform, ausrichtung, neigung, speicherKwh, eauto, eautoProfil, waermepumpe, tageszeit, plz, onRestart }) {
+  const reduced = usePrefersReducedMotion();
+  // Haupt-Ergebniszahl: zählt beim ersten Erscheinen von 0 auf den Wert hoch.
+  // Angezeigt als ±12%-Spanne (formatSpan), deren Mitte hochzählt.
+  const [savingsRef, savingsCount] = useCountUpOnView(result.jahresErsparnis);
   const [showForm, setShowForm] = useState(false);
   const [showCalendly, setShowCalendly] = useState(false);
   const [formSent, setFormSent] = useState(false);
@@ -116,6 +122,10 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
           from { opacity: 0; transform: scale(0.96); }
           to { opacity: 1; transform: scale(1); }
         }
+        @keyframes ringEnter {
+          from { opacity: 0.25; transform: perspective(500px) translateZ(-46px) scale(0.92); }
+          to { opacity: 1; transform: perspective(500px) translateZ(0) scale(1); }
+        }
       `}</style>
       {/* Result Header */}
       <div style={{
@@ -132,8 +142,8 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
           <SunArc variant="compact" />
         </div>
         <div style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: 2, opacity: 0.6, marginBottom: 6 }}>Ihr Ergebnis</div>
-        <div style={{ fontFamily: theme.font.display, fontSize: 42, fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
-          {formatSpan(result.jahresErsparnis)} €
+        <div ref={savingsRef} style={{ fontFamily: theme.font.display, fontSize: 42, fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>
+          {formatSpan(savingsCount)} €
         </div>
         <div style={{ fontSize: 14, opacity: 0.75, marginTop: 2 }}>geschätzte Ersparnis pro Jahr ±12%{displayLocation ? ` · ${displayLocation}` : ""}</div>
         <div style={{
@@ -163,27 +173,48 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
         gap: 20,
         flexWrap: "wrap",
       }}>
-        <div style={{ position: "relative", width: 100, height: 100, flexShrink: 0 }}>
-          <svg viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)", width: 100, height: 100 }} role="img" aria-label={`Autarkiegrad ${result.autarkie}%`}>
-            <circle cx="50" cy="50" r="42" fill="none" stroke={theme.color.bg} strokeWidth="10" />
-            <circle
-              cx="50" cy="50" r="42" fill="none"
-              stroke={result.autarkie >= 50 ? theme.color.success : theme.color.accent}
-              strokeWidth="10"
-              strokeDasharray={`${result.autarkie * 2.64} ${264 - result.autarkie * 2.64}`}
-              strokeLinecap="round"
-              style={{ transition: "stroke-dasharray 1s ease" }}
-            />
-          </svg>
+        <div style={{ position: "relative", width: 100, height: 100, flexShrink: 0, perspective: 500 }}>
+          {/* Mehrschichtiger Tiefen-Schatten: weiche, radial abfallende Basis-
+              fläche hinter dem Ring — statisch, bewegt sich nicht mit. */}
           <div style={{
             position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            textAlign: "center",
+            inset: 4,
+            borderRadius: "50%",
+            background: "radial-gradient(circle at 50% 58%, rgba(20,27,34,0.12), rgba(20,27,34,0.04) 55%, transparent 72%)",
+            filter: "blur(1.5px)",
+            transform: "translateY(5px) scale(1.04)",
+            pointerEvents: "none",
+          }} />
+          {/* Beim Erscheinen leicht aus der Tiefe herauskommen (translateZ),
+              dazu ein scharfer Drop-Shadow auf dem Ring selbst. */}
+          <div style={{
+            position: "relative",
+            width: 100,
+            height: 100,
+            transformStyle: "preserve-3d",
+            animation: reduced ? "none" : "ringEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
           }}>
-            <div style={{ fontSize: 24, fontWeight: 700, color: theme.color.textPrimary, lineHeight: 1 }}>{result.autarkie}%</div>
-            <div style={{ fontSize: 9, color: theme.color.textMuted, marginTop: 2 }}>Autarkie</div>
+            <svg viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)", width: 100, height: 100, filter: "drop-shadow(0 2px 3px rgba(20,27,34,0.18))" }} role="img" aria-label={`Autarkiegrad ${result.autarkie}%`}>
+              <circle cx="50" cy="50" r="42" fill="none" stroke={theme.color.bg} strokeWidth="10" />
+              <circle
+                cx="50" cy="50" r="42" fill="none"
+                stroke={result.autarkie >= 50 ? theme.color.success : theme.color.accent}
+                strokeWidth="10"
+                strokeDasharray={`${result.autarkie * 2.64} ${264 - result.autarkie * 2.64}`}
+                strokeLinecap="round"
+                style={{ transition: reduced ? "none" : "stroke-dasharray 1s ease" }}
+              />
+            </svg>
+            <div style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              textAlign: "center",
+            }}>
+              <div style={{ fontSize: 24, fontWeight: 700, color: theme.color.textPrimary, lineHeight: 1 }}>{result.autarkie}%</div>
+              <div style={{ fontSize: 9, color: theme.color.textMuted, marginTop: 2 }}>Autarkie</div>
+            </div>
           </div>
         </div>
         <div style={{ flex: 1, minWidth: 180 }}>

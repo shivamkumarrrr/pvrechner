@@ -2,13 +2,16 @@ import { useState, useEffect } from "react";
 import theme from "../../../theme.js";
 import Slider from "../ui/Slider.jsx";
 import Segmented from "../ui/Segmented.jsx";
+import TiltButton from "../ui/TiltButton.jsx";
+import SubFlow from "../ui/SubFlow.jsx";
+import ContinueButton from "../ui/ContinueButton.jsx";
 import { HAUSHALT, TAGESZEITEN, E_AUTO_PROFILE, WAERMEPUMPE_KWH } from "../../../lib/calculate.js";
 import { IconPerson, IconClock } from "../../Icons.jsx";
 
 function PersonOption({ opt, active, onClick }) {
   const icons = Math.min(opt.persons, 4);
   return (
-    <button
+    <TiltButton
       onClick={onClick}
       style={{
         padding: "12px 6px",
@@ -28,7 +31,7 @@ function PersonOption({ opt, active, onClick }) {
       </div>
       <div style={{ fontSize: 12, fontWeight: 600, color: active ? theme.color.accentHover : theme.color.textPrimary }}>{opt.label}</div>
       <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 2 }}>{opt.kwh.toLocaleString("de-DE")} kWh/Jahr</div>
-    </button>
+    </TiltButton>
   );
 }
 
@@ -72,13 +75,16 @@ function HeatpumpScene({ active }) {
 
 function VerbraucherCard({ Illustration, title, sub, active, children }) {
   return (
-    <div style={{
-      border: active ? `1.5px solid ${theme.color.accent}` : `1.5px solid ${theme.color.border}`,
-      borderRadius: theme.radius.lg,
-      padding: "14px 14px 12px",
-      background: theme.color.white,
-      marginBottom: 12,
-    }}>
+    <TiltButton
+      as="div"
+      style={{
+        border: active ? `1.5px solid ${theme.color.accent}` : `1.5px solid ${theme.color.border}`,
+        borderRadius: theme.radius.lg,
+        padding: "14px 14px 12px",
+        background: theme.color.white,
+        marginBottom: 12,
+      }}
+    >
       <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 10 }}>
         <Illustration active={active} />
         <div style={{ minWidth: 0 }}>
@@ -87,11 +93,16 @@ function VerbraucherCard({ Illustration, title, sub, active, children }) {
         </div>
       </div>
       {children}
-    </div>
+    </TiltButton>
   );
 }
 
-export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, setVerbrauch, setHaushalt, eauto, setEauto, eautoProfil, setEautoProfil, waermepumpe, setWaermepumpe, tageszeit, setTageszeit }) {
+// Der Verbrauch-Schritt ist in 4 Sub-Screens aufgeteilt (eine Entscheidung
+// pro Screen): Haushalt → Verbrauch → Zusatzverbraucher → Tageszeit. Karten-
+// Auswahl (Haushalt) geht automatisch weiter, Slider-/Mehrfach-Screens haben
+// einen expliziten "Weiter"-Button. Der letzte Screen (Tageszeit, Mehrfach-
+// auswahl) verlässt sich auf den übergeordneten "Weiter →"-Button des Wizards.
+export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, setVerbrauch, setHaushalt, eauto, setEauto, eautoProfil, setEautoProfil, waermepumpe, setWaermepumpe, tageszeit, setTageszeit, onReadyChange }) {
   // Gespiegelt an Slider.jsx: das Feld zeigt immer den tatsächlichen, aktuell
   // committeten Verbrauch (nicht nur ein leeres Eingabe-Feld) und bleibt mit
   // `verbrauch` synchron, wenn dieser von anderswo geändert wird (Slider,
@@ -129,146 +140,164 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
   );
 
   return (
-    <>
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 10 }}>Wie viele Personen leben in Ihrem Haushalt?</div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(84px, 1fr))", gap: 8 }}>
-          {HAUSHALT.map((opt) => (
-            <PersonOption key={opt.label} opt={opt} active={haushalt === opt.label} onClick={() => onHaushaltChange(opt.label)} />
-          ))}
-        </div>
-      </div>
-      <Slider label="Jährlicher Stromverbrauch" value={verbrauch} onChange={(v) => { setVerbrauch(v); setHaushalt(""); }} min={1000} max={15000} step={250} unit="kWh" />
-      <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 12, color: theme.color.textMuted, marginBottom: 6 }}>Oder genauen Wert eingeben:</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <input
-            type="text"
-            inputMode="numeric"
-            placeholder="z.B. 3800"
-            value={customKwh}
-            onChange={(e) => setCustomKwh(e.target.value.replace(/[^0-9]/g, ""))}
-            onFocus={(e) => { setCustomKwhFocused(true); e.target.style.borderColor = theme.color.accent; }}
-            onBlur={(e) => { setCustomKwhFocused(false); commitCustomKwh(); e.target.style.borderColor = theme.color.border; }}
-            onKeyDown={(e) => { if (e.key === "Enter") e.target.blur(); }}
-            style={{
-              width: 120, padding: "10px 12px", borderRadius: 8,
-              border: `1.5px solid ${theme.color.border}`, fontSize: 14, color: theme.color.textPrimary,
-              outline: "none", boxSizing: "border-box",
-            }}
-          />
-          <span style={{ fontSize: 14, color: theme.color.textSecondary }}>kWh/Jahr</span>
-          <span style={{ fontSize: 11, color: theme.color.textMuted }}>Steht auf Ihrer Stromrechnung</span>
-        </div>
-      </div>
+    <SubFlow total={4} onReadyChange={onReadyChange}>
+      {({ index, forward, autoAdvance }) => (
+        <>
+          {index === 0 && (
+            <div>
+              <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 10 }}>Wie viele Personen leben in Ihrem Haushalt?</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(84px, 1fr))", gap: 8 }}>
+                {HAUSHALT.map((opt) => (
+                  <PersonOption key={opt.label} opt={opt} active={haushalt === opt.label} onClick={() => autoAdvance(() => onHaushaltChange(opt.label))} />
+                ))}
+              </div>
+            </div>
+          )}
 
-      <div style={{ marginTop: 4 }}>
-        <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 4 }}>Zusätzliche Verbraucher</div>
-        <div style={{ fontSize: 12, color: theme.color.textMuted, marginBottom: 12 }}>Rechnet den Mehrverbrauch in Ihre Anlage ein — „Geplant" bleibt außen vor.</div>
+          {index === 1 && (
+            <div>
+              <Slider label="Jährlicher Stromverbrauch" value={verbrauch} onChange={(v) => { setVerbrauch(v); setHaushalt(""); }} min={1000} max={15000} step={250} unit="kWh" />
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 12, color: theme.color.textMuted, marginBottom: 6 }}>Oder genauen Wert eingeben:</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="z.B. 3800"
+                    value={customKwh}
+                    onChange={(e) => setCustomKwh(e.target.value.replace(/[^0-9]/g, ""))}
+                    onFocus={(e) => { setCustomKwhFocused(true); e.target.style.borderColor = theme.color.accent; }}
+                    onBlur={(e) => { setCustomKwhFocused(false); commitCustomKwh(); e.target.style.borderColor = theme.color.border; }}
+                    onKeyDown={(e) => { if (e.key === "Enter") e.target.blur(); }}
+                    style={{
+                      width: 120, padding: "10px 12px", borderRadius: 8,
+                      border: `1.5px solid ${theme.color.border}`, fontSize: 14, color: theme.color.textPrimary,
+                      outline: "none", boxSizing: "border-box",
+                    }}
+                  />
+                  <span style={{ fontSize: 14, color: theme.color.textSecondary }}>kWh/Jahr</span>
+                  <span style={{ fontSize: 11, color: theme.color.textMuted }}>Steht auf Ihrer Stromrechnung</span>
+                </div>
+              </div>
+              <ContinueButton onClick={forward} />
+            </div>
+          )}
 
-        <VerbraucherCard
-          Illustration={CarChargeScene}
-          title="Elektroauto / Wallbox"
-          sub="Rechnet den Ladebedarf nach Ihrem Nutzungsprofil ein."
-          active={eauto !== "nein"}
-        >
-          <Segmented
-            options={[
-              { value: "nein", label: "Nein" },
-              { value: "ja", label: "Ja" },
-              { value: "geplant", label: "Geplant" },
-            ]}
-            value={eauto}
-            onChange={setEauto}
-          />
-          {eauto === "ja" && (
-            <>
-              <div style={{ fontSize: 12, color: theme.color.textSecondary, margin: "10px 0 6px" }}>Wie stark ist das Auto in Nutzung?</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
-                {E_AUTO_PROFILE.map((p) => {
-                  const active = eautoProfil === p.label;
+          {index === 2 && (
+            <div>
+              <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 4 }}>Zusätzliche Verbraucher</div>
+              <div style={{ fontSize: 12, color: theme.color.textMuted, marginBottom: 12 }}>Rechnet den Mehrverbrauch in Ihre Anlage ein — „Geplant" bleibt außen vor.</div>
+
+              <VerbraucherCard
+                Illustration={CarChargeScene}
+                title="Elektroauto / Wallbox"
+                sub="Rechnet den Ladebedarf nach Ihrem Nutzungsprofil ein."
+                active={eauto !== "nein"}
+              >
+                <Segmented
+                  options={[
+                    { value: "nein", label: "Nein" },
+                    { value: "ja", label: "Ja" },
+                    { value: "geplant", label: "Geplant" },
+                  ]}
+                  value={eauto}
+                  onChange={setEauto}
+                />
+                {eauto === "ja" && (
+                  <>
+                    <div style={{ fontSize: 12, color: theme.color.textSecondary, margin: "10px 0 6px" }}>Wie stark ist das Auto in Nutzung?</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                      {E_AUTO_PROFILE.map((p) => {
+                        const active = eautoProfil === p.label;
+                        return (
+                          <button
+                            key={p.label}
+                            onClick={() => setEautoProfil(p.label)}
+                            style={{
+                              padding: "10px 6px",
+                              borderRadius: 10,
+                              border: active ? `2px solid ${theme.color.accent}` : `1.5px solid ${theme.color.border}`,
+                              background: active ? theme.color.accentSubtle : theme.color.white,
+                              cursor: "pointer",
+                              transition: "all 0.15s",
+                            }}
+                          >
+                            <div style={{ fontSize: 12, fontWeight: 600, color: active ? theme.color.accentHover : theme.color.textPrimary }}>{p.label}</div>
+                            <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 1 }}>{p.kwh.toLocaleString("de-DE")} kWh/Jahr</div>
+                            <div style={{ fontSize: 10, color: theme.color.textMuted }}>{p.sub}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+                {eauto === "geplant" && hintBox("E-Auto geplant: Wir rechnen aktuell noch ohne den Mehrverbrauch. Planen Sie die Anlage im Zweifel etwas größer — darum kümmern wir uns im Beratungsgespräch.")}
+              </VerbraucherCard>
+
+              <VerbraucherCard
+                Illustration={HeatpumpScene}
+                title="Wärmepumpe oder Heizstab"
+                sub={`Heizung + Warmwasser · +${WAERMEPUMPE_KWH.toLocaleString("de-DE")} kWh/Jahr`}
+                active={waermepumpe !== "nein"}
+              >
+                <Segmented
+                  options={[
+                    { value: "nein", label: "Nein" },
+                    { value: "ja", label: "Ja" },
+                    { value: "geplant", label: "Geplant" },
+                  ]}
+                  value={waermepumpe}
+                  onChange={setWaermepumpe}
+                />
+                {waermepumpe === "geplant" && hintBox("Wärmepumpe geplant: Der Mehrverbrauch bleibt noch unberücksichtigt, bis die Wärmepumpe installiert ist — die Anlage lässt sich danach bei Bedarf erweitern.")}
+              </VerbraucherCard>
+
+              <ContinueButton onClick={forward} />
+            </div>
+          )}
+
+          {index === 3 && (
+            <div>
+              <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 4 }}>Wann nutzen Sie den meisten Strom?</div>
+              <div style={{ fontSize: 12, color: theme.color.textMuted, marginBottom: 10 }}>Mehrfachauswahl möglich — mittags verbrauchter Strom erhöht Ihren Eigenverbrauch.</div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {TAGESZEITEN.map((t) => {
+                  const active = tageszeit.includes(t.label);
                   return (
                     <button
-                      key={p.label}
-                      onClick={() => setEautoProfil(p.label)}
+                      key={t.label}
+                      onClick={() => toggleTageszeit(t.label)}
                       style={{
-                        padding: "10px 6px",
-                        borderRadius: 10,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "9px 12px",
+                        borderRadius: 999,
                         border: active ? `2px solid ${theme.color.accent}` : `1.5px solid ${theme.color.border}`,
                         background: active ? theme.color.accentSubtle : theme.color.white,
+                        color: active ? theme.color.accentHover : theme.color.textSecondary,
+                        fontWeight: active ? 600 : 400,
+                        fontSize: 12.5,
                         cursor: "pointer",
                         transition: "all 0.15s",
                       }}
                     >
-                      <div style={{ fontSize: 12, fontWeight: 600, color: active ? theme.color.accentHover : theme.color.textPrimary }}>{p.label}</div>
-                      <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 1 }}>{p.kwh.toLocaleString("de-DE")} kWh/Jahr</div>
-                      <div style={{ fontSize: 10, color: theme.color.textMuted }}>{p.sub}</div>
+                      <span style={{ color: active ? theme.color.accentHover : theme.color.textSecondary, display: "flex" }}><IconClock size={14} /></span>
+                      <span>{t.label}</span>
+                      <span style={{ fontSize: 10, color: theme.color.textMuted }}>{t.zeiten}</span>
                     </button>
                   );
                 })}
               </div>
-            </>
+              {eauto === "ja" && (
+                <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 10 }}>
+                  Ihr Haushalt verbraucht inkl. E-Auto ({eautoProfilWert.label}, +{eautoProfilWert.kwh.toLocaleString("de-DE")} kWh/Jahr) ca. {(verbrauch + (waermepumpe === "ja" ? WAERMEPUMPE_KWH : 0) + eautoProfilWert.kwh).toLocaleString("de-DE")} kWh pro Jahr.
+                </div>
+              )}
+            </div>
           )}
-          {eauto === "geplant" && hintBox("E-Auto geplant: Wir rechnen aktuell noch ohne den Mehrverbrauch. Planen Sie die Anlage im Zweifel etwas größer — darum kümmern wir uns im Beratungsgespräch.")}
-        </VerbraucherCard>
-
-        <VerbraucherCard
-          Illustration={HeatpumpScene}
-          title="Wärmepumpe oder Heizstab"
-          sub={`Heizung + Warmwasser · +${WAERMEPUMPE_KWH.toLocaleString("de-DE")} kWh/Jahr`}
-          active={waermepumpe !== "nein"}
-        >
-          <Segmented
-            options={[
-              { value: "nein", label: "Nein" },
-              { value: "ja", label: "Ja" },
-              { value: "geplant", label: "Geplant" },
-            ]}
-            value={waermepumpe}
-            onChange={setWaermepumpe}
-          />
-          {waermepumpe === "geplant" && hintBox("Wärmepumpe geplant: Der Mehrverbrauch bleibt noch unberücksichtigt, bis die Wärmepumpe installiert ist — die Anlage lässt sich danach bei Bedarf erweitern.")}
-        </VerbraucherCard>
-      </div>
-
-      <div style={{ marginTop: 14 }}>
-        <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 4 }}>Wann nutzen Sie den meisten Strom?</div>
-        <div style={{ fontSize: 12, color: theme.color.textMuted, marginBottom: 10 }}>Mehrfachauswahl möglich — mittags verbrauchter Strom erhöht Ihren Eigenverbrauch.</div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {TAGESZEITEN.map((t) => {
-            const active = tageszeit.includes(t.label);
-            return (
-              <button
-                key={t.label}
-                onClick={() => toggleTageszeit(t.label)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "9px 12px",
-                  borderRadius: 999,
-                  border: active ? `2px solid ${theme.color.accent}` : `1.5px solid ${theme.color.border}`,
-                  background: active ? theme.color.accentSubtle : theme.color.white,
-                  color: active ? theme.color.accentHover : theme.color.textSecondary,
-                  fontWeight: active ? 600 : 400,
-                  fontSize: 12.5,
-                  cursor: "pointer",
-                  transition: "all 0.15s",
-                }}
-              >
-                <span style={{ color: active ? theme.color.accentHover : theme.color.textSecondary, display: "flex" }}><IconClock size={14} /></span>
-                <span>{t.label}</span>
-                <span style={{ fontSize: 10, color: theme.color.textMuted }}>{t.zeiten}</span>
-              </button>
-            );
-          })}
-        </div>
-        {eauto === "ja" && (
-          <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 10 }}>
-            Ihr Haushalt verbraucht inkl. E-Auto ({eautoProfilWert.label}, +{eautoProfilWert.kwh.toLocaleString("de-DE")} kWh/Jahr) ca. {(verbrauch + (waermepumpe === "ja" ? WAERMEPUMPE_KWH : 0) + eautoProfilWert.kwh).toLocaleString("de-DE")} kWh pro Jahr.
-          </div>
-        )}
-      </div>
-    </>
+        </>
+      )}
+    </SubFlow>
   );
 }
