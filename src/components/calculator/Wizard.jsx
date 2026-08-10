@@ -180,35 +180,6 @@ export default function Wizard() {
   }
 
   return (
-    <>
-      {/* Kontext-Leiste: die bisherigen Eingaben auf einen Blick. Bewusst OBERHALB
-          von Layout (nicht innerhalb der Wizard-Card) gerendert: Layout stellt
-          Wizard und LivePanel ab 960px als zwei Spalten nebeneinander dar, mit
-          einem sticky LivePanel — innerhalb der Wizard-Card lag die Leiste dadurch
-          auf breiten Bildschirmen optisch UNTER dem LivePanel (das sticky an
-          top:84 schon sichtbar ist, bevor die Card-Kopfzeile+Fortschrittsbalken
-          über der Leiste durchgescrollt sind). Als eigenes, volles Element vor
-          Layout ist sie bei jeder Breite eindeutig die oberste Zeile. */}
-      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto 12px", padding: "0 16px" }}>
-        <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
-          {contextItems.map((c) => (
-            <div key={c.label} style={{
-              flexShrink: 0,
-              minWidth: 92,
-              padding: "7px 10px",
-              background: theme.color.white,
-              border: `1px solid ${theme.color.border}`,
-              borderRadius: 10,
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: theme.color.textMuted, marginBottom: 2 }}>
-                <span style={{ color: theme.color.textSecondary, display: "flex" }}>{c.icon}</span>
-                {c.label}
-              </div>
-              <div style={{ fontSize: 12, fontWeight: 600, color: theme.color.textPrimary, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{c.value}</div>
-            </div>
-          ))}
-        </div>
-      </div>
     <Layout
       main={(
         <div style={{
@@ -329,8 +300,35 @@ export default function Wizard() {
           </div>
         </div>
       )}
-      sidebar={<LivePanel result={result} speicherKwh={speicherKwh} />}
+      sidebar={(
+        <>
+          {/* Kontext-Leiste: die bisherigen Eingaben auf einen Blick. Steht
+              bewusst IN der rechten Spalte, direkt über der Live-Vorschau —
+              nicht mehr über die volle Seitenbreite. Auf Mobile (<960px)
+              stapelt sie sich zwischen Wizard-Card und Live-Vorschau. */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+              {contextItems.map((c) => (
+                <div key={c.label} style={{
+                  flexShrink: 0,
+                  minWidth: 92,
+                  padding: "7px 10px",
+                  background: theme.color.white,
+                  border: `1px solid ${theme.color.border}`,
+                  borderRadius: 10,
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: theme.color.textMuted, marginBottom: 2 }}>
+                    <span style={{ color: theme.color.textSecondary, display: "flex" }}>{c.icon}</span>
+                    {c.label}
+                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: theme.color.textPrimary, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>{c.value}</div>
+                </div>
+              ))}
+            </div>
+            <LivePanel result={result} speicherKwh={speicherKwh} />
+          </div>
+        </>
+      )}
     />
-    </>
   );
 }
