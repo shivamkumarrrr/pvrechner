@@ -45,12 +45,9 @@ export default function PartnerLogos() {
       `}</style>
       <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "40px 20px" }}>
         <Reveal>
-          <h2 id="partner-heading" style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 600, color: theme.color.textPrimary, textAlign: "center", margin: "0 0 6px" }}>
+          <h2 id="partner-heading" style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 600, color: theme.color.textPrimary, textAlign: "center", margin: "0 0 28px" }}>
             Wir bieten beste Qualitätsmodule
           </h2>
-          <p style={{ fontSize: 13, color: theme.color.textSecondary, textAlign: "center", margin: "0 auto 28px", maxWidth: 520 }}>
-            Module, Wechselrichter, Speicher und Ladeinfrastruktur kommen von diesen Herstellern.
-          </p>
         </Reveal>
         <div className="partner-grid">
           {PARTNER.map((p, i) => (

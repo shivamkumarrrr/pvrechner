@@ -48,9 +48,6 @@ export default function MwstRechenbeispiel() {
               <span style={{ fontSize: 20, fontWeight: 700, color: theme.color.success }}>{ERSPARNIS.toLocaleString("de-DE")} €</span>
             </div>
           </div>
-          <p style={{ fontSize: 11.5, color: theme.color.textMuted, marginTop: 10, lineHeight: 1.6 }}>
-            Illustratives Rechenbeispiel auf Basis eines Richtwerts von {KOSTEN_PRO_KWP.toLocaleString("de-DE")} €/kWp. Ihr individueller Preis hängt von Anlagengröße, Komponenten und Aufwand ab.
-          </p>
         </Reveal>
       </div>
     </section>

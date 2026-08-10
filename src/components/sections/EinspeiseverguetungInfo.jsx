@@ -2,7 +2,7 @@ import { useState } from "react";
 import theme from "../../theme.js";
 import Reveal from "../Reveal.jsx";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion.js";
-import { EINSPEISEVERGUETUNG_STAND, EINSPEISEVERGUETUNG_TEIL, EINSPEISEVERGUETUNG_VOLL } from "../../lib/calculate.js";
+import { EINSPEISEVERGUETUNG_TEIL, EINSPEISEVERGUETUNG_VOLL } from "../../lib/calculate.js";
 
 // EEG-Degression: laut Quellen-Kommentar zu EINSPEISE in calculate.js sinkt der
 // Satz halbjährlich um 1% (nächster Schritt 1.8.2026 → 7,70 Ct/kWh). Die Zeitachse
@@ -44,14 +44,9 @@ export default function EinspeiseverguetungInfo({ wizardResult }) {
     <section aria-labelledby="einspeisung-heading">
       <div style={{ maxWidth: theme.maxWidth, margin: "0 auto", padding: "48px 20px" }}>
         <Reveal>
-          <h2 id="einspeisung-heading" style={{ fontFamily: theme.font.display, fontSize: 24, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 10px" }}>
+          <h2 id="einspeisung-heading" style={{ fontFamily: theme.font.display, fontSize: 24, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 20px" }}>
             Einspeisevergütung: aktueller Stand
           </h2>
-          <p style={{ fontSize: 14, color: theme.color.textSecondary, lineHeight: 1.7, margin: "0 0 20px" }}>
-            Strom, den Sie nicht selbst verbrauchen, speisen Sie ins öffentliche Netz ein und erhalten dafür
-            eine gesetzlich garantierte Vergütung nach dem EEG. Die Höhe hängt davon ab, ob Sie einen Teil
-            Ihres Stroms selbst nutzen (Teileinspeisung) oder die gesamte Erzeugung einspeisen (Volleinspeisung).
-          </p>
 
           {hatPersoenlicheAnlage && (
             <div style={{
@@ -146,8 +141,8 @@ export default function EinspeiseverguetungInfo({ wizardResult }) {
           <div style={{ marginBottom: 10 }}>
             {pfad.map((s, i) => {
               // Ab 1.2.2027 (i >= 1) sind die Werte zusätzlich mit der Unsicherheit
-              // der geplanten EEG-Reform 2027 behaftet (siehe Fußnote + Kommentar
-              // bei EINSPEISE in calculate.js) — dezent blasser statt schwarz.
+              // der geplanten EEG-Reform 2027 behaftet (siehe Kommentar bei
+              // EINSPEISE in calculate.js) — dezent blasser statt schwarz.
               const reformUnsicher = i >= 1;
               return (
                 <div key={s.datum} style={{ position: "relative", paddingBottom: 12 }}>
@@ -174,15 +169,6 @@ export default function EinspeiseverguetungInfo({ wizardResult }) {
               );
             })}
           </div>
-          <p style={{ fontSize: 11.5, color: theme.color.textMuted, lineHeight: 1.6, margin: 0 }}>
-            Stand {EINSPEISEVERGUETUNG_STAND}: {fmtCt(teilCt)} Ct/kWh (Teileinspeisung ≤ 10 kWp). Die Folgewerte sind
-            rechnerisch mit der gesetzlichen halbjährlichen Degression von −1 % fortgeschrieben, keine Angebote.
-            Für Ihre Anlage gilt der zum Inbetriebnahme-Zeitpunkt gültige Satz für 20 Jahre fest. Unser Rechner oben
-            verwendet konservativ den Teileinspeisung-Satz.
-            {" "}Hinweis: Für 2027 ist eine EEG-Reform in Vorbereitung, die die feste 20-Jahres-Vergütung ggf. durch
-            ein anderes Modell ersetzt — noch nicht beschlossen. Werte ab 2027 in dieser Übersicht sind daher mit
-            zusätzlicher Unsicherheit behaftet.
-          </p>
         </Reveal>
       </div>
     </section>
