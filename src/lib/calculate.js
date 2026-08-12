@@ -206,8 +206,15 @@ export const EINSPEISEVERGUETUNG_STAND = "2026";
 // Wert duplizieren — ein Update nur an EINSPEISE reicht, beide bleiben synchron.
 // Achtung: Das ist eine Init-Kopie, keine Live-Bindung — configureEconomics hält sie nach
 // einem Override von EINSPEISE explizit synchron (siehe unten).
-export let EINSPEISEVERGUETUNG_TEIL = EINSPEISE; // Ct/kWh, Teileinspeisung, Anlagen bis 10 kWp
-export let EINSPEISEVERGUETUNG_VOLL = 0.123; // Ct/kWh, Volleinspeisung, Anlagen bis 10 kWp
+// Achtung: beide Werte hier sind in €/kWh angegeben (0,077 = 7,70 Ct/kWh), nicht in Ct —
+// die Anzeige (EinspeiseverguetungInfo.jsx) rechnet mit ×100 in Ct um.
+export let EINSPEISEVERGUETUNG_TEIL = EINSPEISE; // €/kWh, Teileinspeisung, Anlagen bis 10 kWp
+// Volleinspeisung ≤10 kWp (erhöhter Satz, kein Eigenverbrauch), €/kWh. Quelle:
+// Bundesnetzagentur, "EEG-Förderung und -Fördersätze" — Fördersätze für Inbetriebnahme
+// 1.8.2026 bis 31.1.2027 (§ 21 Abs. 1, § 53 Abs. 1 EEG): 12,22 Ct/kWh (vorher, bis
+// 31.7.2026: 12,34 Ct/kWh). Stand Aug 2026; mit jeder halbjährlichen EEG-Degression
+// (Stichtage 1. Februar/1. August) prüfen.
+export let EINSPEISEVERGUETUNG_VOLL = 0.1222; // €/kWh, Volleinspeisung, Anlagen bis 10 kWp
 
 // Kundenspezifische Wirtschaftlichkeits-Overrides (Injection statt Import, damit
 // calculate.js von der Seite losgelöst einbettbar bleibt — CLAUDE.md Architektur).

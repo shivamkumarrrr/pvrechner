@@ -36,14 +36,11 @@ export default function Wizard() {
   // hat (one decision per screen) — die Steps melden das über onReadyChange.
   const [stepReady, setStepReady] = useState(false);
   const SUB_FLOW_STEPS = [1, 2];
-  // Sub-Screen-Position pro Sub-Flow-Schritt (Dach=1, Verbrauch=2): hochgezogen,
-  // damit beim Zurück-/Weiter-Navigieren zwischen den Hauptschritten die Stelle
-  // im Sub-Flow erhalten bleibt statt wieder vorne zu starten.
-  const [subIndex, setSubIndex] = useState({ 1: 0, 2: 0 });
-  // Ref auf den SubFlow des aktuell sichtbaren Schritts — der Wizard nutzt
-  // dessen `back()`, um innerhalb eines Sub-Flows einen Screen zurückzugehen
-  // (inkl. Timer-Cleanup des Auto-Advance).
-  const subFlowRef = useRef(null);
+  // Current sub-screen index within a SubFlow step — used to make the main
+  // "← Zurück" button go back within the sub-flow first, instead of jumping
+  // to the previous main step and losing progress.
+  const [subIndex, setSubIndex] = useState(0);
+  const subBackRef = useRef(null);
   const [pvgisData, setPvgisData] = useState(null);
   const [pvgisLoading, setPvgisLoading] = useState(false);
   // Incremented on every successfully loaded PVGIS result — LivePanel uses it
@@ -85,19 +82,6 @@ export default function Wizard() {
     setAnimKey((k) => k + 1);
     setStep(newStep);
     setStepReady(!SUB_FLOW_STEPS.includes(newStep));
-  };
-
-  // "← Zurück" im Wizard: auf Sub-Flow-Schritten (Dach/Verbrauch) zuerst einen
-  // Sub-Screen zurückgehen, erst am Anfang des Sub-Flows zum vorherigen
-  // Hauptschritt. Vorher sprang der Button immer zum vorherigen HAUPTschritt —
-  // wer z.B. von der Dach-Ausrichtung "Zurück" klickte, landete direkt in
-  // Schritt 1 (Standort) statt einen Screen zurückzugehen.
-  const goBack = () => {
-    if (SUB_FLOW_STEPS.includes(step) && subIndex[step] > 0) {
-      subFlowRef.current?.back();
-    } else {
-      goStep(step - 1);
-    }
   };
 
   const goResult = () => {
@@ -151,9 +135,8 @@ export default function Wizard() {
           ausrichtung={ausrichtung} setAusrichtung={setAusrichtung}
           neigung={neigung} setNeigung={setNeigung}
           onReadyChange={setStepReady}
-          subFlowIndex={subIndex[1]}
-          onSubFlowIndexChange={(i) => setSubIndex((s) => ({ ...s, 1: i }))}
-          subFlowRef={subFlowRef}
+          onIndexChange={setSubIndex}
+          backRef={subBackRef}
         />
       ),
     },
@@ -169,9 +152,8 @@ export default function Wizard() {
           waermepumpe={waermepumpe} setWaermepumpe={setWaermepumpe}
           tageszeit={tageszeit} setTageszeit={setTageszeit}
           onReadyChange={setStepReady}
-          subFlowIndex={subIndex[2]}
-          onSubFlowIndexChange={(i) => setSubIndex((s) => ({ ...s, 2: i }))}
-          subFlowRef={subFlowRef}
+          onIndexChange={setSubIndex}
+          backRef={subBackRef}
         />
       ),
     },
@@ -295,9 +277,19 @@ export default function Wizard() {
 
           {/* Navigation */}
           <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
-            {step > 0 && (
+            {/* Zurück: Bei Sub-Flow-Schritten (Dach, Verbrauch) erst innerhalb
+                des Sub-Flows zurückgehen. Nur wenn der Sub-Flow auf Screen 0 steht,
+                geht es zum vorherigen Hauptschritt. Ohne diese Logik sprang der
+                Button direkt zum Anfang und übersprang alle Sub-Screens. */}
+            {(step > 0 || (SUB_FLOW_STEPS.includes(step) && subIndex > 0)) && (
               <button
-                onClick={goBack}
+                onClick={() => {
+                  if (SUB_FLOW_STEPS.includes(step) && subIndex > 0 && subBackRef.current) {
+                    subBackRef.current();
+                  } else {
+                    goStep(step - 1);
+                  }
+                }}
                 style={{
                   flex: 1,
                   padding: "14px",
@@ -384,9 +376,3 @@ export default function Wizard() {
     />
   );
 }
-
-
-
-
-
-// dachneigung is a bit odd 

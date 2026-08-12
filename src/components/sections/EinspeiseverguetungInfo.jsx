@@ -3,18 +3,22 @@ import theme from "../../theme.js";
 import Reveal from "../Reveal.jsx";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion.js";
 import { EINSPEISEVERGUETUNG_TEIL, EINSPEISEVERGUETUNG_VOLL } from "../../lib/calculate.js";
+import { IconSun, IconHouse, IconPlug, IconChevronDown } from "../Icons.jsx";
 
 // EEG-Degression: laut Quellen-Kommentar zu EINSPEISE in calculate.js sinkt der
 // Satz halbjährlich um 1% (nächster Schritt 1.8.2026 → 7,70 Ct/kWh). Die Zeitachse
-// unten rechnet diesen aktuellen, belegten Satz mit dieser gesetzlichen Regel
-// rechnerisch fort — KEINE extern recherchierten historischen Zahlen erfinden.
+// unten rechnet den aktuell belegten Basiswert (Teileinspeisung ODER Volleinspeisung,
+// je nach Toggle-Zustand) mit dieser gesetzlichen Regel rechnerisch fort — KEINE
+// extern recherchierten historischen Zahlen erfinden. EINE gemeinsame Funktion für
+// beide Modi, der aktive Basiswert wird pro Render übergeben (kein fest gekoppelter
+// Pfad, damit die Zeitachse dem Toggle folgt). Rundung auf zwei Nachkommastellen wie
+// von § 49 EEG vorgeschrieben.
 const DEGRESSIONS_DATEN = ["1.8.2026", "1.2.2027", "1.8.2027", "1.2.2028", "1.8.2028"];
-function degressionsPfad(aktuellerCt) {
-  let v = aktuellerCt;
-  return DEGRESSIONS_DATEN.map((datum, i) => {
-    const wert = i === 0 ? v : (v = v * 0.99);
-    return { datum, ct: wert };
-  });
+function degressionsPfad(basisCt) {
+  return DEGRESSIONS_DATEN.map((datum, i) => ({
+    datum,
+    ct: Math.round(basisCt * Math.pow(0.99, i) * 100) / 100,
+  }));
 }
 const fmtCt = (x) => x.toFixed(2).replace(".", ",");
 
@@ -25,8 +29,8 @@ export default function EinspeiseverguetungInfo({ wizardResult }) {
   // der Sonderfall für reine Stromerzeuger ohne Eigenverbrauch.
   const [mode, setMode] = useState("teil");
 
-  const teilCt = Math.round(EINSPEISEVERGUETUNG_TEIL * 1000) / 10; // €/kWh → Ct/kWh
-  const vollCt = Math.round(EINSPEISEVERGUETUNG_VOLL * 1000) / 10;
+  const teilCt = EINSPEISEVERGUETUNG_TEIL * 100; // €/kWh → Ct/kWh
+  const vollCt = EINSPEISEVERGUETUNG_VOLL * 100;
 
   const aktiv = mode === "teil";
   const aktivCt = aktiv ? teilCt : vollCt;
@@ -38,7 +42,7 @@ export default function EinspeiseverguetungInfo({ wizardResult }) {
   const hatPersoenlicheAnlage = kwp != null && kwp > 0;
   const passend = hatPersoenlicheAnlage && kwp <= 10;
 
-  const pfad = degressionsPfad(teilCt);
+  const pfad = degressionsPfad(aktivCt);
 
   return (
     <section aria-labelledby="einspeisung-heading">
@@ -69,6 +73,72 @@ export default function EinspeiseverguetungInfo({ wizardResult }) {
               )}
             </div>
           )}
+
+          {/* ── Grundkonzept für Laien: Erklärung VOR Toggle/Zahlen ── */}
+
+          {/* 1. Ein-Satz-Zusammenfassung, prominent */}
+          <div style={{ fontSize: 17, lineHeight: 1.55, color: theme.color.textPrimary, fontWeight: 500, marginBottom: 14 }}>
+            Einspeisevergütung heißt: Strom, den Sie nicht selbst verbrauchen, speisen Sie ins öffentliche Netz
+            ein. Dafür bekommen Sie von Ihrem Netzbetreiber eine gesetzlich garantierte Vergütung — und zwar{" "}
+            <strong>20 Jahre lang</strong>.
+          </div>
+
+          {/* 2. Konzept-Diagramm: 3-Schritte-Flow statt reiner Zahlen */}
+          <div style={{ border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.lg, background: theme.color.bg, padding: "14px 14px", marginBottom: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, background: theme.color.white, border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.md, padding: "12px 12px" }}>
+              <span style={{ color: theme.color.accent, display: "flex" }}><IconSun size={26} /></span>
+              <div>
+                <div style={{ fontSize: 13.5, fontWeight: 600, color: theme.color.textPrimary }}>Ihre Anlage erzeugt Strom</div>
+                <div style={{ fontSize: 12, color: theme.color.textSecondary }}>auf Ihrem Dach — kostenlos durch Sonnenlicht</div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "center", color: theme.color.textMuted, padding: "5px 0" }}>
+              <IconChevronDown size={20} />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, background: theme.color.white, border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.md, padding: "11px 12px" }}>
+                <span style={{ color: theme.color.success, display: "flex" }}><IconHouse size={24} /></span>
+                <div>
+                  <div style={{ fontSize: 13.5, fontWeight: 600, color: theme.color.textPrimary }}>Sie nutzen ihn selbst</div>
+                  <div style={{ fontSize: 12, color: theme.color.textSecondary }}>spart Ihnen Stromkosten</div>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: theme.color.textMuted }}>
+                <div style={{ flex: 1, height: 1, background: theme.color.border }} />
+                <span style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: 1.2 }}>ODER</span>
+                <div style={{ flex: 1, height: 1, background: theme.color.border }} />
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 12, background: theme.color.white, border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.md, padding: "11px 12px" }}>
+                <span style={{ color: theme.color.sky, display: "flex" }}><IconPlug size={24} /></span>
+                <div>
+                  <div style={{ fontSize: 13.5, fontWeight: 600, color: theme.color.textPrimary }}>Überschuss geht ins Netz</div>
+                  <div style={{ fontSize: 12, color: theme.color.textSecondary }}>Sie bekommen dafür Geld</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Warum sinkt der Satz — normal, kein Alarm */}
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: theme.color.textPrimary, marginBottom: 3 }}>Warum sinkt der Satz?</div>
+            <div style={{ fontSize: 12.5, color: theme.color.textSecondary, lineHeight: 1.6 }}>
+              Die Vergütung sinkt planmäßig alle sechs Monate — aber <strong>nur für neue Anlagen</strong>. Das ist gesetzlich
+              so vorgesehen und hat nichts damit zu tun, ob sich Solar lohnt. Ihr eigener Satz wird bei der Inbetriebnahme{" "}
+              <strong>einmal festgeschrieben und für 20 Jahre garantiert</strong> — er ändert sich danach nicht mehr.
+            </div>
+          </div>
+
+          {/* 4. Teil- vs. Volleinspeisung kurz erklärt, dann der Toggle */}
+          <div style={{ fontSize: 12.5, color: theme.color.textSecondary, lineHeight: 1.6, marginBottom: 12 }}>
+            Zwei Arten der Einspeisung: Bei der <strong style={{ color: theme.color.textPrimary }}>Teileinspeisung</strong> nutzen Sie
+            einen Teil des Solarstroms selbst und speisen nur den Rest ein — das lohnt sich meist mehr, auch wenn der Satz pro
+            Kilowattstunde niedriger ist. Bei der <strong style={{ color: theme.color.textPrimary }}>Volleinspeisung</strong> geht der
+            gesamte Strom ins Netz und der Satz ist höher. Unser Rechner geht vom üblichen Fall aus: Teileinspeisung.
+          </div>
 
           {/* Umschalter Teil-/Volleinspeisung statt starrem Nebeneinander */}
           <div role="radiogroup" aria-label="Vergütungsart wählen" style={{
@@ -168,6 +238,13 @@ export default function EinspeiseverguetungInfo({ wizardResult }) {
                 </div>
               );
             })}
+          </div>
+          <div style={{ fontSize: 11.5, color: theme.color.textMuted, lineHeight: 1.55, marginTop: 4 }}>
+            Fortgeschrieben für {aktiv ? "Teileinspeisung" : "Volleinspeisung"} (Anlagen bis 10 kWp) aus dem
+            amtlich bestätigten Satz von {fmtCt(aktivCt)} Ct/kWh: −1 % pro Halbjahr gemäß § 49 EEG.
+            Der heute gültige Satz ist für 20 Jahre festgeschrieben — die Folgejahre sind eine rechnerische
+            Fortschreibung. Ab 1.2.2027 hängt die weitere Entwicklung von der noch nicht beschlossenen
+            EEG-Novelle 2027 ab; die dortigen Werte sind daher keine zugesicherten Sätze.
           </div>
         </Reveal>
       </div>
