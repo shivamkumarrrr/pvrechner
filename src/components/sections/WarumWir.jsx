@@ -2,6 +2,7 @@ import theme from "../../theme.js";
 import Reveal from "../Reveal.jsx";
 import { IconMapPin, IconSatellite, IconContact, IconDocumentCheck, IconWrench } from "../Icons.jsx";
 import { siteConfig } from "../../config.js";
+import warumWirImg from "../../assets/warum-wir.jpg";
 
 const BRAND = siteConfig.brand.name;
 
@@ -37,36 +38,40 @@ export default function WarumWir() {
   return (
     <section style={{ background: theme.color.bg }} aria-labelledby="warum-wir-heading">
       <style>{`
-        .warum-grid{ display: grid; grid-template-columns: 1fr; gap: 20px; align-items: stretch; }
-        @media (min-width: 900px){ .warum-grid{ grid-template-columns: repeat(2, 1fr); } }
+        .warum-reasons{ display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 28px; }
+        @media (min-width: 900px){ .warum-reasons{ grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+        .warum-reason{ display: flex; align-items: flex-start; gap: 12px; background: ${theme.color.white}; border: 1.5px solid ${theme.color.border}; border-radius: ${theme.radius.lg}px; padding: 14px 14px; cursor: default; transition: border-color 0.2s ease, transform 0.2s ease; }
+        .warum-reason:hover{ border-color: ${theme.color.accent}; transform: translateY(-1px); }
+        .warum-img{ width: 100%; max-height: 520px; max-height: 56vw; aspect-ratio: 3 / 1.8; object-fit: cover; border-radius: ${theme.radius.lg}px; border: 1px solid ${theme.color.border}; display: block; }
       `}</style>
       <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "56px 20px" }}>
         <Reveal>
-          <h2 id="warum-wir-heading" style={{ fontFamily: theme.font.display, fontSize: 26, fontWeight: 600, color: theme.color.textPrimary, textAlign: "center", margin: "0 0 8px" }}>
+          <h2 id="warum-wir-heading" style={{ fontFamily: theme.font.display, fontSize: 30, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 12px" }}>
             Warum {BRAND}?
           </h2>
-          <p style={{ fontSize: 14, color: theme.color.textSecondary, textAlign: "center", margin: "0 auto 36px", maxWidth: 480 }}>
-            Fünf Gründe, warum Kunden ihre Solaranlage mit uns planen.
+          <p style={{ fontSize: 16, color: theme.color.textSecondary, lineHeight: 1.65, margin: "0 0 22px", maxWidth: 520 }}>
+            Fünf Gründe, warum Kunden ihre Solaranlage mit uns planen — von der echten Berechnung
+            bis zur Betreuung nach der Installation.
           </p>
         </Reveal>
-        <div className="warum-grid">
+
+        <div className="warum-reasons">
           {PUNKTE.map((p, i) => (
-            <Reveal key={p.title} delay={i * 80}>
-              <div style={{
-                background: theme.color.white,
-                border: `1.5px solid ${theme.color.border}`,
-                borderRadius: theme.radius.lg,
-                padding: "22px 20px",
-                height: "100%",
-                boxSizing: "border-box",
-              }}>
-                <div style={{ color: theme.color.accent, marginBottom: 12 }}><p.Icon size={24} /></div>
-                <h3 style={{ fontSize: 15, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 6px" }}>{p.title}</h3>
-                <p style={{ fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.6, margin: 0 }}>{p.text}</p>
+            <Reveal key={p.title} delay={i * 60}>
+              <div className="warum-reason">
+                <div style={{ color: theme.color.accent, marginTop: 1, flexShrink: 0 }}><p.Icon size={22} /></div>
+                <div>
+                  <h3 style={{ fontSize: 13.5, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 3px" }}>{p.title}</h3>
+                  <p style={{ fontSize: 12.5, color: theme.color.textSecondary, lineHeight: 1.55, margin: 0 }}>{p.text}</p>
+                </div>
               </div>
             </Reveal>
           ))}
         </div>
+
+        <Reveal delay={100}>
+          <img src={warumWirImg} alt="Photovoltaik-Anlage auf einem Hausdach mit Solarstromerzeugung" className="warum-img" loading="lazy" />
+        </Reveal>
       </div>
     </section>
   );

@@ -5,6 +5,7 @@ import heroInstallationTeam from "../assets/hero/hero-installation-team.jpg";
 import heroPanelsSky from "../assets/hero/hero-panels-sky.jpg";
 import heroRoofFull from "../assets/hero/hero-roof-full.jpg";
 import heroFreiburgHouse from "../assets/hero/hero-freiburg-house.jpg";
+import heroUserPhoto from "../assets/hero/hero-user-photo.jpg";
 
 // Real Pexels photos (free license, commercial use, no attribution needed)
 // behind the hero headline instead of the former house+sun illustration.
@@ -23,7 +24,7 @@ import heroFreiburgHouse from "../assets/hero/hero-freiburg-house.jpg";
 // first. Note: a former "Referenzwerte" stat bar (950 kWh/kWp / 9–12 Jahre /
 // 25+ Jahre, "Ø Deutschland") was removed — those figures had no real source
 // behind them here and read as unverifiable marketing slop.
-const HERO_IMAGES = [heroPanelsSky, heroRoofFull, heroInstallationTeam, heroFreiburgHouse];
+const HERO_IMAGES = [heroPanelsSky, heroRoofFull, heroInstallationTeam, heroFreiburgHouse, heroUserPhoto];
 
 // Preload the first hero photo immediately on page load so the initial view
 // never sits on an empty background while a ~700KB image downloads.
