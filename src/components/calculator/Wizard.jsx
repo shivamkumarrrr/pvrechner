@@ -36,6 +36,14 @@ export default function Wizard() {
   // hat (one decision per screen) — die Steps melden das über onReadyChange.
   const [stepReady, setStepReady] = useState(false);
   const SUB_FLOW_STEPS = [1, 2];
+  // Sub-Screen-Position pro Sub-Flow-Schritt (Dach=1, Verbrauch=2): hochgezogen,
+  // damit beim Zurück-/Weiter-Navigieren zwischen den Hauptschritten die Stelle
+  // im Sub-Flow erhalten bleibt statt wieder vorne zu starten.
+  const [subIndex, setSubIndex] = useState({ 1: 0, 2: 0 });
+  // Ref auf den SubFlow des aktuell sichtbaren Schritts — der Wizard nutzt
+  // dessen `back()`, um innerhalb eines Sub-Flows einen Screen zurückzugehen
+  // (inkl. Timer-Cleanup des Auto-Advance).
+  const subFlowRef = useRef(null);
   const [pvgisData, setPvgisData] = useState(null);
   const [pvgisLoading, setPvgisLoading] = useState(false);
   // Incremented on every successfully loaded PVGIS result — LivePanel uses it
@@ -77,6 +85,19 @@ export default function Wizard() {
     setAnimKey((k) => k + 1);
     setStep(newStep);
     setStepReady(!SUB_FLOW_STEPS.includes(newStep));
+  };
+
+  // "← Zurück" im Wizard: auf Sub-Flow-Schritten (Dach/Verbrauch) zuerst einen
+  // Sub-Screen zurückgehen, erst am Anfang des Sub-Flows zum vorherigen
+  // Hauptschritt. Vorher sprang der Button immer zum vorherigen HAUPTschritt —
+  // wer z.B. von der Dach-Ausrichtung "Zurück" klickte, landete direkt in
+  // Schritt 1 (Standort) statt einen Screen zurückzugehen.
+  const goBack = () => {
+    if (SUB_FLOW_STEPS.includes(step) && subIndex[step] > 0) {
+      subFlowRef.current?.back();
+    } else {
+      goStep(step - 1);
+    }
   };
 
   const goResult = () => {
@@ -130,6 +151,9 @@ export default function Wizard() {
           ausrichtung={ausrichtung} setAusrichtung={setAusrichtung}
           neigung={neigung} setNeigung={setNeigung}
           onReadyChange={setStepReady}
+          subFlowIndex={subIndex[1]}
+          onSubFlowIndexChange={(i) => setSubIndex((s) => ({ ...s, 1: i }))}
+          subFlowRef={subFlowRef}
         />
       ),
     },
@@ -145,6 +169,9 @@ export default function Wizard() {
           waermepumpe={waermepumpe} setWaermepumpe={setWaermepumpe}
           tageszeit={tageszeit} setTageszeit={setTageszeit}
           onReadyChange={setStepReady}
+          subFlowIndex={subIndex[2]}
+          onSubFlowIndexChange={(i) => setSubIndex((s) => ({ ...s, 2: i }))}
+          subFlowRef={subFlowRef}
         />
       ),
     },
@@ -270,7 +297,7 @@ export default function Wizard() {
           <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
             {step > 0 && (
               <button
-                onClick={() => goStep(step - 1)}
+                onClick={goBack}
                 style={{
                   flex: 1,
                   padding: "14px",

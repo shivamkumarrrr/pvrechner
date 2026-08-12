@@ -12,9 +12,9 @@ import { AUSRICHTUNG, NEIGUNG, DACHFORM } from "../../../lib/calculate.js";
 // Screen): Dachform → Dachfläche → Ausrichtung → Neigung. Reine Karten-Aus-
 // wahlen (Dachform/Ausrichtung/Neigung) gehen automatisch weiter (~350ms),
 // die Dachfläche (Slider) braucht einen expliziten "Weiter"-Klick.
-export default function StepDach({ dachform, setDachform, dach, setDach, ausrichtung, setAusrichtung, neigung, setNeigung, onReadyChange }) {
+export default function StepDach({ dachform, setDachform, dach, setDach, ausrichtung, setAusrichtung, neigung, setNeigung, onReadyChange, subFlowIndex, onSubFlowIndexChange, subFlowRef }) {
   return (
-    <SubFlow total={4} onReadyChange={onReadyChange}>
+    <SubFlow total={4} onReadyChange={onReadyChange} index={subFlowIndex} onIndexChange={onSubFlowIndexChange} ref={subFlowRef}>
       {({ index, forward, autoAdvance }) => (
         <>
           {index === 0 && (

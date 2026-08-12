@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import theme from "../../../theme.js";
 import { usePrefersReducedMotion } from "../../../lib/usePrefersReducedMotion.js";
 
@@ -19,9 +19,16 @@ import { usePrefersReducedMotion } from "../../../lib/usePrefersReducedMotion.js
 // `onReadyChange`: wird aufgerufen, sobald der letzte Sub-Screen erreicht ist
 //   (true) bzw. verlassen wird (false) — der Wizard nutzt das, um seinen
 //   übergeordneten "Weiter →"-Button erst am Ende des Sub-Flows freizuschalten.
-export default function SubFlow({ total, children, onReadyChange }) {
+//
+// Optional von außen steuerbar (Wizard): Wird `index` + `onIndexChange`
+// übergeben, hält der Wizard die Sub-Screen-Position pro Schritt fest, damit
+// sie beim Hin-/Zurück-Navigieren zwischen den Hauptschritten erhalten bleibt.
+// Ohne diese Props bleibt SubFlow autark (eigene interne Position).
+const SubFlow = forwardRef(function SubFlow({ total, children, onReadyChange, index: controlledIndex, onIndexChange }, ref) {
   const reduced = usePrefersReducedMotion();
-  const [index, setIndex] = useState(0);
+  const isControlled = controlledIndex !== undefined;
+  const [internalIndex, setInternalIndex] = useState(0);
+  const index = isControlled ? controlledIndex : internalIndex;
   const [dir, setDir] = useState("right");
   const timer = useRef(null);
 
@@ -33,14 +40,24 @@ export default function SubFlow({ total, children, onReadyChange }) {
     if (timer.current) clearTimeout(timer.current);
   }, []);
 
+  const changeIndex = (next) => {
+    if (isControlled) onIndexChange?.(next);
+    else setInternalIndex(next);
+  };
+
   const go = (next, direction) => {
     if (timer.current) { clearTimeout(timer.current); timer.current = null; }
     setDir(direction);
-    setIndex(Math.max(0, Math.min(total - 1, next)));
+    changeIndex(Math.max(0, Math.min(total - 1, next)));
   };
 
   const back = () => go(index - 1, "left");
   const forward = () => go(index + 1, "right");
+
+  // Dem Wizard die `back()`-Funktion des aktuell sichtbaren Sub-Flows
+  // verfügbar machen (inkl. Timer-Cleanup des Auto-Advance), statt dass er
+  // den Index direkt setzt.
+  useImperativeHandle(ref, () => ({ back }));
 
   // Karten-Auswahl: Auswahl setzen, dann nach kurzer Verzögerung automatisch
   // weiter — der Nutzer sieht den Tap bestätigt, muss aber nicht klicken.
@@ -106,4 +123,6 @@ export default function SubFlow({ total, children, onReadyChange }) {
       </div>
     </>
   );
-}
+});
+
+export default SubFlow;

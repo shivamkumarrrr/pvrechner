@@ -102,7 +102,7 @@ function VerbraucherCard({ Illustration, title, sub, active, children }) {
 // Auswahl (Haushalt) geht automatisch weiter, Slider-/Mehrfach-Screens haben
 // einen expliziten "Weiter"-Button. Der letzte Screen (Tageszeit, Mehrfach-
 // auswahl) verlässt sich auf den übergeordneten "Weiter →"-Button des Wizards.
-export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, setVerbrauch, setHaushalt, eauto, setEauto, eautoProfil, setEautoProfil, waermepumpe, setWaermepumpe, tageszeit, setTageszeit, onReadyChange }) {
+export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, setVerbrauch, setHaushalt, eauto, setEauto, eautoProfil, setEautoProfil, waermepumpe, setWaermepumpe, tageszeit, setTageszeit, onReadyChange, subFlowIndex, onSubFlowIndexChange, subFlowRef }) {
   // Gespiegelt an Slider.jsx: das Feld zeigt immer den tatsächlichen, aktuell
   // committeten Verbrauch (nicht nur ein leeres Eingabe-Feld) und bleibt mit
   // `verbrauch` synchron, wenn dieser von anderswo geändert wird (Slider,
@@ -140,7 +140,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
   );
 
   return (
-    <SubFlow total={4} onReadyChange={onReadyChange}>
+    <SubFlow total={4} onReadyChange={onReadyChange} index={subFlowIndex} onIndexChange={onSubFlowIndexChange} ref={subFlowRef}>
       {({ index, forward, autoAdvance }) => (
         <>
           {index === 0 && (
