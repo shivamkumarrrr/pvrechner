@@ -18,7 +18,7 @@ export default function Footer() {
         </nav>
         <div style={{ fontSize: 13, color: theme.color.textSecondary, marginBottom: 16 }}>
           Ein Produkt der{" "}
-          <a href="/impressum" style={{ color: theme.color.textSecondary, textDecoration: "underline" }}>PPC GmbH</a>
+          <a href="https://palz.consulting/" target="_blank" rel="noopener noreferrer" style={{ color: theme.color.textSecondary, textDecoration: "underline" }}>PPC GmbH</a>
         </div>
         <div style={{ fontSize: 11.5, color: theme.color.textMuted }}>
           © {year} {COMPANY_NAME}. Alle Berechnungen sind unverbindliche Richtwerte.
