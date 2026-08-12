@@ -22,24 +22,12 @@ const FAQS = [
     a: "Süd-Ausrichtung bei 25–35° Neigung bringt den höchsten Jahresertrag. Ost- oder West-Dächer verlieren dagegen nur ca. 10–15% Ertrag gegenüber Süd, liefern den Strom aber gleichmäßiger über den Tag verteilt — für den Eigenverbrauch morgens und abends oft ein Vorteil. Flachdächer (0–15°) verlieren durch die flachere Sonneneinstrahlung ebenfalls etwas Ertrag, lassen sich aber mit Aufständerung ausgleichen. Der Rechner oben berücksichtigt Ihre konkrete Ausrichtung und Neigung automatisch in der Ertragsberechnung.",
   },
   {
-    q: "Welche Modultypen gibt es und welchen Unterschied macht das?",
-    a: "Monokristalline Module sind heute bei Dachanlagen der Standard: höchster Wirkungsgrad, dadurch am wenigsten Fläche pro kWp nötig. Polykristalline Module sind etwas günstiger, brauchen bei gleicher Leistung aber mehr Dachfläche und werden kaum noch neu verbaut. Dünnschichtmodule haben den geringsten Wirkungsgrad, sind dafür leicht und flexibel — meist nur bei Nischenanwendungen (z.B. gewölbte Dächer) relevant, nicht beim klassischen Einfamilienhausdach.",
-  },
-  {
     q: "Lohnt sich ein Batteriespeicher?",
     a: "Ohne Speicher decken Sie je nach Anlagengröße ca. 30–55% Ihres Stromverbrauchs selbst — der Rest kommt aus dem Netz. Mit passend dimensioniertem Speicher steigt dieser Anteil auf bis zu 85%. Allerdings kostet der Speicher zusätzliches Geld, und diese Mehrinvestition verlängert die Amortisationszeit der Gesamtanlage in der Regel eher, als dass sie sie verkürzt — der Speicher rechnet sich vor allem dann, wenn ein großer Teil Ihres Verbrauchs in die Abend- und Nachtstunden fällt und sonst zu teurem Netzstrom-Preis zugekauft würde. Ob sich die Mehrinvestition für Sie wirtschaftlich lohnt, hängt von Ihrem Verbrauchsprofil ab — genau das zeigt Ihnen der ehrliche Speicher-Vergleich im Rechner oben.",
   },
   {
     q: "Muss ich noch EEG-Umlage zahlen?",
     a: "Nein. Die EEG-Umlage, die früher auf jede verbrauchte Kilowattstunde Strom erhoben wurde, ist seit dem 1. Juli 2022 vollständig abgeschafft. Sie taucht in keiner aktuellen Stromrechnung mehr auf und spielt für die Wirtschaftlichkeit einer neuen PV-Anlage keine Rolle mehr.",
-  },
-  {
-    q: "Wie funktioniert die Einspeisung ins Netz?",
-    a: "Ihr Netzbetreiber baut einen Zweirichtungszähler ein, der Bezug und Einspeisung getrennt erfasst. Strom, den Sie nicht selbst verbrauchen, fließt automatisch ins öffentliche Netz und wird nach EEG vergütet — die aktuellen Sätze finden Sie weiter oben auf dieser Seite. Die Anmeldung beim Netzbetreiber und im Marktstammdatenregister übernimmt in der Regel der installierende Fachbetrieb für Sie.",
-  },
-  {
-    q: "Verdiene ich mit einer PV-Anlage Geld?",
-    a: "Die kurze Antwort ist ja. Wenn Sie den überschüssigen Strom aus Ihrer Photovoltaikanlage ins Stromnetz einspeisen, erhalten Sie 20 Jahre lang (plus das Jahr der Inbetriebnahme) eine gesetzlich garantierte Vergütung nach EEG. Ob Sie mit Ihrer Anlage einen Gewinn erzielen, hängt davon ab, ab wann sich die Kosten amortisiert haben — und das hängt wiederum stark davon ab, wie viel Ihres selbst erzeugten Stroms Sie selbst verbrauchen statt einzuspeisen: Jede selbst verbrauchte Kilowattstunde spart den vollen Strompreis und ist damit wirtschaftlich deutlich mehr wert als die Einspeisung. Genau diese Rechnung macht der Rechner oben individuell für Ihre Anlage.",
   },
   {
     q: "Welche Finanzierungsmöglichkeiten gibt es?",
