@@ -78,25 +78,6 @@ export default function LocationMap({ lat, lon, address, plz, onLocationChange }
       mapInstanceRef.current = map;
       setMapReady(true);
       clearTimeout(timer);
-
-      if (address && address.length > 3) {
-        // Public Nominatim endpoint (OSM's free geocoder): respects its usage
-        // policy for light traffic (~1 req/s, no bulk lookups). If this page
-        // ever sees high traffic, move this behind a small server-side proxy.
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address + ", " + plz + " Germany")}&limit=1`)
-          .then(r => r.json())
-          .then(data => {
-            if (data?.[0]) {
-              const geoLat = parseFloat(data[0].lat);
-              const geoLon = parseFloat(data[0].lon);
-              map.setView([geoLat, geoLon], 19);
-              placeMarker(map, [geoLat, geoLon]);
-              markerRef.current.openPopup();
-              onLocationChange?.(geoLat, geoLon);
-            }
-          })
-          .catch(() => {});
-      }
     };
 
     if (window.L) {

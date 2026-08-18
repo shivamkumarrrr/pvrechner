@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import theme from "../../theme.js";
 import { getCity, getCoords } from "../../lib/plz.js";
+import { geocodeAddress } from "../../lib/geocode.js";
 import { fetchPVGIS, PVGIS_ASPECT, PVGIS_ANGLE } from "../../lib/pvgis.js";
 import { calculate, computeKwp, computeGesamtVerbrauch, HAUSHALT, SPEICHER_KWH_PRO_1000_VERBRAUCH } from "../../lib/calculate.js";
 import StepStandort from "./steps/StepStandort.jsx";
@@ -63,6 +64,7 @@ export default function Wizard() {
 
   const plzCoords = useMemo(() => getCoords(plz), [plz]);
   const coords = manualCoords && manualCoords.plz === plz ? manualCoords : plzCoords;
+  const resolvedCity = useMemo(() => getCity(plz), [plz]);
 
   // Requests can race (PLZ or marker changed while a PVGIS call is in flight).
   // Each call takes a fresh sequence number; a slower older response must not
@@ -82,9 +84,37 @@ export default function Wizard() {
     setPvgisLoading(false);
   }, [coords, neigung, ausrichtung]);
 
+  // Debounced statt bei jeder Ziffer/jedem Zeichen: verhindert Anfragen-Spam
+  // und die Race-Conditions, die vorher auftraten wenn PLZ (oder die davon
+  // abgeleiteten coords) schnell hintereinander wechselten. loadPVGIS() in
+  // den Deps sorgt dafür, dass auch ein durch Adress-Geocoding (unten) oder
+  // Marker-Drag geänderter coords-Wert nach der Pause automatisch neu lädt.
+  const pvgisDebounceRef = useRef(null);
   useEffect(() => {
-    if (plz.length === 5) loadPVGIS();
+    if (pvgisDebounceRef.current) clearTimeout(pvgisDebounceRef.current);
+    if (plz.length !== 5) return;
+    pvgisDebounceRef.current = setTimeout(() => loadPVGIS(), 800);
+    return () => clearTimeout(pvgisDebounceRef.current);
   }, [plz, loadPVGIS]);
+
+  // Straße+Hausnummer → Nominatim-Geocoding mit der KOMBINIERTEN Adresse
+  // (präziser als der reine PLZ-Zentrum-Fallback). 800ms nach dem letzten
+  // Tastendruck in PLZ ODER Straße, nicht pro Zeichen. Eigener State-Pfad
+  // wie beim manuellen Marker-Drag: setManualCoords → coords ändert sich →
+  // der Effekt oben lädt PVGIS automatisch neu, keine doppelte Logik nötig.
+  // Kein Treffer/Netzwerkfehler → manualCoords bleibt unverändert, coords
+  // fällt still auf den PLZ-Zentrum-Wert zurück (kein Error-State).
+  const geoDebounceRef = useRef(null);
+  useEffect(() => {
+    if (geoDebounceRef.current) clearTimeout(geoDebounceRef.current);
+    if (plz.length !== 5 || address.trim().length <= 3) return;
+    geoDebounceRef.current = setTimeout(() => {
+      geocodeAddress(address.trim(), plz, resolvedCity).then((geo) => {
+        if (geo) setManualCoords({ lat: geo.lat, lon: geo.lon, plz });
+      });
+    }, 800);
+    return () => clearTimeout(geoDebounceRef.current);
+  }, [plz, address, resolvedCity]);
 
   const goStep = (newStep) => {
     setAnimDir(newStep > step ? "right" : "left");
@@ -106,8 +136,6 @@ export default function Wizard() {
     setPvgisLoading(false);
     setManualCoords(null);
   };
-
-  const resolvedCity = useMemo(() => getCity(plz), [plz]);
   const displayLocation = resolvedCity ? `${plz} ${resolvedCity}` : plz;
 
   const handleHaushalt = (label) => {
