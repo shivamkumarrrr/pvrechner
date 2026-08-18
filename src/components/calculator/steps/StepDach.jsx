@@ -25,6 +25,11 @@ export default function StepDach({ dachform, setDachform, dach, setDach, ausrich
                   <DachformCard key={d.label} item={d} selected={dachform} onSelect={(label) => autoAdvance(() => setDachform(label))} />
                 ))}
               </div>
+              {!dachform && (
+                <div style={{ fontSize: 12, color: theme.color.textMuted, marginTop: 10, textAlign: "center" }}>
+                  Bitte wählen Sie eine Dachform, um fortzufahren.
+                </div>
+              )}
             </div>
           )}
 

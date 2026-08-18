@@ -114,6 +114,13 @@ export let STROMPREIS = 0.37;
 // sich hiervon ab, damit die Info-Sektion und die Berechnung nie auseinanderlaufen können.
 export let EINSPEISE = 0.077;
 
+// Staffelung für Anlagen >10 kWp: nur der Anteil ÜBER 10 kWp bekommt den niedrigeren Satz.
+// Quelle: Bundesnetzagentur, "EEG-Förderung und -Fördersätze" — Inbetriebnahme 01.08.2026–31.01.2027.
+// Teileinspeisung: ≤10 kWp = 7,70 Ct/kWh, 10–40 kWp = 6,66 Ct/kWh, 40–100 kWp = 5,44 Ct/kWh.
+// Stand Aug 2026; mit jeder halbjährlichen EEG-Degression (Stichtage 1. Februar/1. August) prüfen.
+export const EINSPEISE_10_40 = 0.0666; // €/kWh, Teileinspeisung, 10–40 kWp
+export const EINSPEISE_40_100 = 0.0544; // €/kWh, Teileinspeisung, 40–100 kWp
+
 // Fallback-Jahresertrag ohne PVGIS-Daten (bundesweiter Durchschnitt). Fraunhofer ISE zitiert für
 // deutsche PV-Dachanlagen im Schnitt ~922 Vollbenutzungsstunden (≈922 kWh/kWp — "Aktuelle Fakten zur
 // Photovoltaik in Deutschland", Stand 05.05.2026, nach ÜNB-Mittelfristprognose); Praxisquellen nennen
@@ -215,6 +222,18 @@ export let EINSPEISEVERGUETUNG_TEIL = EINSPEISE; // €/kWh, Teileinspeisung, An
 // 31.7.2026: 12,34 Ct/kWh). Stand Aug 2026; mit jeder halbjährlichen EEG-Degression
 // (Stichtage 1. Februar/1. August) prüfen.
 export let EINSPEISEVERGUETUNG_VOLL = 0.1222; // €/kWh, Volleinspeisung, Anlagen bis 10 kWp
+
+// Gewichteter Durchschnitt der Teileinspeisungsvergütung für eine Anlage der Größe `kwp`.
+// Die ersten 10 kWp bekommen den ≤10-kWp-Satz, der Rest staffelt sich nach EEG-Tabelle.
+// Quelle: Bundesnetzagentur, Inbetriebnahme 01.08.2026–31.01.2027.
+export function einspeiseStaffel(kwp) {
+  if (kwp <= 0) return EINSPEISE;
+  if (kwp <= 10) return EINSPEISE;
+  if (kwp <= 40) {
+    return (10 * EINSPEISE + (kwp - 10) * EINSPEISE_10_40) / kwp;
+  }
+  return (10 * EINSPEISE + 30 * EINSPEISE_10_40 + (kwp - 40) * EINSPEISE_40_100) / kwp;
+}
 
 // Kundenspezifische Wirtschaftlichkeits-Overrides (Injection statt Import, damit
 // calculate.js von der Seite losgelöst einbettbar bleibt — CLAUDE.md Architektur).
@@ -363,21 +382,27 @@ export function wechselrichterKosten(kwp) {
 // 25-Jahres-Projektion mit Moduldegradation, laufenden Betriebskosten und einem einmaligen
 // Wechselrichter-Austausch. Die jährliche Strompreissteigerung fließt bewusst NUR hier ein
 // (nicht in den prominent angezeigten Jahres-Ersparnis-Wert) und ist als Annahme gekennzeichnet.
+// Gibt { netto25, netto10, netto15, netto20 } zurück (alle in €).
 function projiziere25Jahre(jahresertrag, autarkieRate, gesamtVerbrauch, investition, kwp) {
+  const einspeiseRate = einspeiseStaffel(kwp);
   let kumulierteErsparnis = 0;
   let kumulierteWartung = 0;
+  let netto10 = 0, netto15 = 0, netto20 = 0;
   for (let jahr = 1; jahr <= 25; jahr++) {
     const ertragJahrN = jahresertrag * Math.pow(1 - DEGRADATION_PRO_JAHR, jahr - 1);
-    // eigenverbrauch kann nie größer sein als das, was in diesem Jahr tatsächlich erzeugt wird —
-    // relevant in späteren Jahren, wenn Degradation den Ertrag unter den Zielwert drückt.
     const eigenverbrauchJahrN = Math.min(gesamtVerbrauch * autarkieRate, ertragJahrN);
     const einspeisungJahrN = ertragJahrN - eigenverbrauchJahrN;
     const strompreisJahrN = STROMPREIS * Math.pow(1 + STROMPREIS_STEIGERUNG_PRO_JAHR, jahr - 1);
-    kumulierteErsparnis += eigenverbrauchJahrN * strompreisJahrN + einspeisungJahrN * EINSPEISE;
+    kumulierteErsparnis += eigenverbrauchJahrN * strompreisJahrN + einspeisungJahrN * einspeiseRate;
     kumulierteWartung += investition * WARTUNG_PROZENT_PRO_JAHR;
+    const nettoBisher = kumulierteErsparnis - kumulierteWartung;
+    if (jahr === 10) netto10 = Math.round(nettoBisher - investition);
+    if (jahr === 15) netto15 = Math.round(nettoBisher - investition);
+    if (jahr === 20) netto20 = Math.round(nettoBisher - investition);
   }
   const wechselrichterKostenWert = wechselrichterKosten(kwp);
-  return Math.round(kumulierteErsparnis - kumulierteWartung - wechselrichterKostenWert - investition);
+  const netto25 = Math.round(kumulierteErsparnis - kumulierteWartung - wechselrichterKostenWert - investition);
+  return { netto25, netto10, netto15, netto20 };
 }
 
 export function calculate(dach, ausrichtung, neigung, verbrauch, speicherKwh, eauto, waermepumpe, pvgisData, dachform, eautoProfil, tageszeit) {
@@ -411,8 +436,11 @@ export function calculate(dach, ausrichtung, neigung, verbrauch, speicherKwh, ea
   const eigenverbrauch = Math.round(Math.min(gesamtVerbrauch * autarkieRate, jahresertrag));
   const einspeisung = jahresertrag - eigenverbrauch;
 
+  // Staffelte Einspeisevergütung: erste 10 kWp zum ≤10-kWp-Satz, Rest nach EEG-Tabelle.
+  // Quelle: Bundesnetzagentur, Inbetriebnahme 01.08.2026–31.01.2027.
+  const einspeiseRate = einspeiseStaffel(kwp);
   const ersparnisEigen = eigenverbrauch * STROMPREIS;
-  const ersparnisEinspeisung = einspeisung * EINSPEISE;
+  const ersparnisEinspeisung = einspeisung * einspeiseRate;
   const jahresErsparnis = Math.round(ersparnisEigen + ersparnisEinspeisung);
 
   const investition = Math.round(kwp * KOSTEN_PRO_KWP + speicherKwh * SPEICHER_KOSTEN_PRO_KWH);
@@ -420,7 +448,7 @@ export function calculate(dach, ausrichtung, neigung, verbrauch, speicherKwh, ea
   const amortisation = Math.round((investition / jahresErsparnis) * 10) / 10;
   const co2 = Math.round(jahresertrag * CO2_PER_KWH);
   const co2Baeume = Math.round(co2 / CO2_KG_PRO_BAUM_JAHR);
-  const ersparnis25 = projiziere25Jahre(jahresertrag, autarkieRate, gesamtVerbrauch, investition, kwp);
+  const { netto25: ersparnis25, netto10: ersparnis10, netto15: ersparnis15, netto20: ersparnis20 } = projiziere25Jahre(jahresertrag, autarkieRate, gesamtVerbrauch, investition, kwp);
   const autarkie = Math.round((eigenverbrauch / gesamtVerbrauch) * 100);
   const monatlich = Math.round(jahresErsparnis / 12);
   // Abgeleiteter Anzeigewert für die Transparenzbox: Anteil des ERTRAGS, der selbst verbraucht wird
@@ -430,5 +458,5 @@ export function calculate(dach, ausrichtung, neigung, verbrauch, speicherKwh, ea
   // Monatliche Verteilung (Eigenverbrauch/Einspeisung/Netzbezug) für die Balance-Grafik.
   const balance = monatlicheBalance(jahresertrag, gesamtVerbrauch, eigenverbrauch, monthly);
 
-  return { kwp, module, nutzbar: Math.round(nutzbar), jahresertrag, eigenverbrauch, einspeisung, jahresErsparnis, investition, amortisation, co2, co2Baeume, ersparnis25, gesamtVerbrauch, autarkie, monatlich, dataSource, monthly, eigenverbrauchsquote, balance };
+  return { kwp, module, nutzbar: Math.round(nutzbar), jahresertrag, eigenverbrauch, einspeisung, jahresErsparnis, investition, amortisation, co2, co2Baeume, ersparnis25, ersparnis10, ersparnis15, ersparnis20, gesamtVerbrauch, autarkie, monatlich, dataSource, monthly, eigenverbrauchsquote, balance };
 }

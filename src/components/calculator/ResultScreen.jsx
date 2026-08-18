@@ -6,7 +6,7 @@ import MonthlyChart from "./ui/MonthlyChart.jsx";
 import MonthlyBalanceChart from "./ui/MonthlyBalanceChart.jsx";
 import SunArc from "../SunArc.jsx";
 import { IconSearch, IconCheck, IconCalendar, IconMail, IconHouse, IconSatellite, IconLoader, IconLock, IconClock } from "../Icons.jsx";
-import { STROMPREIS, EINSPEISE, M2_PRO_KWP, M2_PRO_KWP_FLACHDACH, PVGIS_SYSTEM_LOSS, DEGRADATION_PRO_JAHR, WARTUNG_PROZENT_PRO_JAHR, wechselrichterKosten, STROMPREIS_STEIGERUNG_PRO_JAHR, formatSpan } from "../../lib/calculate.js";
+import { STROMPREIS, EINSPEISE, M2_PRO_KWP, M2_PRO_KWP_FLACHDACH, PVGIS_SYSTEM_LOSS, DEGRADATION_PRO_JAHR, WARTUNG_PROZENT_PRO_JAHR, wechselrichterKosten, STROMPREIS_STEIGERUNG_PRO_JAHR, formatSpan, einspeiseStaffel } from "../../lib/calculate.js";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion.js";
 import { useCountUpOnView } from "../../lib/useCountUpOnView.js";
 
@@ -157,7 +157,13 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
         {/* 25-Jahres-Wert: deutlich mehr kumulierte Unsicherheit als der Jahres-Ersparnis-Wert
             (Degradation + Wartung + Strompreis-Annahme + Wechselrichter-Timing kombiniert über
             25 Jahre) — bewusst breitere Spanne als die ±12% des 1-Jahres-Werts. */}
-          In 25 Jahren sparen Sie ca. <strong>{formatSpan(result.ersparnis25, 22)} €</strong> (nach Investition, Wartung und Wechselrichter-Austausch)
+          Kumulierte Nettoersparnis (nach Investition & Wartung):
+          <div style={{ display: "flex", flexDirection: "column", gap: 3, marginTop: 6, fontFamily: theme.font.display }}>
+            <div>Nach 10 Jahren: <strong>{formatSpan(result.ersparnis10, 16)} €</strong></div>
+            <div>Nach 15 Jahren: <strong>{formatSpan(result.ersparnis15, 18)} €</strong></div>
+            <div>Nach 20 Jahren: <strong>{formatSpan(result.ersparnis20, 20)} €</strong></div>
+            <div>Nach 25 Jahren: <strong>{formatSpan(result.ersparnis25, 22)} €</strong></div>
+          </div>
         </div>
       </div>
 
@@ -226,11 +232,15 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
             {!speicherKwh && result.autarkie < 50 && " Mit einem Batteriespeicher steigt Ihre Autarkie spürbar — 100% sind mit einem realistisch dimensionierten Speicher allerdings nicht erreichbar."}
           </div>
         </div>
-        <div style={{ display: "flex", gap: 18, flexWrap: "wrap", minWidth: 200 }}>
+          <div style={{ display: "flex", gap: 18, flexWrap: "wrap", minWidth: 200 }}>
           <div style={{ minWidth: 150 }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: theme.color.textPrimary, fontVariantNumeric: "tabular-nums" }}>{Math.round(result.eigenverbrauchsquote * 100)}%</div>
             <div style={{ fontSize: 10.5, color: theme.color.textMuted }}>Eigenverbrauchsanteil</div>
-            <div style={{ fontSize: 10.5, color: theme.color.textMuted, lineHeight: 1.4, marginTop: 2 }}>Anteil des <strong>selbst erzeugten</strong> Stroms, den Sie nutzen — der Rest wird eingespeist.</div>
+            <div style={{ fontSize: 10.5, color: theme.color.textMuted, lineHeight: 1.4, marginTop: 2 }}>Anteil des <strong>selbst erzeugten</strong> Stroms, den Sie nutzen — der Rest wird eingespeist.
+              {result.eigenverbrauchsquote < 0.5 && (
+                <span title="Der Eigenverbrauchsanteil sinkt, wenn Ihre Anlage deutlich mehr produziert als Sie verbrauchen — ein niedriger Wert bedeutet nicht, dass sich die Anlage nicht lohnt, sondern dass ein großer Teil ins Netz eingespeist wird." style={{ cursor: "help", borderBottom: `1px dashed ${theme.color.textMuted}`, marginLeft: 4 }}>?</span>
+              )}
+            </div>
           </div>
           <div style={{ minWidth: 150 }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: theme.color.textPrimary, fontVariantNumeric: "tabular-nums" }}>{(result.gesamtVerbrauch - result.eigenverbrauch).toLocaleString("de-DE")}</div>
@@ -322,7 +332,7 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
           <span>Ersparnis Eigenverbrauch</span><span style={{ fontWeight: 600, color: theme.color.textPrimary }}>{Math.round(result.eigenverbrauch * STROMPREIS).toLocaleString("de-DE")} €</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span>Einspeisevergütung</span><span style={{ fontWeight: 600, color: theme.color.textPrimary }}>{Math.round(result.einspeisung * EINSPEISE).toLocaleString("de-DE")} €</span>
+          <span>Einspeisevergütung</span><span style={{ fontWeight: 600, color: theme.color.textPrimary }}>{Math.round(result.einspeisung * einspeiseStaffel(result.kwp)).toLocaleString("de-DE")} € <span style={{ fontSize: 11, fontWeight: 400, color: theme.color.textMuted }}>(staffelt nach EEG)</span></span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", borderTop: `1px solid ${theme.color.border}`, paddingTop: 8, marginTop: 8 }}>
           <span>Geschätzte Investition</span><span style={{ fontWeight: 600, color: theme.color.textPrimary }}>{result.investition.toLocaleString("de-DE")} €</span>
@@ -346,7 +356,7 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
           <p style={{ margin: "8px 0" }}>
             {dachform === "Flachdach"
               ? `Für die Anlagengröße rechnen wir auf dem Flachdach mit ca. ${M2_PRO_KWP_FLACHDACH} m² Dachfläche pro kWp Modulleistung — deutlich mehr als die ca. ${M2_PRO_KWP} m²/kWp auf dem Schrägdach, weil aufgeständerte Module zur Verschattungsvermeidung Reihenabstand brauchen.`
-              : `Für die Anlagengröße rechnen wir mit ca. ${M2_PRO_KWP} m² Dachfläche pro kWp Modulleistung, abhängig von Ihrer Dachform.`} Ihre geschätzte Autarkie von {result.autarkie}% (Anteil Ihres Verbrauchs, den die Anlage selbst deckt) ergibt sich aus dem Verhältnis von Anlagengröße zu Verbrauch{speicherKwh > 0 ? ` und Ihrer Speicherkapazität von ${speicherKwh} kWh` : ""} — keine feste Pauschale: Eine im Verhältnis zum Verbrauch größere Anlage deckt tendenziell einen größeren Teil davon selbst ab. Wir orientieren uns dabei an den offiziell kommunizierten Spannen von 30–55% ohne und bis zu 85% mit Speicher. {tageszeit && tageszeit.length > 0 && `Zusätzlich fließt ein, dass Sie den Strom überwiegend ${tageszeit.join(", ").toLowerCase()} nutzen — Verbrauch in den Produktionszeiten (Mittag) erhöht den Eigenverbrauch, Abend-/Nachtverbrauch senkt ihn.`} Ihre Ersparnis: Eigenverbrauch zu Ihrem Strompreis von {(STROMPREIS * 100).toFixed(0)} Ct/kWh, der eingespeiste Rest zur aktuellen Einspeisevergütung von {(EINSPEISE * 100).toFixed(1)} Ct/kWh.
+              : `Für die Anlagengröße rechnen wir mit ca. ${M2_PRO_KWP} m² Dachfläche pro kWp Modulleistung, abhängig von Ihrer Dachform.`} Ihre geschätzte Autarkie von {result.autarkie}% (Anteil Ihres Verbrauchs, den die Anlage selbst deckt) ergibt sich aus dem Verhältnis von Anlagengröße zu Verbrauch{speicherKwh > 0 ? ` und Ihrer Speicherkapazität von ${speicherKwh} kWh` : ""} — keine feste Pauschale: Eine im Verhältnis zum Verbrauch größere Anlage deckt tendenziell einen größeren Teil davon selbst ab. Wir orientieren uns dabei an den offiziell kommunizierten Spannen von 30–55% ohne und bis zu 85% mit Speicher. {tageszeit && tageszeit.length > 0 && `Zusätzlich fließt ein, dass Sie den Strom überwiegend ${tageszeit.join(", ").toLowerCase()} nutzen — Verbrauch in den Produktionszeiten (Mittag) erhöht den Eigenverbrauch, Abend-/Nachtverbrauch senkt ihn.`} Ihre Ersparnis: Eigenverbrauch zu Ihrem Strompreis von {(STROMPREIS * 100).toFixed(0)} Ct/kWh, der eingespeiste Rest zur aktuellen Einspeisevergütung von {(einspeiseStaffel(result.kwp) * 100).toFixed(1)} Ct/kWh (staffelt nach EEG: Anlagen bis 10 kWp erhalten {(EINSPEISE * 100).toFixed(1)} Ct/kWh, größere Anlagen einen niedrigeren Satz für den Anteil über 10 kWp).
           </p>
           <p style={{ margin: "8px 0" }}>
             Die 25-Jahres-Prognose berücksichtigt {(DEGRADATION_PRO_JAHR * 100).toFixed(1)}% Ertragsverlust pro Jahr durch Moduldegradation, laufende Betriebskosten von ca. {(WARTUNG_PROZENT_PRO_JAHR * 100).toFixed(0)}% der Investitionssumme pro Jahr sowie einen einmaligen Wechselrichter-Austausch (ca. {Math.round(wechselrichterKosten(result.kwp)).toLocaleString("de-DE")} € nach 12–15 Jahren). Der Jahres-Ersparnis-Wert oben rechnet mit dem heutigen Strompreis; nur die 25-Jahres-Zahl unterstellt zusätzlich vorsichtig eine Strompreissteigerung von {(STROMPREIS_STEIGERUNG_PRO_JAHR * 100).toFixed(0)}%/Jahr.

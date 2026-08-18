@@ -14,12 +14,12 @@ import { IconMapPin, IconRuler, IconSun, IconBolt, IconBattery } from "../Icons.
 
 export default function Wizard() {
   const [step, setStep] = useState(0);
-  const [dach, setDach] = useState(60);
+  const [dach, setDach] = useState(80);
   const [ausrichtung, setAusrichtung] = useState("Süd");
   const [neigung, setNeigung] = useState("Mittel (25–35°)");
   const [haushalt, setHaushalt] = useState("4 Personen");
-  const [verbrauch, setVerbrauch] = useState(4000);
-  const [speicherKwh, setSpeicherKwh] = useState(0);
+  const [verbrauch, setVerbrauch] = useState(5000);
+  const [speicherKwh, setSpeicherKwh] = useState(7);
   // 3-Zustände: "nein" | "ja" | "geplant" — "geplant" zählt nicht in die Berechnung.
   const [eauto, setEauto] = useState("nein");
   const [waermepumpe, setWaermepumpe] = useState("nein");
@@ -27,7 +27,7 @@ export default function Wizard() {
   const [tageszeit, setTageszeit] = useState([]);
   const [plz, setPlz] = useState("");
   const [address, setAddress] = useState("");
-  const [dachform, setDachform] = useState("Satteldach");
+  const [dachform, setDachform] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [animDir, setAnimDir] = useState("right");
   const [animKey, setAnimKey] = useState(0);
@@ -41,6 +41,15 @@ export default function Wizard() {
   // to the previous main step and losing progress.
   const [subIndex, setSubIndex] = useState(0);
   const subBackRef = useRef(null);
+
+  // Dachform muss gewählt sein, bevor der User den Dach-Schritt verlassen kann.
+  // Der SubFlow setzt stepReady erst beim letzten Sub-Screen (Neigung),
+  // aber wir müssen es auch beim Dachform-Screen (index 0) prüfen.
+  useEffect(() => {
+    if (step === 1 && subIndex === 0) {
+      setStepReady(!!dachform);
+    }
+  }, [step, subIndex, dachform]);
   const [pvgisData, setPvgisData] = useState(null);
   const [pvgisLoading, setPvgisLoading] = useState(false);
   // Incremented on every successfully loaded PVGIS result — LivePanel uses it
@@ -93,6 +102,9 @@ export default function Wizard() {
   const restart = () => {
     setShowResult(false);
     setStep(0);
+    setPvgisData(null);
+    setPvgisLoading(false);
+    setManualCoords(null);
   };
 
   const resolvedCity = useMemo(() => getCity(plz), [plz]);
@@ -105,7 +117,7 @@ export default function Wizard() {
   };
 
   const gesamtVerbrauch = computeGesamtVerbrauch(verbrauch, eauto, waermepumpe, eautoProfil);
-  const { kwp } = computeKwp(dach, dachform);
+  const { kwp } = computeKwp(dach, dachform || "Satteldach");
   const speicherVorschlagKwh = Math.round(gesamtVerbrauch / 1000 * SPEICHER_KWH_PRO_1000_VERBRAUCH * 2) / 2;
 
   const result = calculate(dach, ausrichtung, neigung, verbrauch, speicherKwh, eauto, waermepumpe, pvgisData, dachform, eautoProfil, tageszeit);
@@ -276,11 +288,8 @@ export default function Wizard() {
           </div>
 
           {/* Navigation */}
-          <div style={{ display: "flex", gap: 10, marginTop: 24 }}>
-            {/* Zurück: Bei Sub-Flow-Schritten (Dach, Verbrauch) erst innerhalb
-                des Sub-Flows zurückgehen. Nur wenn der Sub-Flow auf Screen 0 steht,
-                geht es zum vorherigen Hauptschritt. Ohne diese Logik sprang der
-                Button direkt zum Anfang und übersprang alle Sub-Screens. */}
+          <div style={{ display: "flex", alignItems: "center", marginTop: 24 }}>
+            {/* Zurück: Textlink, links, dezenter Fokus. "Weiter" bleibt der visuelle Hauptfokus. */}
             {(step > 0 || (SUB_FLOW_STEPS.includes(step) && subIndex > 0)) && (
               <button
                 onClick={() => {
@@ -291,31 +300,28 @@ export default function Wizard() {
                   }
                 }}
                 style={{
-                  flex: 1,
-                  padding: "14px",
-                  borderRadius: 12,
-                  border: `1.5px solid ${theme.color.border}`,
-                  background: theme.color.white,
-                  color: theme.color.textSecondary,
-                  fontSize: 14,
+                  background: "none",
+                  border: "none",
+                  padding: "8px 4px",
+                  fontSize: 13,
                   fontWeight: 500,
+                  color: theme.color.textMuted,
                   cursor: "pointer",
-                  transition: "background 0.15s",
+                  whiteSpace: "nowrap",
+                  transition: "color 0.15s",
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = theme.color.textPrimary; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = theme.color.textMuted; }}
               >
                 ← Zurück
               </button>
             )}
+            <div style={{ flex: 1 }} />
             {/* Bei Sub-Flow-Schritten (Dach, Verbrauch) übernimmt der jeweilige
                 Sub-Screen die Navigation (Auto-Advance ODER eigener "Weiter"-
                 Button) — der übergeordnete Button hier wird erst sichtbar,
                 sobald der Sub-Flow den letzten Screen erreicht hat (stepReady).
-                Vorher: der Button war zwar über `stepReady` gesteuert deklariert,
-                wurde in diesem JSX aber nie ausgewertet — dadurch war er auf
-                JEDEM Sub-Screen sofort klickbar und sprang bei Klick direkt zum
-                nächsten Hauptschritt, unabhängig vom Sub-Flow-Fortschritt (auf
-                der Dachfläche z.B. zusätzlich zum eigenen ContinueButton sichtbar
-                → zwei Buttons mit unterschiedlicher Wirkung). */}
+                Für Dach-Schritt: stepReady wird erst gesetzt wenn dachform gewählt. */}
             {(!SUB_FLOW_STEPS.includes(step) || stepReady) && (
               <button
                 onClick={() => {
@@ -323,8 +329,7 @@ export default function Wizard() {
                   else goResult();
                 }}
                 style={{
-                  flex: step === 0 ? 1 : 2,
-                  padding: "14px",
+                  padding: "14px 28px",
                   borderRadius: 12,
                   border: "none",
                   background: step === steps.length - 1 ? theme.color.accent : theme.color.textPrimary,

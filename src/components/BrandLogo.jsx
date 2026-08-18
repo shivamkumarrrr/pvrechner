@@ -7,11 +7,13 @@ import { siteConfig } from "../config.js";
 export default function BrandLogo({ size = "md" }) {
   const height = size === "sm" ? 30 : 46;
   return (
-    <img
-      src={siteConfig.brand.logo}
-      alt={siteConfig.brand.name}
-      height={height}
-      style={{ display: "block", height, width: "auto" }}
-    />
+    <a href="/" style={{ display: "block", lineHeight: 0, textDecoration: "none" }}>
+      <img
+        src={siteConfig.brand.logo}
+        alt={siteConfig.brand.name}
+        height={height}
+        style={{ display: "block", height, width: "auto" }}
+      />
+    </a>
   );
 }
