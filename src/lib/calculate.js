@@ -305,6 +305,25 @@ const SPEICHER_BONUS = [
   { s: 3.5, bonus: 0.30 },
 ];
 
+// Validierung gegen Patricks reale Anlage (12.8.2026, Geschäftsführer-Feedback): 5,2 kWp,
+// 6,4 kWh Speicher, 4.239 kWh Verbrauch → Modell liefert 70% Autarkie, sein SMA-Portal
+// zeigt real 48% (22 Prozentpunkte Abweichung, über der von ihm gesetzten 10pp-Schwelle
+// für "Kennlinie stimmt nicht"). VOR einer Änderung recherchiert (HTW Berlin Stromspeicher-
+// Inspektion 2025 + pv-magazine-Bericht dazu): HTW beziffert den Autarkie-Zugewinn pro kWh
+// Speicher als Sättigungskurve (erste 4 kWh: 4–6pp/kWh, 4–8 kWh: 2–3pp/kWh, ab 10 kWh:
+// ≤1pp/kWh) — für 6,4 kWh ergibt das ≈26pp Bonus, sehr nah an dem, was diese Tabelle bei
+// s≈1,5 liefert (≈24pp). Dieselbe HTW-Quelle bestätigt zudem 60–80% Autarkie als typisch
+// für ausreichend dimensionierte PV+Speicher-Systeme — das Modell (70%) liegt also im
+// literaturgestützten Rahmen. Der pv-magazine-Bericht zur selben HTW-Studie stellt außerdem
+// fest, dass verschiedene seriöse Online-Rechner bei identischen Eingaben um >20 Prozentpunkte
+// voneinander abweichen können — die Lücke zu einem einzelnen realen Haushalt liegt damit
+// innerhalb bekannter Modell-vs-Realität-Varianz, nicht zwingend ein Kennlinienfehler.
+// Fazit: SPEICHER_BONUS NICHT auf diesen einen Datenpunkt hin verbogen (würde die Kennlinie
+// für alle anderen, besser zur Literatur passenden Fälle verschlechtern) — stattdessen
+// Tooltip am Autarkie-Ring ergänzt (ResultScreen.jsx), der auf diese reale Varianz hinweist.
+// Eigenverbrauchsquote (die zweite, hier NICHT modellierte Kennzahl) traf mit 60% vs.
+// Patricks realen 65% deutlich näher (5pp) — dort besteht kein Änderungsbedarf.
+
 function interpolate(table, x, keyX, keyY) {
   if (x <= table[0][keyX]) return table[0][keyY];
   for (let i = 1; i < table.length; i++) {

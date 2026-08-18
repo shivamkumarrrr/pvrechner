@@ -219,7 +219,10 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
               textAlign: "center",
             }}>
               <div style={{ fontSize: 24, fontWeight: 700, color: theme.color.textPrimary, lineHeight: 1 }}>{result.autarkie}%</div>
-              <div style={{ fontSize: 9, color: theme.color.textMuted, marginTop: 2 }}>Autarkie</div>
+              <div style={{ fontSize: 9, color: theme.color.textMuted, marginTop: 2 }}>
+                Autarkie
+                <span title="Modellierte Kennlinie, kein Lastgang Ihres Haushalts. Reale Werte hängen stark davon ab, wann Sie tatsächlich Strom verbrauchen — laut HTW Berlin können auch verschiedene seriöse Online-Rechner bei identischen Eingaben um 20 Prozentpunkte und mehr voneinander abweichen." style={{ cursor: "help", borderBottom: `1px dashed ${theme.color.textMuted}`, marginLeft: 3 }}>?</span>
+              </div>
             </div>
           </div>
         </div>

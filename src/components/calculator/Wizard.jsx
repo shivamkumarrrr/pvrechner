@@ -129,12 +129,16 @@ export default function Wizard() {
     setShowResult(true);
   };
 
+  // plz/address bleiben beim Neustart erhalten (kein Reset hier) — deshalb NICHT
+  // pvgisData/manualCoords mit-nullen: beide hängen an [plz, address] als Effekt-
+  // Deps, die sich beim Neustart nicht ändern, also feuern die Debounce-Effekte
+  // NICHT neu. Ein Reset hier machte den Standort beim 2. Durchlauf kaputt (Bug):
+  // Marker sprang stillschweigend von der präzisen Adress-Position zurück auf das
+  // PLZ-Zentrum, PVGIS-Daten verschwanden komplett (Rückfall auf Schätzwert) —
+  // beides ohne dass sich plz/address geändert hätten.
   const restart = () => {
     setShowResult(false);
     setStep(0);
-    setPvgisData(null);
-    setPvgisLoading(false);
-    setManualCoords(null);
   };
   const displayLocation = resolvedCity ? `${plz} ${resolvedCity}` : plz;
 
