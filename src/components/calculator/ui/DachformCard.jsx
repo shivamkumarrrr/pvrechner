@@ -23,12 +23,12 @@ export default function DachformCard({ item, selected, onSelect }) {
       }}
     >
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
-        <RoofIcon item={item} active={active} size={60} />
+        <RoofIcon item={item} active={active} size={72} />
       </div>
-      <div style={{ fontSize: 11, fontWeight: active ? 600 : 400, color: active ? theme.color.accentHover : theme.color.textSecondary }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: active ? theme.color.accentHover : theme.color.textPrimary }}>
         {item.label}
       </div>
-      <div style={{ fontSize: 9, color: active ? theme.color.accentHover : theme.color.textMuted, marginTop: 1 }}>
+      <div style={{ fontSize: 11, fontWeight: 500, color: active ? theme.color.accentHover : theme.color.textMuted, marginTop: 2 }}>
         ~{Math.round(anzeigeFaktor * 100)}% nutzbar
       </div>
     </TiltButton>
