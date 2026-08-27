@@ -57,11 +57,16 @@ function HeroBackground({ reducedMotion }) {
           height: "100%",
           objectFit: "cover",
           opacity: 1,
-          animation: reducedMotion ? "none" : "hero-fade-in 0.4s ease",
+          // Länger + sanftere Kurve als vorher (0.4s ease) für einen ruhigeren
+          // Übergang. Bleibt bewusst ein reiner Fade-in auf einem einzelnen
+          // <img> (kein Crossfade zweier Bilder) — genau das GENAU-EIN-<img>-
+          // Prinzip verhindert den früheren Ghost-Bug (siehe CLAUDE.md), ein
+          // echter Crossfade würde das Risiko wieder einführen.
+          animation: reducedMotion ? "none" : "hero-fade-in 1.1s cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       />
       {!reducedMotion && (
-        <style>{`@keyframes hero-fade-in { from { opacity: 0 } to { opacity: 1 } }`}</style>
+        <style>{`@keyframes hero-fade-in { from { opacity: 0; transform: scale(1.03); } to { opacity: 1; transform: scale(1); } }`}</style>
       )}
     </div>
   );

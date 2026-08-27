@@ -5,7 +5,7 @@ import BarCompare from "./ui/BarCompare.jsx";
 import MonthlyChart from "./ui/MonthlyChart.jsx";
 import MonthlyBalanceChart from "./ui/MonthlyBalanceChart.jsx";
 import SunArc from "../SunArc.jsx";
-import { IconSearch, IconCheck, IconCalendar, IconMail, IconHouse, IconSatellite, IconLoader, IconLock, IconClock } from "../Icons.jsx";
+import { IconSearch, IconCheck, IconCalendar, IconMail, IconSatellite, IconLoader, IconLock, IconClock } from "../Icons.jsx";
 import { STROMPREIS, EINSPEISE, M2_PRO_KWP, M2_PRO_KWP_FLACHDACH, PVGIS_SYSTEM_LOSS, DEGRADATION_PRO_JAHR, WARTUNG_PROZENT_PRO_JAHR, wechselrichterKosten, STROMPREIS_STEIGERUNG_PRO_JAHR, formatSpan, einspeiseStaffel } from "../../lib/calculate.js";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion.js";
 import { useCountUpOnView } from "../../lib/useCountUpOnView.js";
@@ -16,7 +16,38 @@ import { useCountUpOnView } from "../../lib/useCountUpOnView.js";
 //   "webhook" → webhookUrl (POST als JSON ins Kundensystem/CRM), "demo" → ohne Backend.
 import { siteConfig } from "../../config.js";
 
-export default function ResultScreen({ result, displayLocation, resolvedCity, dach, dachform, ausrichtung, neigung, speicherKwh, eauto, eautoProfil, waermepumpe, tageszeit, plz, onRestart }) {
+// Kreis-Badge statt nacktem "?"-Zeichen mit Dashed-Underline — ein bloßes "?"
+// direkt nach einem Satzende (z.B. "...eingespeist.?") liest sich wie kaputte
+// Interpunktion statt wie ein eigenständiges Hilfe-Element, unabhängig davon,
+// wie viel Abstand man einstellt. Ein umrandeter Kreis macht die Grenze
+// zwischen Satz und Hilfe-Icon eindeutig sichtbar.
+function HelpTip({ title }) {
+  return (
+    <span
+      title={title}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 15,
+        height: 15,
+        borderRadius: "50%",
+        border: `1.5px solid ${theme.color.textMuted}`,
+        color: theme.color.textMuted,
+        fontSize: 10,
+        fontWeight: 700,
+        cursor: "help",
+        marginLeft: 5,
+        flexShrink: 0,
+        verticalAlign: "middle",
+      }}
+    >
+      ?
+    </span>
+  );
+}
+
+export default function ResultScreen({ result, displayLocation, dach, dachform, ausrichtung, neigung, speicherKwh, eauto, eautoProfil, waermepumpe, tageszeit, plz, onRestart }) {
   const reduced = usePrefersReducedMotion();
   // Haupt-Ergebniszahl: zählt beim ersten Erscheinen von 0 auf den Wert hoch.
   // Angezeigt als ±12%-Spanne (formatSpan), deren Mitte hochzählt.
@@ -221,7 +252,7 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
               <div style={{ fontSize: 24, fontWeight: 700, color: theme.color.textPrimary, lineHeight: 1 }}>{result.autarkie}%</div>
               <div style={{ fontSize: 9, color: theme.color.textMuted, marginTop: 2 }}>
                 Autarkie
-                <span title="Modellierte Kennlinie, kein Lastgang Ihres Haushalts. Reale Werte hängen stark davon ab, wann Sie tatsächlich Strom verbrauchen — laut HTW Berlin können auch verschiedene seriöse Online-Rechner bei identischen Eingaben um 20 Prozentpunkte und mehr voneinander abweichen." style={{ cursor: "help", borderBottom: `1px dashed ${theme.color.textMuted}`, marginLeft: 3 }}>?</span>
+                <HelpTip title="Modellierte Kennlinie, kein Lastgang Ihres Haushalts. Reale Werte hängen stark davon ab, wann Sie tatsächlich Strom verbrauchen — laut HTW Berlin können auch verschiedene seriöse Online-Rechner bei identischen Eingaben um 20 Prozentpunkte und mehr voneinander abweichen." />
               </div>
             </div>
           </div>
@@ -241,7 +272,7 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
             <div style={{ fontSize: 10.5, color: theme.color.textMuted }}>Eigenverbrauchsanteil</div>
             <div style={{ fontSize: 10.5, color: theme.color.textMuted, lineHeight: 1.4, marginTop: 2 }}>Anteil des <strong>selbst erzeugten</strong> Stroms, den Sie nutzen — der Rest wird eingespeist.
               {result.eigenverbrauchsquote < 0.5 && (
-                <span title="Der Eigenverbrauchsanteil sinkt, wenn Ihre Anlage deutlich mehr produziert als Sie verbrauchen — ein niedriger Wert bedeutet nicht, dass sich die Anlage nicht lohnt, sondern dass ein großer Teil ins Netz eingespeist wird." style={{ cursor: "help", borderBottom: `1px dashed ${theme.color.textMuted}`, marginLeft: 4 }}>?</span>
+                <HelpTip title="Der Eigenverbrauchsanteil sinkt, wenn Ihre Anlage deutlich mehr produziert als Sie verbrauchen — ein niedriger Wert bedeutet nicht, dass sich die Anlage nicht lohnt, sondern dass ein großer Teil ins Netz eingespeist wird." />
               )}
             </div>
           </div>
@@ -658,28 +689,6 @@ export default function ResultScreen({ result, displayLocation, resolvedCity, da
           <div style={{ textAlign: "center", fontSize: 12, color: theme.color.textMuted }}>
             Antwort von einem Fachbetrieb aus unserem Partnernetzwerk, meist innerhalb eines Werktags
           </div>
-        </div>
-      )}
-
-      {/* Partner network badge */}
-      {!formSent && (
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 8,
-          padding: "12px 16px",
-          background: theme.color.bg,
-          borderRadius: 10,
-          marginBottom: 10,
-        }}>
-          <span style={{ color: theme.color.textSecondary, display: "flex" }}><IconHouse size={16} /></span>
-          <span style={{ fontSize: 12, color: theme.color.textSecondary }}>
-            {resolvedCity
-              ? `Fachbetrieb aus unserem Partnernetzwerk in ${resolvedCity} und Umgebung`
-              : "Fachbetrieb aus unserem bundesweiten Partnernetzwerk"
-            }
-          </span>
         </div>
       )}
 

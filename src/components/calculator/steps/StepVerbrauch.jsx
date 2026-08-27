@@ -22,10 +22,10 @@ function PersonOption({ opt, active, onClick }) {
         transition: "all 0.15s",
       }}
     >
-      <div style={{ display: "flex", gap: 1, justifyContent: "center", marginBottom: 6 }}>
+      <div style={{ display: "flex", gap: 2, justifyContent: "center", marginBottom: 8 }}>
         {Array.from({ length: icons }).map((_, i) => (
           <span key={i} style={{ color: active ? theme.color.accentHover : theme.color.textMuted, display: "flex" }}>
-            <IconPerson size={14} />
+            <IconPerson size={24} />
           </span>
         ))}
       </div>
@@ -45,15 +45,15 @@ function CarChargeScene({ active }) {
   const f = active ? theme.color.accentSubtle : theme.color.bg;
   return (
     <svg viewBox="0 0 100 80" style={{ width: 74, height: 56, flexShrink: 0 }} role="img" aria-label="E-Auto an Ladesäule">
-      <line x1="4" y1="68" x2="96" y2="68" stroke={s} strokeWidth="1.5" />
-      <rect x="18" y="45" width="54" height="12" rx="4" fill={f} stroke={s} strokeWidth="1.5" />
-      <path d="M31 45 37 35h23l9 10" fill={f} stroke={s} strokeWidth="1.5" strokeLinejoin="round" />
+      <line x1="4" y1="68" x2="96" y2="68" stroke={s} strokeWidth="2" />
+      <rect x="18" y="45" width="54" height="12" rx="4" fill={f} stroke={s} strokeWidth="2" />
+      <path d="M31 45 37 35h23l9 10" fill={f} stroke={s} strokeWidth="2" strokeLinejoin="round" />
       <path d="M41 37h11l5 8h-9z" fill={active ? theme.color.accent : theme.color.border} opacity="0.6" />
-      <circle cx="30" cy="58" r="5" fill={f} stroke={s} strokeWidth="1.5" />
-      <circle cx="60" cy="58" r="5" fill={f} stroke={s} strokeWidth="1.5" />
-      <rect x="84" y="30" width="9" height="26" rx="2" fill={f} stroke={s} strokeWidth="1.5" />
-      <path d="M88.5 24 91 30h-2.4l3 6" fill="none" stroke={active ? theme.color.accent : theme.color.textSecondary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M84 46q-8 2-10 6" fill="none" stroke={s} strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="30" cy="58" r="5" fill={f} stroke={s} strokeWidth="2" />
+      <circle cx="60" cy="58" r="5" fill={f} stroke={s} strokeWidth="2" />
+      <rect x="84" y="30" width="9" height="26" rx="2" fill={f} stroke={s} strokeWidth="2" />
+      <path d="M88.5 24 91 30h-2.4l3 6" fill="none" stroke={active ? theme.color.accent : theme.color.textSecondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M84 46q-8 2-10 6" fill="none" stroke={s} strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -63,12 +63,12 @@ function HeatpumpScene({ active }) {
   const f = active ? theme.color.accentSubtle : theme.color.bg;
   return (
     <svg viewBox="0 0 100 80" style={{ width: 74, height: 56, flexShrink: 0 }} role="img" aria-label="Wärmepumpe mit Wärmewellen">
-      <line x1="4" y1="68" x2="96" y2="68" stroke={s} strokeWidth="1.5" />
-      <path d="M62 32q2-4 0-8M72 32q2-4 0-8M82 32q2-4 0-8" fill="none" stroke={active ? theme.color.accent : theme.color.textSecondary} strokeWidth="1.5" strokeLinecap="round" />
-      <rect x="30" y="38" width="46" height="30" rx="4" fill={f} stroke={s} strokeWidth="1.5" />
-      <circle cx="46" cy="53" r="9" fill="none" stroke={s} strokeWidth="1.5" />
+      <line x1="4" y1="68" x2="96" y2="68" stroke={s} strokeWidth="2" />
+      <path d="M62 32q2-4 0-8M72 32q2-4 0-8M82 32q2-4 0-8" fill="none" stroke={active ? theme.color.accent : theme.color.textSecondary} strokeWidth="2" strokeLinecap="round" />
+      <rect x="30" y="38" width="46" height="30" rx="4" fill={f} stroke={s} strokeWidth="2" />
+      <circle cx="46" cy="53" r="9" fill="none" stroke={s} strokeWidth="2" />
       <circle cx="46" cy="53" r="2.5" fill={active ? theme.color.accent : theme.color.textSecondary} />
-      <path d="M47 46l6 5-6 4" fill="none" stroke={active ? theme.color.accent : theme.color.textSecondary} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M47 46l6 5-6 4" fill="none" stroke={active ? theme.color.accent : theme.color.textSecondary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

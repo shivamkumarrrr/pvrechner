@@ -10,7 +10,7 @@ import RoofIcon from "./RoofIcon.jsx";
 // Transform entspricht (85° − Neigungswinkel): 10°→75°, 30°→55°, 50°→35°.
 // Rein visuell — ändert keine Berechnung. prefers-reduced-motion: statische
 // Ansicht ohne Kippen.
-export default function Roof3DPreview({ dachform, neigung, size = 92 }) {
+export default function Roof3DPreview({ dachform, neigung, size = 140 }) {
   const reduced = usePrefersReducedMotion();
   const form = DACHFORM.find((d) => d.label === dachform) || DACHFORM[0];
   const angle = NEIGUNG.find((n) => n.label === neigung)?.angle ?? 30;

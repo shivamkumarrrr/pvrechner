@@ -13,12 +13,19 @@ import Layout from "./Layout.jsx";
 import LivePanel from "./LivePanel.jsx";
 import { IconMapPin, IconRuler, IconSun, IconBolt, IconBattery } from "../Icons.jsx";
 
-export default function Wizard() {
+export default function Wizard({ onResult }) {
   const [step, setStep] = useState(0);
   const [dach, setDach] = useState(80);
-  const [ausrichtung, setAusrichtung] = useState("Süd");
-  const [neigung, setNeigung] = useState("Mittel (25–35°)");
-  const [haushalt, setHaushalt] = useState("4 Personen");
+  // Keine Vorauswahl bei Karten-Entscheidungen (Ausrichtung/Neigung/Haushalt) —
+  // der Nutzer muss aktiv wählen, statt eine bereits markierte Karte einfach
+  // stehen zu lassen. Ändert die Gating-Logik nicht: SubFlow verlangt ohnehin
+  // schon einen Klick, um zum nächsten Screen zu kommen (autoAdvance feuert
+  // nur bei Klick) — null ändert nur die optische Vorauswahl, nicht den Ablauf.
+  // Alle Lookups (calculate.js, pvgis.js, Roof3DPreview) haben bereits sichere
+  // Fallbacks (|| 1 bzw. ?? 30/0) für den Fall, dass noch nichts gewählt ist.
+  const [ausrichtung, setAusrichtung] = useState(null);
+  const [neigung, setNeigung] = useState(null);
+  const [haushalt, setHaushalt] = useState(null);
   const [verbrauch, setVerbrauch] = useState(5000);
   const [speicherKwh, setSpeicherKwh] = useState(7);
   // 3-Zustände: "nein" | "ja" | "geplant" — "geplant" zählt nicht in die Berechnung.
@@ -51,6 +58,16 @@ export default function Wizard() {
       setStepReady(!!dachform);
     }
   }, [step, subIndex, dachform]);
+
+  // Standort-Schritt: eine vollständige PLZ ist Pflicht, bevor es weitergeht —
+  // ohne PLZ landet man nur beim standortunabhängigen Schätzwert statt echten
+  // PVGIS-Daten. War vorher nicht gegated (Bug): der "Weiter"-Button war auf
+  // Schritt 0 immer aktiv, unabhängig vom PLZ-Feld.
+  useEffect(() => {
+    if (step === 0) {
+      setStepReady(plz.length === 5);
+    }
+  }, [step, plz]);
   const [pvgisData, setPvgisData] = useState(null);
   const [pvgisLoading, setPvgisLoading] = useState(false);
   // Incremented on every successfully loaded PVGIS result — LivePanel uses it
@@ -120,13 +137,21 @@ export default function Wizard() {
     setAnimDir(newStep > step ? "right" : "left");
     setAnimKey((k) => k + 1);
     setStep(newStep);
-    setStepReady(!SUB_FLOW_STEPS.includes(newStep));
+    // Optimistischer Default; für Schritt 0 (PLZ-Pflicht) und die Sub-Flow-
+    // Schritte korrigiert der jeweilige useEffect das direkt danach anhand
+    // des echten Zustands (plz-Länge bzw. dachform) — hier lieber zu
+    // vorsichtig (false) als kurz einen Button zeigen, der es nicht sein darf.
+    setStepReady(newStep !== 0 && !SUB_FLOW_STEPS.includes(newStep));
   };
 
   const goResult = () => {
     setAnimDir("right");
     setAnimKey((k) => k + 1);
     setShowResult(true);
+    // Meldet an LandingPage.jsx, dass der Wizard ein Ergebnis erreicht hat —
+    // steuert dort sowohl die Personalisierung (Einspeisevergütung/FAQ) als
+    // auch das Aus-/Einblenden der Marketing-Sektionen rund um den Rechner.
+    onResult?.({ result, speicherKwh, plz, kwp });
   };
 
   // plz/address bleiben beim Neustart erhalten (kein Reset hier) — deshalb NICHT
@@ -139,6 +164,7 @@ export default function Wizard() {
   const restart = () => {
     setShowResult(false);
     setStep(0);
+    onResult?.(null);
   };
   const displayLocation = resolvedCity ? `${plz} ${resolvedCity}` : plz;
 
@@ -353,8 +379,11 @@ export default function Wizard() {
                 Sub-Screen die Navigation (Auto-Advance ODER eigener "Weiter"-
                 Button) — der übergeordnete Button hier wird erst sichtbar,
                 sobald der Sub-Flow den letzten Screen erreicht hat (stepReady).
-                Für Dach-Schritt: stepReady wird erst gesetzt wenn dachform gewählt. */}
-            {(!SUB_FLOW_STEPS.includes(step) || stepReady) && (
+                Für Dach-Schritt: stepReady wird erst gesetzt wenn dachform gewählt.
+                Schritt 0 (Standort) ist kein Sub-Flow, wird hier aber genauso
+                gegated: stepReady wird erst true, wenn die PLZ vollständig ist
+                (siehe eigener useEffect oben). */}
+            {((!SUB_FLOW_STEPS.includes(step) && step !== 0) || stepReady) && (
               <button
                 onClick={() => {
                   if (step < steps.length - 1) goStep(step + 1);

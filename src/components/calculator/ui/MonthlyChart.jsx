@@ -29,6 +29,10 @@ export default function MonthlyChart({ monthly, compact }) {
                 width: "100%",
                 height: `${Math.max((m.kwh / max) * 100, 4)}%`,
                 background: theme.color.sky,
+                // Niedrigere Monate leicht gedämpfter statt alle exakt gleich —
+                // gibt dem Balkenverlauf eine ruhige, wertegetriebene Tiefe
+                // ohne Verlauf/Schatten auf einem einzelnen Balken.
+                opacity: 0.6 + (m.kwh / max) * 0.4,
                 borderRadius: "4px 4px 0 0",
               }}
             />

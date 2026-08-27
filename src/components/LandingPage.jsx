@@ -28,16 +28,29 @@ export default function LandingPage() {
   return (
     <div style={{ fontFamily: theme.font.family, background: theme.color.bg }}>
       <Header />
-      <Hero />
-      <div id="rechner" style={{ paddingTop: 28 }}>
+      {/* Sobald ein Ergebnis vorliegt, verschwinden Hero und die Marketing-
+          Sektionen rund um den Rechner: der Nutzer ist im Moment der höchsten
+          Kaufabsicht, ein zweiter Landingpage-Scroll darunter lenkt vom CTA
+          ab statt ihn zu unterstützen. FAQ bleibt (beantwortet Einwände direkt
+          nach dem Ergebnis), Footer bleibt (Impressum/Datenschutz). */}
+      {!wizardResult && <Hero />}
+      {/* scrollMarginTop kompensiert den position:sticky-Header (Header.jsx) beim
+          Anker-Scroll ("Jetzt berechnen") — ohne das richtete scrollIntoView die
+          Oberkante von #rechner exakt am Viewport-Rand aus, der Header lag dann
+          genau darüber und schnitt den Wizard-Kopf ab. */}
+      <div id="rechner" style={{ paddingTop: 28, scrollMarginTop: 80 }}>
         <Wizard onResult={setWizardResult} />
       </div>
-      <WarumWir />
-      <VorteileCards />
-      {siteConfig.sections.mwstBeispiel !== false && <MwstRechenbeispiel />}
-      <ProzessSchritte />
-      <PartnerLogos />
-      <EinspeiseverguetungInfo wizardResult={wizardResult} />
+      {!wizardResult && (
+        <>
+          <WarumWir />
+          <VorteileCards />
+          {siteConfig.sections.mwstBeispiel !== false && <MwstRechenbeispiel />}
+          <ProzessSchritte />
+          <PartnerLogos />
+          <EinspeiseverguetungInfo wizardResult={wizardResult} />
+        </>
+      )}
       <Faq wizardResult={wizardResult} />
       <Footer />
     </div>

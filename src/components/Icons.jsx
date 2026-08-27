@@ -1,8 +1,12 @@
 // Hand-drawn line-icon set, replacing emoji throughout the app. Same visual
-// language as the Dachform illustrations: thin rounded strokes, currentColor.
-const base = { fill: "none", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" };
+// language as the Dachform illustrations: rounded strokes, currentColor.
+// strokeWidth 2 (was 1.6) and default size 22 (was 20) — the thinner set read
+// faint/hard to see at a glance; bumped for legibility, still comfortably
+// above WCAG 2.2's 24 CSS px minimum pointer-target guidance once padding is
+// included on interactive uses.
+const base = { fill: "none", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round" };
 
-function Svg({ size = 20, children, label }) {
+function Svg({ size = 22, children, label }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" stroke="currentColor" {...base} role="img" aria-label={label} aria-hidden={label ? undefined : true}>
       {children}
@@ -37,8 +41,8 @@ export function IconCalendar(props) {
 export function IconLoader(props) {
   return (
     <svg width={props.size ?? 20} height={props.size ?? 20} viewBox="0 0 24 24" role="img" aria-label="Lädt">
-      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.6" opacity="0.25" fill="none" />
-      <path d="M20.5 12a8.5 8.5 0 0 0-8.5-8.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none">
+      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="2" opacity="0.25" fill="none" />
+      <path d="M20.5 12a8.5 8.5 0 0 0-8.5-8.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none">
         <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.9s" repeatCount="indefinite" />
       </path>
     </svg>
@@ -69,7 +73,7 @@ export function IconStar({ filled, size = 16 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
       <path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.2 5.9-.8Z"
-        fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+        fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
     </svg>
   );
 }

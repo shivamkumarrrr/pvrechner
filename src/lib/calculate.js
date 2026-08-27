@@ -361,8 +361,19 @@ export function autarkieSchaetzung(kwp, gesamtVerbrauch, speicherKwh, tageszeit 
 // Formatierung zurück; die Einheit hängt der Aufrufer an.
 export function formatSpan(v, pct = 12) {
   if (!v || isNaN(v)) return "0";
-  const lo = Math.max(0, Math.round(v * (1 - pct / 100)));
-  const hi = Math.round(v * (1 + pct / 100));
+  // Bei negativem v (z.B. kumulierte Nettoersparnis in frühen Jahren, bevor
+  // sich die Investition amortisiert hat) macht "v * (1 + pct/100)" den Wert
+  // BETRAGSMÄSSIG größer (weiter von 0 entfernt), nicht "höher" — die Zuordnung
+  // lo/hi kehrt sich also um. Vorher wurde das nicht beachtet UND lo wurde
+  // immer auf 0 geklemmt, auch wenn beide Grenzen negativ waren — Ergebnis war
+  // eine unsinnige Anzeige wie "0–-664". Fix: beide Kandidaten ausrechnen,
+  // numerisch sortieren, und den 0-Boden nur für tatsächlich nicht-negative
+  // Werte anwenden (kWh/€, die nie negativ sein können).
+  const a = v * (1 - pct / 100);
+  const b = v * (1 + pct / 100);
+  let lo = Math.round(Math.min(a, b));
+  const hi = Math.round(Math.max(a, b));
+  if (v > 0) lo = Math.max(0, lo);
   return `${lo.toLocaleString("de-DE")}–${hi.toLocaleString("de-DE")}`;
 }
 

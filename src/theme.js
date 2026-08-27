@@ -25,8 +25,10 @@ const theme = {
     brandNavy: "#2C358F",
 
     // Secondary accent, sparingly, for things genuinely about data/sky
-    // (e.g. the monthly yield chart) — never mixed with `accent`.
-    sky: "#2E6F95",
+    // (e.g. the monthly yield chart) — never mixed with `accent`. #1C7FA6 (a
+    // first attempt at richer than the original muted #2E6F95) came back as
+    // too bright/saturated — this sits at a moderate midpoint between the two.
+    sky: "#1F6E8C",
     skySubtle: "#E7EFF3", // derived light tint
 
     success: "#1E8A5F",
