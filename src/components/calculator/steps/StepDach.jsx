@@ -20,7 +20,12 @@ export default function StepDach({ dachform, setDachform, dach, setDach, ausrich
           {index === 0 && (
             <div>
               <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 10 }}>Welche Dachform hat Ihr Haus?</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+              {/* auto-fit statt fixer repeat(4, ...): mit dem größeren 72px-Icon
+                  (siehe RoofIcon.jsx) passen 4 Spalten nicht mehr in schmale
+                  Mobile-Breiten (409px Inhalt in 390px Viewport, letzte Karte
+                  wurde abgeschnitten) — reflowt jetzt selbst auf 2 Spalten,
+                  ohne Breakpoint/JS nötig, bleibt auf breiteren Screens 4-spaltig. */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 8 }}>
                 {DACHFORM.map((d) => (
                   <DachformCard key={d.label} item={d} selected={dachform} onSelect={(label) => autoAdvance(() => setDachform(label))} />
                 ))}
