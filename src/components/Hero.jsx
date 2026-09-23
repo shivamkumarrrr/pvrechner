@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
 import theme from "../theme.js";
 import { usePrefersReducedMotion } from "../lib/usePrefersReducedMotion.js";
-import heroInstallationTeam from "../assets/hero/hero-installation-team.jpg";
-import heroPanelsSky from "../assets/hero/hero-panels-sky.jpg";
-import heroRoofFull from "../assets/hero/hero-roof-full.jpg";
-import heroFreiburgHouse from "../assets/hero/hero-freiburg-house.jpg";
+import hPanelsSky800 from "../assets/hero/hero-panels-sky-800.webp";
+import hPanelsSky1280 from "../assets/hero/hero-panels-sky-1280.webp";
+import hPanelsSky1920 from "../assets/hero/hero-panels-sky-1920.webp";
+import hRoofFull800 from "../assets/hero/hero-roof-full-800.webp";
+import hRoofFull1280 from "../assets/hero/hero-roof-full-1280.webp";
+import hRoofFull1920 from "../assets/hero/hero-roof-full-1920.webp";
+import hInstallationTeam800 from "../assets/hero/hero-installation-team-800.webp";
+import hInstallationTeam1280 from "../assets/hero/hero-installation-team-1280.webp";
+import hInstallationTeam1920 from "../assets/hero/hero-installation-team-1920.webp";
+import hFreiburgHouse800 from "../assets/hero/hero-freiburg-house-800.webp";
+import hFreiburgHouse1280 from "../assets/hero/hero-freiburg-house-1280.webp";
+import hFreiburgHouse1920 from "../assets/hero/hero-freiburg-house-1920.webp";
 
 // Real Pexels photos (free license, commercial use, no attribution needed)
 // behind the hero headline instead of the former house+sun illustration.
@@ -23,21 +31,30 @@ import heroFreiburgHouse from "../assets/hero/hero-freiburg-house.jpg";
 // first. Note: a former "Referenzwerte" stat bar (950 kWh/kWp / 9–12 Jahre /
 // 25+ Jahre, "Ø Deutschland") was removed — those figures had no real source
 // behind them here and read as unverifiable marketing slop.
-const HERO_IMAGES = [heroPanelsSky, heroRoofFull, heroInstallationTeam, heroFreiburgHouse];
+// Performance (Sept 2026): WebP in drei Breiten statt eines 400–730-KB-JPEGs —
+// das Handy lädt die 800px-Datei, Desktop 1280/1920px.
+const mk = (a, b, c) => ({ src: b, srcSet: `${a} 800w, ${b} 1280w, ${c} 1920w` });
+const HERO_IMAGES = [
+  mk(hPanelsSky800, hPanelsSky1280, hPanelsSky1920),
+  mk(hRoofFull800, hRoofFull1280, hRoofFull1920),
+  mk(hInstallationTeam800, hInstallationTeam1280, hInstallationTeam1920),
+  mk(hFreiburgHouse800, hFreiburgHouse1280, hFreiburgHouse1920),
+];
+const HERO_SIZES = "(max-width: 1212px) 100vw, 1180px";
 
 // Preload the first hero photo immediately on page load so the initial view
 // never sits on an empty background while a ~700KB image downloads.
-if (typeof window !== "undefined") {
-  const first = new Image();
-  first.src = HERO_IMAGES[0];
-}
+// (Übernimmt jetzt das <img> selbst per fetchPriority="high" + srcset —
+// ein zusätzliches new Image() hätte immer die große Variante geladen.)
 
 function HeroBackground({ reducedMotion }) {
   const [active, setActive] = useState(0);
+  const [rotated, setRotated] = useState(false);
 
   useEffect(() => {
     if (reducedMotion) return;
     const id = window.setInterval(() => {
+      setRotated(true);
       setActive((a) => (a + 1) % HERO_IMAGES.length);
     }, 7000);
     return () => window.clearInterval(id);
@@ -46,8 +63,12 @@ function HeroBackground({ reducedMotion }) {
   return (
     <div aria-hidden="true" className="hero-bg" style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
       <img
-        key={HERO_IMAGES[active]}
-        src={HERO_IMAGES[active]}
+        key={HERO_IMAGES[active].src}
+        src={HERO_IMAGES[active].src}
+        srcSet={HERO_IMAGES[active].srcSet}
+        sizes={HERO_SIZES}
+        fetchpriority={active === 0 ? "high" : "auto"}
+        decoding="async"
         alt=""
         draggable={false}
         style={{
@@ -62,7 +83,9 @@ function HeroBackground({ reducedMotion }) {
           // <img> (kein Crossfade zweier Bilder) — genau das GENAU-EIN-<img>-
           // Prinzip verhindert den früheren Ghost-Bug (siehe CLAUDE.md), ein
           // echter Crossfade würde das Risiko wieder einführen.
-          animation: reducedMotion ? "none" : "hero-fade-in 1.1s cubic-bezier(0.22, 1, 0.36, 1)",
+          // Erstes Bild ohne Einblenden: ein Fade von opacity 0 verzögert den
+          // Largest Contentful Paint um die ganze Animationsdauer.
+          animation: reducedMotion || !rotated ? "none" : "hero-fade-in 1.1s cubic-bezier(0.22, 1, 0.36, 1)",
         }}
       />
       {!reducedMotion && (

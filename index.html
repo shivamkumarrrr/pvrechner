@@ -27,9 +27,18 @@
     <!-- Body text stays on the system font stack (no webfont load needed for
          90% of the page) — only the display face (headlines, big numbers) is
          a webfont. See PRODUCT_DESIGN.md. -->
+    <!-- LCP: erstes Hero-Foto sofort mitladen, nicht erst nach dem JS-Bundle.
+         Vite ersetzt den Pfad beim Build durch die gehashte Datei. -->
+    <link rel="preload" as="image" href="/src/assets/hero/hero-panels-sky-800.webp" media="(max-width: 700px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/src/assets/hero/hero-panels-sky-1280.webp" media="(min-width: 701px)" fetchpriority="high" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <!-- Nicht render-blockierend laden (media=print → onload all): die Seite
+         erscheint sofort mit der Fallback-Schrift, Space Grotesk tauscht per
+         display=swap nach. Spart ~1 s bis zum ersten Inhalt auf Mobil. -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" /></noscript>
 
     <style>
       /* Kein grauer/weißer Tipp-Blitz auf Mobilgeräten und kein Fokusring nach

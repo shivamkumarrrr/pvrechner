@@ -2,7 +2,8 @@ import theme from "../../theme.js";
 import Reveal from "../Reveal.jsx";
 import { IconChart, IconContact, IconDocumentCheck, IconWrench } from "../Icons.jsx";
 import { siteConfig } from "../../config.js";
-import warumWirImg from "../../assets/warum-wir.jpg";
+import warumWir640 from "../../assets/warum-wir-640.webp";
+import warumWir1200 from "../../assets/warum-wir-1200.webp";
 
 const BRAND = siteConfig.brand.name;
 
@@ -62,7 +63,7 @@ export default function WarumWir() {
 
         <div className="warum-grid">
           <Reveal>
-            <img src={warumWirImg} alt="Das Montage-Team vor einem Haus mit Photovoltaik-Anlage" className="warum-img" loading="lazy" width="1536" height="1024" />
+            <img src={warumWir1200} srcSet={`${warumWir640} 640w, ${warumWir1200} 1200w`} sizes="(max-width: 899px) 100vw, 560px" decoding="async" alt="Das Montage-Team vor einem Haus mit Photovoltaik-Anlage" className="warum-img" loading="lazy" width="1536" height="1024" />
           </Reveal>
 
           <ul className="warum-list">
