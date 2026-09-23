@@ -6,11 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "build:wp": "VITE_PVGIS_ENDPOINT=/wp-json/pv-rechner/v1/pvgis VITE_BASE=./ vite build --outDir wordpress-plugin/pv-rechner/assets/dist --emptyOutDir",
-    "wp:start": "npx @wordpress/env start",
-    "wp:stop": "npx @wordpress/env stop",
-    "wp:destroy": "npx @wordpress/env destroy"
+    "preview": "vite preview"
   },
   "dependencies": {
     "react": "^18.2.0",

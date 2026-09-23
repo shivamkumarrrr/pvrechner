@@ -4,3 +4,7 @@ node_modules
 dist
 .impeccable
 .DS_Store
+
+# WordPress-Plugin nicht im Repo (nur lokal)
+wordpress-plugin/
+.wp-env.json
