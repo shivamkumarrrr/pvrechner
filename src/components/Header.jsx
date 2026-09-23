@@ -57,8 +57,8 @@ export default function Header() {
             whiteSpace: "nowrap",
             transition: "background-color 0.15s, transform 0.15s, opacity 0.2s, visibility 0.2s",
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = theme.color.accentHover; e.currentTarget.style.transform = "translateY(-1px)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = theme.color.accent; e.currentTarget.style.transform = "translateY(0)"; }}
+          onPointerEnter={(e) => { if (e.pointerType !== "mouse") return; e.currentTarget.style.background = theme.color.accentHover; e.currentTarget.style.transform = "translateY(-1px)"; }}
+          onPointerLeave={(e) => { e.currentTarget.style.background = theme.color.accent; e.currentTarget.style.transform = "translateY(0)"; }}
         >
           Jetzt berechnen
         </button>

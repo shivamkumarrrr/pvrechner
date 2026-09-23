@@ -44,7 +44,7 @@ function HeroBackground({ reducedMotion }) {
   }, [reducedMotion]);
 
   return (
-    <div aria-hidden="true" style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+    <div aria-hidden="true" className="hero-bg" style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
       <img
         key={HERO_IMAGES[active]}
         src={HERO_IMAGES[active]}
@@ -93,6 +93,20 @@ export default function Hero() {
         @media (max-width: 959px) {
           .hero-photo { min-height: min(440px, 60vh); }
         }
+        /* Mobil: Foto oben im Originalformat 3:2 (nicht beschnitten), Text
+           darunter auf Marken-Navy statt auf dem stark zugeschnittenen Foto. */
+        @media (max-width: 719px) {
+          .hero-photo { flex-direction: column; min-height: 0; background: ${theme.color.white}; border: 1px solid ${theme.color.border}; }
+          .hero-photo .hero-text h1 { color: ${theme.color.textPrimary} !important; }
+          .hero-photo .hero-text p { color: ${theme.color.textSecondary} !important; }
+          .hero-photo .hero-stat { border-right: none !important; padding-right: 0 !important; }
+          .hero-photo .hero-stat__num { color: ${theme.color.accentText} !important; }
+          .hero-photo .hero-stat__text { color: ${theme.color.textSecondary} !important; }
+          .hero-photo .hero-stat__sub { color: ${theme.color.textMuted} !important; }
+          .hero-photo .hero-bg { position: relative !important; inset: auto !important; aspect-ratio: 3 / 2; width: 100%; flex-shrink: 0; }
+          .hero-photo .hero-scrim { display: none; }
+          .hero-photo .hero-text { padding: 24px 20px 26px !important; }
+        }
       `}</style>
       <div className="hero-photo">
         <HeroBackground reducedMotion={reducedMotion} />
@@ -100,12 +114,12 @@ export default function Hero() {
             zone (Option A). Unlike a uniform wash, it leaves the right side of
             the photo bright and keeps EVERY text element on a readable base
             regardless of the image content behind it. */}
-        <div style={{
+        <div className="hero-scrim" style={{
           position: "absolute",
           inset: 0,
           background: "linear-gradient(90deg, rgba(20,27,34,0.85) 0%, rgba(20,27,34,0.62) 42%, rgba(20,27,34,0.2) 72%, rgba(20,27,34,0) 100%)",
         }} />
-        <div style={{
+        <div className="hero-text" style={{
           position: "relative",
           flex: 1,
           maxWidth: 1180,
@@ -141,8 +155,8 @@ export default function Hero() {
             cursor: "pointer",
             transition: reducedMotion ? "none" : "background-color 0.15s, transform 0.15s",
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = theme.color.accentHover; if (!reducedMotion) e.currentTarget.style.transform = "translateY(-1px)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = theme.color.accent; e.currentTarget.style.transform = "translateY(0)"; }}
+          onPointerEnter={(e) => { if (e.pointerType !== "mouse") return; e.currentTarget.style.background = theme.color.accentHover; if (!reducedMotion) e.currentTarget.style.transform = "translateY(-1px)"; }}
+          onPointerLeave={(e) => { e.currentTarget.style.background = theme.color.accent; e.currentTarget.style.transform = "translateY(0)"; }}
         >
           Ersparnis für mein Dach berechnen
         </button>
@@ -155,17 +169,17 @@ export default function Hero() {
             { num: "8–13", text: "Jahre bis Amortisation", sub: "ADAC" },
             { num: "0,344 kg", text: "CO₂ je kWh", sub: "UBA 2025" },
           ].map((s, i) => (
-            <div key={s.sub} style={{
+            <div key={s.sub} className="hero-stat" style={{
               display: "flex",
               alignItems: "center",
               gap: 10,
               borderRight: i < 2 ? "1px solid rgba(255,255,255,0.25)" : "none",
               paddingRight: i < 2 ? 26 : 0,
             }}>
-              <span style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 600, color: theme.color.accent, lineHeight: 1 }}>{s.num}</span>
-              <span style={{ fontSize: 11.5, color: "rgba(255,255,255,0.92)", lineHeight: 1.35 }}>
+              <span className="hero-stat__num" style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 600, color: theme.color.accent, lineHeight: 1 }}>{s.num}</span>
+              <span className="hero-stat__text" style={{ fontSize: 11.5, color: "rgba(255,255,255,0.92)", lineHeight: 1.35 }}>
                 {s.text}<br />
-                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{s.sub}</span>
+                <span className="hero-stat__sub" style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{s.sub}</span>
               </span>
             </div>
           ))}

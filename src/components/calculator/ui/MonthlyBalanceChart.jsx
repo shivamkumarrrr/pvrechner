@@ -29,6 +29,7 @@ const kwh = (v) => `${Math.round(v).toLocaleString("de-DE")} kWh`;
 
 export default function MonthlyBalanceChart({ balance }) {
   const [active, setActive] = useState(null);
+  const [tabelle, setTabelle] = useState(false);
   if (!balance || balance.length !== 12) return null;
 
   const maxUp = Math.max(...balance.map((m) => m.eigenverbrauch + m.einspeisung), 1);
@@ -57,7 +58,7 @@ export default function MonthlyBalanceChart({ balance }) {
         .mbc-col:focus-visible { box-shadow: inset 0 0 0 2px ${theme.color.accent}; border-radius: 6px; }
         .mbc-hover { position: absolute; inset: 0 1px; border-radius: 6px; background: ${theme.color.bg}; opacity: 0; }
         .mbc-col.is-active .mbc-hover { opacity: 1; }
-        .mbc-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; font-variant-numeric: tabular-nums; }
+        .mbc-table { width: 100%; min-width: 300px; border-collapse: collapse; font-size: 13px; margin-top: 10px; font-variant-numeric: tabular-nums; }
         .mbc-table th, .mbc-table td { padding: 6px 8px; text-align: right; border-bottom: 1px solid ${theme.color.border}; }
         .mbc-table th:first-child, .mbc-table td:first-child { text-align: left; }
         .mbc-table th { font-weight: 600; color: ${theme.color.textPrimary}; }
@@ -154,21 +155,21 @@ export default function MonthlyBalanceChart({ balance }) {
       </div>
 
       {/* Jahressummen — dieselben Zahlen, ohne Hover erreichbar */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginTop: 18, paddingTop: 14, borderTop: `1px solid ${theme.color.border}` }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8, marginTop: 18, paddingTop: 14, borderTop: `1px solid ${theme.color.border}` }}>
         {SERIES.map((s) => (
           <div key={s.key}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: theme.color.textSecondary }}>
               <span style={{ width: 12, height: 2, background: s.color, display: "inline-block" }} />{s.label}
             </div>
-            <div style={{ fontFamily: theme.font.display, fontSize: 17, fontWeight: 600, color: theme.color.textPrimary, fontVariantNumeric: "tabular-nums", marginTop: 2 }}>{kwh(sum(s.key))}</div>
+            <div style={{ fontFamily: theme.font.display, fontSize: "clamp(14px, 4vw, 17px)", fontWeight: 600, color: theme.color.textPrimary, fontVariantNumeric: "tabular-nums", marginTop: 2, overflowWrap: "anywhere" }}>{kwh(sum(s.key))}</div>
             <div style={{ fontSize: 11, color: theme.color.textMuted }}>pro Jahr</div>
           </div>
         ))}
       </div>
 
-      <details style={{ marginTop: 12 }}>
+      <details style={{ marginTop: 12, maxWidth: "100%", overflow: "hidden" }} onToggle={(e) => setTabelle(e.currentTarget.open)}>
         <summary style={{ fontSize: 13, color: theme.color.textSecondary, cursor: "pointer", minHeight: 32, display: "flex", alignItems: "center" }}>Werte als Tabelle anzeigen</summary>
-        <div style={{ overflowX: "auto" }}>
+        {tabelle && <div style={{ overflowX: "auto", maxWidth: "100%" }}>
           <table className="mbc-table">
             <thead><tr><th>Monat</th>{SERIES.map((s) => <th key={s.key}>{s.label}</th>)}</tr></thead>
             <tbody>
@@ -177,7 +178,7 @@ export default function MonthlyBalanceChart({ balance }) {
               ))}
             </tbody>
           </table>
-        </div>
+        </div>}
       </details>
     </div>
   );

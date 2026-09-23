@@ -295,12 +295,14 @@ export default function Wizard({ onResult }) {
       main={(
         <>
         {/* Mobile: kompakte, mitlaufende Vorschau-Zeile — das volle Live-Panel
-            steht auf schmalen Screens erst unter dem Wizard. */}
+            steht auf schmalen Screens erst unter dem Wizard. Erst sichtbar,
+            sobald es eine echte Zahl gibt (vorher kein leerer Balken über dem
+            Rechner). */}
         <style>{`
           .calc-mini-preview { display: flex; }
           @media (min-width: 960px) { .calc-mini-preview { display: none; } }
         `}</style>
-        <div className="calc-mini-preview" aria-live="polite" style={{
+        {vorschauBereit && <div className="calc-mini-preview" aria-live="polite" style={{
           position: "sticky", top: 68, zIndex: 5,
           justifyContent: "space-between", alignItems: "baseline", gap: 12,
           background: theme.color.white, border: `1px solid ${theme.color.border}`,
@@ -308,9 +310,9 @@ export default function Wizard({ onResult }) {
         }}>
           <span style={{ fontSize: 13, color: theme.color.textSecondary }}>Geschätzte Ersparnis</span>
           <span style={{ fontSize: 16, fontWeight: 700, color: vorschauBereit ? theme.color.textPrimary : theme.color.textMuted, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
-            {vorschauBereit ? `${formatSpan(result.jahresErsparnis)} € / Jahr` : "nach Schritt 3"}
+            {`${formatSpan(result.jahresErsparnis)} € / Jahr`}
           </span>
-        </div>
+        </div>}
         <div className="calc-card" style={{
           background: theme.color.white,
           borderRadius: theme.radius.lg,

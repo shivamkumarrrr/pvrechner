@@ -161,9 +161,18 @@ function VerbraucherCard({ Illustration, title, sub, active, badge, children }) 
         transition: "border-color 0.15s",
       }}
     >
-      <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 14 }}>
-        <div style={{
-          width: 88, height: 68, flexShrink: 0, borderRadius: theme.radius.md,
+      <style>{`
+        .vc-head { display: flex; gap: 16px; align-items: center; margin-bottom: 14px; }
+        .vc-art { width: 88px; height: 68px; }
+        @media (max-width: 400px) {
+          .vc-head { gap: 12px; align-items: flex-start; }
+          .vc-art { width: 64px; height: 52px; }
+          .vc-art svg { width: 56px !important; height: 44px !important; }
+        }
+      `}</style>
+      <div className="vc-head">
+        <div className="vc-art" style={{
+          flexShrink: 0, borderRadius: theme.radius.md,
           background: active ? theme.color.accentSubtle : theme.color.bg,
           display: "flex", alignItems: "center", justifyContent: "center",
           transition: "background-color 0.2s",
@@ -309,25 +318,39 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                 {eauto === "ja" && (
                   <>
                     <div style={{ fontSize: 13, fontWeight: 500, color: theme.color.textSecondary, margin: "14px 0 8px" }}>Wie stark ist das Auto in Nutzung?</div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                    <style>{`
+                      .ea-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+                      .ea-card { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; padding: 10px 6px; text-align: center; font-family: inherit; }
+                      .ea-card__label { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+                      /* Schmale Screens: Profile als Zeilen statt drei gequetschter Spalten */
+                      @media (max-width: 520px) {
+                        .ea-grid { grid-template-columns: 1fr; }
+                        .ea-card { flex-direction: row; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 12px; text-align: left; }
+                        .ea-card__label { white-space: nowrap; overflow-wrap: normal; font-size: 14px; }
+                        .ea-card__meta { text-align: right; font-size: 11.5px !important; }
+                      }
+                    `}</style>
+                    <div className="ea-grid">
                       {E_AUTO_PROFILE.map((p) => {
                         const active = eautoProfil === p.label;
                         return (
                           <button
                             key={p.label}
+                            className="ea-card"
+                            aria-pressed={active}
                             onClick={() => setEautoProfil(p.label)}
                             style={{
-                              padding: "10px 8px",
                               borderRadius: theme.radius.md,
                               border: active ? `2px solid ${theme.color.accent}` : `1px solid ${theme.color.border}`,
                               background: active ? theme.color.accentSubtle : theme.color.white,
                               cursor: "pointer",
-                              transition: "all 0.15s",
+                              transition: "border-color 0.15s, background-color 0.15s",
                             }}
                           >
-                            <div style={{ fontSize: 14, fontWeight: 600, color: theme.color.textPrimary }}>{p.label}</div>
-                            <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 1 }}>{p.kwh.toLocaleString("de-DE")} kWh/Jahr</div>
-                            <div style={{ fontSize: 12, color: theme.color.textMuted }}>{p.sub}</div>
+                            <span className="ea-card__label" style={{ color: theme.color.textPrimary }}>{p.label}</span>
+                            <span className="ea-card__meta" style={{ fontSize: 12, color: theme.color.textSecondary, lineHeight: 1.4 }}>
+                              <strong style={{ color: active ? theme.color.accentText : theme.color.textPrimary, fontWeight: 600 }}>{p.kwh.toLocaleString("de-DE")} kWh/Jahr</strong><br />{p.sub}
+                            </span>
                           </button>
                         );
                       })}

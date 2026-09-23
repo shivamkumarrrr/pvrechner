@@ -759,8 +759,8 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
               justifyContent: "center",
               gap: 8,
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = theme.color.accentHover; e.currentTarget.style.transform = "translateY(-1px)"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = theme.color.accent; e.currentTarget.style.transform = "translateY(0)"; }}
+            onPointerEnter={(e) => { if (e.pointerType !== "mouse") return; e.currentTarget.style.background = theme.color.accentHover; e.currentTarget.style.transform = "translateY(-1px)"; }}
+            onPointerLeave={(e) => { e.currentTarget.style.background = theme.color.accent; e.currentTarget.style.transform = "translateY(0)"; }}
           >
             <IconCalendar size={17} /> Beratungstermin buchen
           </button>
