@@ -20,9 +20,6 @@ export default function Footer() {
         <div className="ft-top">
           <div>
             <BrandLogo />
-            <p style={{ fontSize: 14, color: theme.color.textSecondary, lineHeight: 1.6, margin: "12px 0 0", maxWidth: 420 }}>
-              Photovoltaik-Rechner mit echten Satellitendaten des EU-Programms PVGIS — für Hausbesitzer in ganz Deutschland.
-            </p>
           </div>
           <nav aria-label="Rechtliches" className="ft-nav">
             <a href="#rechner" style={link} onClick={(e) => { e.preventDefault(); document.getElementById("rechner")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Zum Rechner</a>

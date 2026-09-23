@@ -243,10 +243,13 @@ export default function Wizard({ onResult }) {
 
   const contextItems = [
     { icon: <IconMapPin size={13} />, label: "Standort", value: displayLocation || "–" },
-    { icon: <IconRuler size={13} />, label: "Dachfläche", value: `${dach} m²` },
-    { icon: <IconSun size={13} />, label: "Anlage", value: `${Number(kwp).toLocaleString("de-DE")} kWp` },
-    { icon: <IconBolt size={13} />, label: "Verbrauch", value: `${gesamtVerbrauch.toLocaleString("de-DE")} kWh` },
-    { icon: <IconBattery size={13} />, label: "Speicher", value: speicherKwh > 0 ? `${speicherKwh} kWh` : "–" },
+    // Chips zeigen erst dann einen Wert, wenn der Nutzer den zugehörigen Schritt
+    // erreicht bzw. beantwortet hat — synchron mit der Live-Vorschau darunter,
+    // statt Default-Werte wie eigene Eingaben aussehen zu lassen.
+    { icon: <IconRuler size={13} />, label: "Dachfläche", value: dachform ? `${dach} m²` : "–" },
+    { icon: <IconSun size={13} />, label: "Anlage", value: dachform ? `${Number(kwp).toLocaleString("de-DE")} kWp` : "–" },
+    { icon: <IconBolt size={13} />, label: "Verbrauch", value: haushalt != null ? `${gesamtVerbrauch.toLocaleString("de-DE")} kWh` : "–" },
+    { icon: <IconBattery size={13} />, label: "Speicher", value: step >= 3 && speicherKwh > 0 ? `${speicherKwh} kWh` : "–" },
   ];
 
   if (showResult) {
@@ -296,7 +299,7 @@ export default function Wizard({ onResult }) {
             {vorschauBereit ? `${formatSpan(result.jahresErsparnis)} € / Jahr` : "nach Schritt 3"}
           </span>
         </div>
-        <div style={{
+        <div className="calc-card" style={{
           background: theme.color.white,
           borderRadius: theme.radius.lg,
           border: `1px solid ${theme.color.border}`,
@@ -368,8 +371,9 @@ export default function Wizard({ onResult }) {
             {steps[step].content}
           </div>
 
-          {/* Navigation */}
-          <div style={{ display: "flex", alignItems: "center", marginTop: 24 }}>
+          {/* Navigation — auf Desktop per margin-top:auto am Kartenboden, damit
+              Wizard-Karte und Live-Vorschau gleich hoch abschließen. */}
+          <div style={{ display: "flex", alignItems: "center", marginTop: "auto", paddingTop: 24 }}>
             {/* Zurück: Textlink, links, dezenter Fokus. "Weiter" bleibt der visuelle Hauptfokus. */}
             {(step > 0 || (SUB_FLOW_STEPS.includes(step) && subIndex > 0)) && (
               <button

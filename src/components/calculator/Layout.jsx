@@ -15,12 +15,18 @@ export default function Layout({ main, sidebar }) {
           margin: 0 auto;
           padding: 0 16px;
         }
+        .calc-layout__main { display: flex; flex-direction: column; }
+        .calc-card { display: flex; flex-direction: column; }
         @media (min-width: 960px) {
-          .calc-layout { grid-template-columns: minmax(0, 1fr) 400px; }
-          .calc-layout__sidebar { position: sticky; top: 84px; }
+          .calc-layout { grid-template-columns: minmax(0, 1fr) 400px; align-items: stretch; }
+          /* Wizard-Karte streckt sich auf die Höhe der rechten Spalte:
+             beide Spalten schließen unten bündig ab, egal wie kurz ein
+             Schritt ist. */
+          .calc-layout__main > .calc-card { flex: 1; }
+          .calc-layout__sidebar { position: sticky; top: 84px; align-self: start; }
         }
       `}</style>
-      <div>{main}</div>
+      <div className="calc-layout__main">{main}</div>
       <div className="calc-layout__sidebar">{sidebar}</div>
     </div>
   );
