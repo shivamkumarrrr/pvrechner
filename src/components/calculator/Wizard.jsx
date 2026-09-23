@@ -325,9 +325,6 @@ export default function Wizard({ onResult }) {
             <h2 style={{ fontFamily: theme.font.display, fontSize: 19, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 4px" }}>
               Ihr persönlicher Photovoltaik-Rechner
             </h2>
-            <p style={{ fontSize: 13, color: theme.color.textMuted, margin: 0 }}>
-              4 kurze Schritte — kostenlos und unverbindlich
-            </p>
           </div>
 
           {/* Progress */}
