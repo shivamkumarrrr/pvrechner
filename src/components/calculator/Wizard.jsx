@@ -244,7 +244,7 @@ export default function Wizard({ onResult }) {
   const contextItems = [
     { icon: <IconMapPin size={13} />, label: "Standort", value: displayLocation || "–" },
     { icon: <IconRuler size={13} />, label: "Dachfläche", value: `${dach} m²` },
-    { icon: <IconSun size={13} />, label: "Anlage", value: `${kwp} kWp` },
+    { icon: <IconSun size={13} />, label: "Anlage", value: `${Number(kwp).toLocaleString("de-DE")} kWp` },
     { icon: <IconBolt size={13} />, label: "Verbrauch", value: `${gesamtVerbrauch.toLocaleString("de-DE")} kWh` },
     { icon: <IconBattery size={13} />, label: "Speicher", value: speicherKwh > 0 ? `${speicherKwh} kWh` : "–" },
   ];

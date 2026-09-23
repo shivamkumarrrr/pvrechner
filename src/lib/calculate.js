@@ -466,6 +466,15 @@ export function calculate(dach, ausrichtung, neigung, verbrauch, speicherKwh, ea
   const eigenverbrauch = Math.round(Math.min(gesamtVerbrauch * autarkieRate, jahresertrag));
   const einspeisung = jahresertrag - eigenverbrauch;
 
+  // Der Teil des Eigenverbrauchs, den es ohne Speicher nicht gäbe — für das
+  // Flussbild der Live-Vorschau (Energiefluss.jsx). Bewusst als Differenz zweier
+  // autarkieSchaetzung()-Aufrufe und nicht als eigene Faustregel, damit er zum
+  // Mehr-Eigenverbrauch des Speicher-Rechners passt.
+  const eigenverbrauchOhneSpeicher = speicherKwh > 0
+    ? Math.round(Math.min(gesamtVerbrauch * autarkieSchaetzung(kwp, gesamtVerbrauch, 0, tageszeit), jahresertrag))
+    : eigenverbrauch;
+  const speicherBeitrag = Math.max(0, eigenverbrauch - eigenverbrauchOhneSpeicher);
+
   // Staffelte Einspeisevergütung: erste 10 kWp zum ≤10-kWp-Satz, Rest nach EEG-Tabelle.
   // Quelle: Bundesnetzagentur, Inbetriebnahme 01.08.2026–31.01.2027.
   const einspeiseRate = einspeiseStaffel(kwp);
@@ -488,5 +497,5 @@ export function calculate(dach, ausrichtung, neigung, verbrauch, speicherKwh, ea
   // Monatliche Verteilung (Eigenverbrauch/Einspeisung/Netzbezug) für die Balance-Grafik.
   const balance = monatlicheBalance(jahresertrag, gesamtVerbrauch, eigenverbrauch, monthly);
 
-  return { kwp, module, nutzbar: Math.round(nutzbar), jahresertrag, eigenverbrauch, einspeisung, jahresErsparnis, investition, amortisation, co2, co2Baeume, ersparnis25, ersparnis10, ersparnis15, ersparnis20, gesamtVerbrauch, autarkie, monatlich, dataSource, monthly, eigenverbrauchsquote, balance };
+  return { kwp, module, nutzbar: Math.round(nutzbar), jahresertrag, eigenverbrauch, einspeisung, jahresErsparnis, investition, amortisation, co2, co2Baeume, ersparnis25, ersparnis10, ersparnis15, ersparnis20, gesamtVerbrauch, autarkie, monatlich, dataSource, monthly, eigenverbrauchsquote, balance, speicherBeitrag };
 }
