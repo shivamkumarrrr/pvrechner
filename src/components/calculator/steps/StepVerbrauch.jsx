@@ -219,7 +219,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
   const toggleTageszeit = (label) =>
     setTageszeit((prev) => prev.includes(label) ? prev.filter((x) => x !== label) : [...prev, label]);
 
-  const eautoProfilWert = E_AUTO_PROFILE.find((p) => p.label === eautoProfil) || E_AUTO_PROFILE[1];
+  const eautoProfilWert = E_AUTO_PROFILE.find((p) => p.label === eautoProfil) || null;
 
   const hintBox = (text) => (
     <div style={{ fontSize: 13, color: theme.color.textSecondary, background: theme.color.bg, borderRadius: theme.radius.md, padding: "10px 14px", marginTop: 10, lineHeight: 1.55 }}>
@@ -294,7 +294,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                 Illustration={CarChargeScene}
                 title="Elektroauto / Wallbox"
                 sub="Rechnet den Ladebedarf nach Ihrem Nutzungsprofil ein."
-                active={eauto !== "nein"}
+                active={eauto === "ja" || eauto === "geplant"}
                 badge={eauto === "ja" ? "wird eingerechnet" : eauto === "geplant" ? "noch nicht eingerechnet" : null}
               >
                 <Segmented
@@ -334,6 +334,9 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                     </div>
                   </>
                 )}
+                {eauto === "ja" && !eautoProfil && (
+                  <div style={{ fontSize: 12.5, color: theme.color.textMuted, marginTop: 8 }}>Ohne Auswahl rechnen wir mit einem Hauptwagen (ca. 1.800 kWh/Jahr).</div>
+                )}
                 {eauto === "geplant" && hintBox("E-Auto geplant: Wir rechnen aktuell noch ohne den Mehrverbrauch. Planen Sie die Anlage im Zweifel etwas größer — darum kümmern wir uns im Beratungsgespräch.")}
               </VerbraucherCard>
 
@@ -341,7 +344,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                 Illustration={HeatpumpScene}
                 title="Wärmepumpe oder Heizstab"
                 sub={`Heizung + Warmwasser · +${WAERMEPUMPE_KWH.toLocaleString("de-DE")} kWh/Jahr`}
-                active={waermepumpe !== "nein"}
+                active={waermepumpe === "ja" || waermepumpe === "geplant"}
                 badge={waermepumpe === "ja" ? "wird eingerechnet" : waermepumpe === "geplant" ? "noch nicht eingerechnet" : null}
               >
                 <Segmented
@@ -356,7 +359,18 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                 {waermepumpe === "geplant" && hintBox("Wärmepumpe geplant: Der Mehrverbrauch bleibt noch unberücksichtigt, bis die Wärmepumpe installiert ist — die Anlage lässt sich danach bei Bedarf erweitern.")}
               </VerbraucherCard>
 
-              <ContinueButton onClick={forward} />
+              {(() => {
+                // Weiter, sobald beide Fragen beantwortet sind. Das E-Auto-Profil
+                // ist optional — ohne Wahl rechnet calculate.js mit "Hauptwagen"
+                // (steht als Hinweis unter den Profil-Karten).
+                const fertig = eauto != null && waermepumpe != null;
+                return (
+                  <>
+                    {!fertig && <div style={{ fontSize: 13, color: theme.color.textMuted, textAlign: "right", marginTop: 4 }}>Bitte beide Fragen beantworten.</div>}
+                    <ContinueButton onClick={forward} disabled={!fertig} />
+                  </>
+                );
+              })()}
             </div>
           )}
 
@@ -407,7 +421,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                   );
                 })}
               </div>
-              {eauto === "ja" && (
+              {eauto === "ja" && eautoProfilWert && (
                 <div style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.55, marginTop: 14, padding: "12px 14px", borderRadius: theme.radius.md, background: theme.color.bg }}>
                   <span style={{ color: theme.color.accentText, display: "flex", marginTop: 1, flexShrink: 0 }}><IconClock size={16} /></span>
                   <span>

@@ -150,7 +150,7 @@ export default function Energiefluss({ result, speicherKwh, bereit = true }) {
           icon={<IconBattery size={20} />}
           cx={170} cy={296}
           textX={198} textY={292} anchor="start"
-          label={speicherKwh > 0 ? `aus Speicher (${speicherKwh} kWh)` : "kein Speicher"}
+          label={speicherKwh > 0 ? `aus Speicher (${Number(speicherKwh).toLocaleString("de-DE")} kWh)` : "kein Speicher"}
           wert={mitSpeicher ? speicherBeitrag : 0}
           staerke={breite(mitSpeicher ? speicherBeitrag : 0, max, mitSpeicher)}
           fluss={fluss && mitSpeicher} bereit={mitSpeicher}

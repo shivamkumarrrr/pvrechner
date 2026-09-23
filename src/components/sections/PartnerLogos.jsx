@@ -40,8 +40,8 @@ export default function PartnerLogos() {
   return (
     <section aria-labelledby="partner-heading" style={{ background: theme.color.bg }}>
       <style>{`
-        .partner-grid{ display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; align-items: stretch; }
-        @media (min-width: 720px){ .partner-grid{ grid-template-columns: repeat(4, 1fr); } }
+        .partner-grid{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+        @media (min-width: 720px){ .partner-grid{ grid-template-columns: repeat(4, minmax(0, 1fr)); } }
       `}</style>
       <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "40px 20px" }}>
         <Reveal>
@@ -69,7 +69,7 @@ export default function PartnerLogos() {
                     alt={p.name}
                     loading="lazy"
                     style={{
-                      maxWidth: 150,
+                      maxWidth: "min(150px, 100%)",
                       maxHeight: 32,
                       width: "auto",
                       objectFit: "contain",

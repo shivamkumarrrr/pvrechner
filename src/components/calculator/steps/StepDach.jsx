@@ -4,6 +4,7 @@ import OptionGroup from "../ui/OptionGroup.jsx";
 import DachformCard from "../ui/DachformCard.jsx";
 import Roof3DPreview from "../ui/Roof3DPreview.jsx";
 import AusrichtungIcon from "../ui/AusrichtungIcon.jsx";
+import TiltButton from "../ui/TiltButton.jsx";
 import SubFlow from "../ui/SubFlow.jsx";
 import ContinueButton from "../ui/ContinueButton.jsx";
 import { AUSRICHTUNG, NEIGUNG, DACHFORM } from "../../../lib/calculate.js";
@@ -54,15 +55,44 @@ export default function StepDach({ dachform, setDachform, dach, setDach, ausrich
           {index === 2 && (
             <div>
               <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 10 }}>Wohin zeigt die Hauptdachfläche?</div>
-              <OptionGroup
-                options={AUSRICHTUNG}
-                selected={ausrichtung}
-                onSelect={(label) => autoAdvance(() => setAusrichtung(label))}
-                minCol={72}
-                renderIcon={(opt, active) => <AusrichtungIcon label={typeof opt === "string" ? opt : opt.label} active={active} />}
-              />
+              <style>{`
+                /* Immer 3 Spalten (2 Reihen): die Wizard-Karte ist auch auf Desktop
+                   nur ~600px breit, 6 Spalten liefen dort über den Rand. */
+                .ausr-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+                .ausr-card { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; min-width: 0; height: 100%; padding: 12px 6px 12px; border-radius: ${theme.radius.lg}px; cursor: pointer; font-family: inherit; box-sizing: border-box; }
+              `}</style>
+              <div className="ausr-grid">
+                {AUSRICHTUNG.map((o) => {
+                  const active = ausrichtung === o.label;
+                  const pct = Math.round(o.factor * 100);
+                  return (
+                    <TiltButton
+                      key={o.label}
+                      className="ausr-card"
+                      aria-pressed={active}
+                      onClick={() => autoAdvance(() => setAusrichtung(o.label))}
+                      style={{
+                        border: active ? `2px solid ${theme.color.accent}` : `1px solid ${theme.color.border}`,
+                        background: active ? theme.color.accentSubtle : theme.color.white,
+                        padding: active ? "11px 5px 11px" : undefined,
+                        transition: "border-color 0.15s, background-color 0.15s",
+                      }}
+                    >
+                      <AusrichtungIcon label={o.label} active={active} size={60} />
+                      <span style={{ fontFamily: theme.font.display, fontSize: 15, fontWeight: 600, color: theme.color.textPrimary }}>{o.label}</span>
+                      {/* Ertragsfaktor aus AUSRICHTUNG (calculate.js) — nur angezeigt */}
+                      <span style={{ fontSize: 12, color: theme.color.textSecondary, textAlign: "center" }}>
+                        ca. <strong style={{ color: active ? theme.color.accentText : theme.color.textPrimary }}>{pct} %</strong> Ertrag
+                      </span>
+                    </TiltButton>
+                  );
+                })}
+              </div>
+              <div style={{ fontSize: 12.5, color: theme.color.textMuted, marginTop: 10 }}>
+                Ertrag im Vergleich zur optimalen Südausrichtung. Tipp: Die Hauptdachfläche ist die Seite, auf die mittags die Sonne scheint.
+              </div>
               {ausrichtung === "Nord" && (
-                <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 8, lineHeight: 1.5 }}>
+                <div style={{ fontSize: 13, color: theme.color.textSecondary, background: theme.color.bg, borderRadius: theme.radius.md, padding: "10px 14px", marginTop: 10, lineHeight: 1.5 }}>
                   Nordausrichtung liefert deutlich weniger Ertrag — eine Beratung vor Ort ist hier besonders empfehlenswert.
                 </div>
               )}

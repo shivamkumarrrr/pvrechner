@@ -27,11 +27,15 @@ export default function Wizard({ onResult }) {
   const [neigung, setNeigung] = useState(null);
   const [haushalt, setHaushalt] = useState(null);
   const [verbrauch, setVerbrauch] = useState(5000);
-  const [speicherKwh, setSpeicherKwh] = useState(7);
+  // Nichts vorausgewählt: Speicher, E-Auto, Wärmepumpe und E-Auto-Profil
+  // bleiben leer, bis der Nutzer aktiv wählt (Auftrag Sept 2026). Solange
+  // gilt rechnerisch "kein Speicher"/"nein" — Berechnungslogik unverändert.
+  const [speicherKwh, setSpeicherKwh] = useState(0);
+  const [speicherWahl, setSpeicherWahl] = useState(null); // null | "ohne" | "mit"
   // 3-Zustände: "nein" | "ja" | "geplant" — "geplant" zählt nicht in die Berechnung.
-  const [eauto, setEauto] = useState("nein");
-  const [waermepumpe, setWaermepumpe] = useState("nein");
-  const [eautoProfil, setEautoProfil] = useState("Hauptwagen");
+  const [eauto, setEauto] = useState(null);
+  const [waermepumpe, setWaermepumpe] = useState(null);
+  const [eautoProfil, setEautoProfil] = useState(null);
   const [tageszeit, setTageszeit] = useState([]);
   const [plz, setPlz] = useState("");
   const [address, setAddress] = useState("");
@@ -179,6 +183,12 @@ export default function Wizard({ onResult }) {
   const speicherVorschlagKwh = Math.round(gesamtVerbrauch / 1000 * SPEICHER_KWH_PRO_1000_VERBRAUCH * 2) / 2;
 
   const result = calculate(dach, ausrichtung, neigung, verbrauch, speicherKwh, eauto, waermepumpe, pvgisData, dachform, eautoProfil, tageszeit);
+  // Speicher-Vergleich im Ergebnis (wie SMA): dieselbe calculate()-Funktion
+  // zweimal — einmal ohne, einmal mit Speicher (gewählte Größe bzw. Faustregel-
+  // Vorschlag). Keine neue Rechenlogik, nur zwei Szenarien.
+  const vergleichKwh = speicherKwh > 0 ? speicherKwh : speicherVorschlagKwh;
+  const resultOhneSpeicher = showResult ? calculate(dach, ausrichtung, neigung, verbrauch, 0, eauto, waermepumpe, pvgisData, dachform, eautoProfil, tageszeit) : null;
+  const resultMitSpeicher = showResult ? calculate(dach, ausrichtung, neigung, verbrauch, vergleichKwh, eauto, waermepumpe, pvgisData, dachform, eautoProfil, tageszeit) : null;
 
   const steps = [
     {
@@ -233,6 +243,7 @@ export default function Wizard({ onResult }) {
       content: (
         <StepSpeicher
           speicherKwh={speicherKwh} setSpeicherKwh={setSpeicherKwh}
+          speicherWahl={speicherWahl} setSpeicherWahl={setSpeicherWahl}
           kwp={kwp} gesamtVerbrauch={gesamtVerbrauch}
           vorschlagKwh={speicherVorschlagKwh}
           tageszeit={tageszeit}
@@ -249,7 +260,7 @@ export default function Wizard({ onResult }) {
     { icon: <IconRuler size={13} />, label: "Dachfläche", value: dachform ? `${dach} m²` : "–" },
     { icon: <IconSun size={13} />, label: "Anlage", value: dachform ? `${Number(kwp).toLocaleString("de-DE")} kWp` : "–" },
     { icon: <IconBolt size={13} />, label: "Verbrauch", value: haushalt != null ? `${gesamtVerbrauch.toLocaleString("de-DE")} kWh` : "–" },
-    { icon: <IconBattery size={13} />, label: "Speicher", value: step >= 3 && speicherKwh > 0 ? `${speicherKwh} kWh` : "–" },
+    { icon: <IconBattery size={13} />, label: "Speicher", value: speicherWahl === "mit" ? `${Number(speicherKwh).toLocaleString("de-DE")} kWh` : speicherWahl === "ohne" ? "ohne" : "–" },
   ];
 
   if (showResult) {
@@ -263,6 +274,7 @@ export default function Wizard({ onResult }) {
         ausrichtung={ausrichtung}
         neigung={neigung}
         speicherKwh={speicherKwh}
+        speicherVergleich={{ ohne: resultOhneSpeicher, mit: resultMitSpeicher, mitKwh: vergleichKwh }}
         eauto={eauto}
         eautoProfil={eautoProfil}
         waermepumpe={waermepumpe}
@@ -410,7 +422,7 @@ export default function Wizard({ onResult }) {
                 Schritt 0 (Standort) ist kein Sub-Flow, wird hier aber genauso
                 gegated: stepReady wird erst true, wenn die PLZ vollständig ist
                 (siehe eigener useEffect oben). */}
-            {((!SUB_FLOW_STEPS.includes(step) && step !== 0) || stepReady) && (
+            {(step === 3 ? speicherWahl != null : ((!SUB_FLOW_STEPS.includes(step) && step !== 0) || stepReady)) && (
               <button
                 onClick={() => {
                   if (step < steps.length - 1) goStep(step + 1);

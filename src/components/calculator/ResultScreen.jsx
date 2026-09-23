@@ -4,7 +4,7 @@ import ResultCard from "./ui/ResultCard.jsx";
 import BarCompare from "./ui/BarCompare.jsx";
 import MonthlyChart from "./ui/MonthlyChart.jsx";
 import MonthlyBalanceChart from "./ui/MonthlyBalanceChart.jsx";
-import { IconSearch, IconCheck, IconCalendar, IconMail, IconSatellite, IconLoader, IconLock, IconClock } from "../Icons.jsx";
+import { IconSearch, IconCheck, IconCalendar, IconMail, IconLoader, IconLock, IconClock } from "../Icons.jsx";
 import { STROMPREIS, EINSPEISE, M2_PRO_KWP, M2_PRO_KWP_FLACHDACH, PVGIS_SYSTEM_LOSS, DEGRADATION_PRO_JAHR, WARTUNG_PROZENT_PRO_JAHR, wechselrichterKosten, STROMPREIS_STEIGERUNG_PRO_JAHR, formatSpan, einspeiseStaffel } from "../../lib/calculate.js";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion.js";
 import { useCountUpOnView } from "../../lib/useCountUpOnView.js";
@@ -120,7 +120,60 @@ function CumulativeRange({ items }) {
   );
 }
 
-export default function ResultScreen({ result, displayLocation, dach, dachform, ausrichtung, neigung, speicherKwh, eauto, eautoProfil, waermepumpe, tageszeit, plz, onRestart }) {
+// Ohne vs. mit Speicher nebeneinander (Muster SMA Solarrechner). Beide
+// Spalten kommen aus calculate() — hier wird nur dargestellt. Die vom
+// Nutzer gewählte Variante ist markiert.
+function SpeicherVergleich({ ohne, mit, mitKwh, gewaehlt }) {
+  if (!ohne || !mit) return null;
+  const kwh = Number(mitKwh).toLocaleString("de-DE");
+  const rows = [
+    ["Autarkie", (r) => `${r.autarkie} %`],
+    ["Ersparnis pro Jahr", (r) => `${formatSpan(r.jahresErsparnis)} €`],
+    ["Investition (ca.)", (r) => `${r.investition.toLocaleString("de-DE")} €`],
+    ["Amortisation", (r) => `${formatSpan(r.amortisation)} Jahre`],
+    ["Nettoersparnis nach 25 Jahren", (r) => `${formatSpan(r.ersparnis25, 22)} €`],
+  ];
+  const col = (key, titel, r) => {
+    const aktiv = gewaehlt === key;
+    return (
+      <div className="sv-col" style={{ background: aktiv ? theme.color.accentSubtle : theme.color.white, border: aktiv ? `2px solid ${theme.color.accent}` : `1px solid ${theme.color.border}`, padding: aktiv ? 15 : 16 }}>
+        <div style={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: "space-between", alignItems: "center", gap: 6, marginBottom: 12, minHeight: 24 }}>
+          <div style={{ fontFamily: theme.font.display, fontSize: 16, fontWeight: 600, color: theme.color.textPrimary }}>{titel}</div>
+          {aktiv && <span style={{ fontSize: 11.5, fontWeight: 600, padding: "2px 8px", borderRadius: theme.radius.pill, background: theme.color.accent, color: theme.color.onAccent, whiteSpace: "nowrap" }}>Ihre Wahl</span>}
+        </div>
+        {rows.map(([label, f]) => (
+          <div key={label} className="sv-row">
+            <div style={{ fontSize: 12.5, color: theme.color.textSecondary }}>{label}</div>
+            <div style={{ fontFamily: theme.font.display, fontSize: 16, fontWeight: 600, color: theme.color.textPrimary, fontVariantNumeric: "tabular-nums" }}>{f(r)}</div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+  return (
+    <div style={{ background: theme.color.white, border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.lg, padding: "20px 18px", marginBottom: 16 }}>
+      <style>{`
+        .sv-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+        .sv-col { border-radius: ${theme.radius.lg}px; min-width: 0; }
+        .sv-row { padding: 8px 0; border-top: 1px solid ${theme.color.border}; }
+        @media (max-width: 420px) { .sv-grid { gap: 8px; } .sv-col { padding: 12px !important; } }
+      `}</style>
+      <div style={{ fontFamily: theme.font.display, fontSize: 18, fontWeight: 600, color: theme.color.textPrimary }}>Mit oder ohne Speicher?</div>
+      <div style={{ fontSize: 13, color: theme.color.textSecondary, margin: "2px 0 14px" }}>Dieselbe Anlage, zwei Varianten — so sehen Sie, was der Speicher bringt und kostet.</div>
+      <div className="sv-grid">
+        {col("ohne", "Ohne Speicher", ohne)}
+        {col("mit", `Mit ${kwh} kWh Speicher`, mit)}
+      </div>
+      <div style={{ fontSize: 12, color: theme.color.textMuted, marginTop: 10, lineHeight: 1.5 }}>
+        {mit.amortisation > ohne.amortisation + 0.5
+          ? "Der Speicher verlängert die Amortisation etwas, macht Sie aber deutlich unabhängiger vom Netz."
+          : "Beide Varianten amortisieren sich ähnlich schnell — der Speicher macht Sie vor allem unabhängiger vom Netz."}
+      </div>
+    </div>
+  );
+}
+
+export default function ResultScreen({ result, displayLocation, dach, dachform, ausrichtung, neigung, speicherKwh, speicherVergleich, eauto, eautoProfil, waermepumpe, tageszeit, plz, onRestart }) {
   const reduced = usePrefersReducedMotion();
   // Haupt-Ergebniszahl: zählt beim ersten Erscheinen von 0 auf den Wert hoch.
   // Angezeigt als ±12%-Spanne (formatSpan), deren Mitte hochzählt.
@@ -134,7 +187,7 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
   const updateForm = (field, val) => setForm((p) => ({ ...p, [field]: val }));
 
   const beschreibeEauto = () => {
-    if (eauto === "ja") return `Ja (${eautoProfil})`;
+    if (eauto === "ja") return `Ja (${eautoProfil || "Hauptwagen"})`;
     if (eauto === "geplant") return "Geplant";
     return "Nein";
   };
@@ -166,7 +219,7 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
       dachform,
       ausrichtung,
       neigung,
-      speicher: speicherKwh > 0 ? `Ja, ${speicherKwh} kWh` : "Nein",
+      speicher: speicherKwh > 0 ? `Ja, ${Number(speicherKwh).toLocaleString("de-DE")} kWh` : "Nein",
       eauto: beschreibeEauto(),
       waermepumpe: beschreibeWaermepumpe(),
       tageszeiten: beschreibeTageszeiten(),
@@ -330,6 +383,8 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
         </div>
       </div>
 
+      <SpeicherVergleich {...(speicherVergleich || {})} gewaehlt={speicherKwh > 0 ? "mit" : "ohne"} />
+
       {/* Geplante Verbraucher: Hinweis, dass sie noch nicht eingerechnet sind */}
       {(eauto === "geplant" || waermepumpe === "geplant") && (
         <div style={{
@@ -436,7 +491,7 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
           <p style={{ margin: "8px 0" }}>
             {dachform === "Flachdach"
               ? `Für die Anlagengröße rechnen wir auf dem Flachdach mit ca. ${M2_PRO_KWP_FLACHDACH.toLocaleString("de-DE")} m² Dachfläche pro kWp Modulleistung — deutlich mehr als die ca. ${M2_PRO_KWP.toLocaleString("de-DE")} m²/kWp auf dem Schrägdach, weil aufgeständerte Module zur Verschattungsvermeidung Reihenabstand brauchen.`
-              : `Für die Anlagengröße rechnen wir mit ca. ${M2_PRO_KWP.toLocaleString("de-DE")} m² Dachfläche pro kWp Modulleistung, abhängig von Ihrer Dachform.`} Ihre geschätzte Autarkie von {result.autarkie}% (Anteil Ihres Verbrauchs, den die Anlage selbst deckt) ergibt sich aus dem Verhältnis von Anlagengröße zu Verbrauch{speicherKwh > 0 ? ` und Ihrer Speicherkapazität von ${speicherKwh} kWh` : ""} — keine feste Pauschale: Eine im Verhältnis zum Verbrauch größere Anlage deckt tendenziell einen größeren Teil davon selbst ab. Wir orientieren uns dabei an den offiziell kommunizierten Spannen von 30–55% ohne und bis zu 85% mit Speicher. {tageszeit && tageszeit.length > 0 && `Zusätzlich fließt ein, dass Sie den Strom überwiegend ${tageszeit.join(", ").toLowerCase()} nutzen — Verbrauch in den Produktionszeiten (Mittag) erhöht den Eigenverbrauch, Abend-/Nachtverbrauch senkt ihn.`} Ihre Ersparnis: Eigenverbrauch zu Ihrem Strompreis von {(STROMPREIS * 100).toFixed(0)} Ct/kWh, der eingespeiste Rest zur aktuellen Einspeisevergütung von {(einspeiseStaffel(result.kwp) * 100).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Ct/kWh (staffelt nach EEG: Anlagen bis 10 kWp erhalten {(EINSPEISE * 100).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Ct/kWh, größere Anlagen einen niedrigeren Satz für den Anteil über 10 kWp).
+              : `Für die Anlagengröße rechnen wir mit ca. ${M2_PRO_KWP.toLocaleString("de-DE")} m² Dachfläche pro kWp Modulleistung, abhängig von Ihrer Dachform.`} Ihre geschätzte Autarkie von {result.autarkie}% (Anteil Ihres Verbrauchs, den die Anlage selbst deckt) ergibt sich aus dem Verhältnis von Anlagengröße zu Verbrauch{speicherKwh > 0 ? ` und Ihrer Speicherkapazität von ${Number(speicherKwh).toLocaleString("de-DE")} kWh` : ""} — keine feste Pauschale: Eine im Verhältnis zum Verbrauch größere Anlage deckt tendenziell einen größeren Teil davon selbst ab. Wir orientieren uns dabei an den offiziell kommunizierten Spannen von 30–55% ohne und bis zu 85% mit Speicher. {tageszeit && tageszeit.length > 0 && `Zusätzlich fließt ein, dass Sie den Strom überwiegend ${tageszeit.join(", ").toLowerCase()} nutzen — Verbrauch in den Produktionszeiten (Mittag) erhöht den Eigenverbrauch, Abend-/Nachtverbrauch senkt ihn.`} Ihre Ersparnis: Eigenverbrauch zu Ihrem Strompreis von {(STROMPREIS * 100).toFixed(0)} Ct/kWh, der eingespeiste Rest zur aktuellen Einspeisevergütung von {(einspeiseStaffel(result.kwp) * 100).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Ct/kWh (staffelt nach EEG: Anlagen bis 10 kWp erhalten {(EINSPEISE * 100).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Ct/kWh, größere Anlagen einen niedrigeren Satz für den Anteil über 10 kWp).
           </p>
           <p style={{ margin: "8px 0" }}>
             Die 25-Jahres-Prognose berücksichtigt {(DEGRADATION_PRO_JAHR * 100).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}% Ertragsverlust pro Jahr durch Moduldegradation, laufende Betriebskosten von ca. {(WARTUNG_PROZENT_PRO_JAHR * 100).toFixed(0)}% der Investitionssumme pro Jahr sowie einen einmaligen Wechselrichter-Austausch (ca. {Math.round(wechselrichterKosten(result.kwp)).toLocaleString("de-DE")} € nach 12–15 Jahren). Der Jahres-Ersparnis-Wert oben rechnet mit dem heutigen Strompreis; nur die 25-Jahres-Zahl unterstellt zusätzlich vorsichtig eine Strompreissteigerung von {(STROMPREIS_STEIGERUNG_PRO_JAHR * 100).toFixed(0)}%/Jahr.
@@ -757,27 +812,6 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
         Neu berechnen
       </button>
 
-      {/* Datenquelle-Badge: nur wenn echte PVGIS-Daten vorliegen. Beim Fallback
-          ("Schätzung (Durchschnitt DE)") wird die Angabe ausgeblendet — kein
-          negativer Hinweis, der das Ergebnis unnötig untergräbt. */}
-      {result.dataSource?.includes("PVGIS") && (
-        <div style={{
-          textAlign: "center",
-          marginTop: 12,
-          padding: "6px 12px",
-          background: theme.color.successSubtle,
-          borderRadius: 6,
-          fontSize: 11,
-          color: theme.color.success,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 4,
-          width: "100%",
-          justifyContent: "center",
-        }}>
-          <IconSatellite size={13} /> Datenquelle: {result.dataSource}
-        </div>
-      )}
     </div>
   );
 }
