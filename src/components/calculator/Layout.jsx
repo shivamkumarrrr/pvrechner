@@ -16,6 +16,12 @@ export default function Layout({ main, sidebar }) {
           padding: 0 16px;
         }
         .calc-layout__main { display: flex; flex-direction: column; }
+        /* Mobil: weniger Kopf über jeder Frage — Kartentitel und die zweite
+           (Unter-)Fortschrittsleiste entfallen; Hauptfortschritt + "Schritt
+           X von 4" + Überschrift bleiben. */
+        @media (max-width: 719px) {
+          .calc-card__title, .subflow-progress { display: none !important; }
+        }
         .calc-card { display: flex; flex-direction: column; }
         @media (min-width: 960px) {
           .calc-layout { grid-template-columns: minmax(0, 1fr) 400px; align-items: stretch; }

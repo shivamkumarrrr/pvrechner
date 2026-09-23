@@ -75,7 +75,7 @@ export default function SubFlow({ total, children, onReadyChange, onIndexChange,
         @keyframes subSlideInLeft { from { opacity: 0; transform: translateX(-26px); } to { opacity: 1; transform: translateX(0); } }
         @keyframes subFadeIn { from { opacity: 0; } to { opacity: 1; } }
       `}</style>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 22, marginBottom: 14 }}>
+      <div className="subflow-progress" style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 22, marginBottom: 14 }}>
         {/* Zurück nur noch als Textlink unten in der Wizard-Card (der ruft
             dieselbe back()-Funktion) — kein zweiter Link neben dem Fortschritt. */}
         <div style={{ display: "flex", gap: 4, flex: 1 }}>
