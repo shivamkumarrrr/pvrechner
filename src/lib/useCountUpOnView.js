@@ -1,15 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion.js";
 
-// Zählt beim ersten Erscheinen (IntersectionObserver) von 0 auf `target`
+// Zählt beim ersten Erscheinen (IntersectionObserver) von 70 % auf `target`
+// (nie von 0 — ein "0 €"-Frame würde wie ein kaputtes Ergebnis wirken)
 // hoch — easeOutCubic, ~1.4s. Läuft genau einmal; der Wert bleibt danach
 // stehen (Ergebnis-Zahlen verändern sich nach dem ersten Render nicht mehr).
 // prefers-reduced-motion: sofort der Endwert, kein Hochzählen.
 // Liefert [ref, value] — ref an das zu beobachtende Element hängen.
+const START = 0.7;
+
 export function useCountUpOnView(target, { duration = 1400, threshold = 0.3 } = {}) {
   const reduced = usePrefersReducedMotion();
   const ref = useRef(null);
-  const [value, setValue] = useState(reduced ? target : 0);
+  const [value, setValue] = useState(reduced ? target : Math.round(target * START));
 
   useEffect(() => {
     if (reduced) {
@@ -24,7 +27,7 @@ export function useCountUpOnView(target, { duration = 1400, threshold = 0.3 } = 
       const from = performance.now();
       const tick = (now) => {
         const t = Math.min(1, (now - from) / duration);
-        setValue(Math.round(target * (1 - Math.pow(1 - t, 3))));
+        setValue(Math.round(target * (START + (1 - START) * (1 - Math.pow(1 - t, 3)))));
         if (t < 1) raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);

@@ -124,6 +124,28 @@ export default function Hero() {
         <p style={{ fontSize: "clamp(13.5px, 1.3vw, 15px)", color: "rgba(255,255,255,0.9)", margin: "0 0 26px", lineHeight: 1.6, maxWidth: 460 }}>
           Berechnen Sie in 60 Sekunden Ertrag, Ersparnis und Amortisation — auf Basis realer Satellitendaten für Ihren Standort, nicht bundesweiter Durchschnittswerte.
         </p>
+        <button
+          id="hero-cta"
+          type="button"
+          onClick={() => document.getElementById("rechner")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" })}
+          style={{
+            minHeight: 48,
+            padding: "13px 26px",
+            margin: "0 0 28px",
+            borderRadius: theme.radius.pill,
+            border: "none",
+            background: theme.color.accent,
+            color: theme.color.onAccent,
+            fontSize: 15,
+            fontWeight: 600,
+            cursor: "pointer",
+            transition: reducedMotion ? "none" : "background-color 0.15s, transform 0.15s",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = theme.color.accentHover; if (!reducedMotion) e.currentTarget.style.transform = "translateY(-1px)"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = theme.color.accent; e.currentTarget.style.transform = "translateY(0)"; }}
+        >
+          Ersparnis für mein Dach berechnen
+        </button>
         {/* Sourced reference values — each number maps to a documented source
             (Quelle + Stand in CLAUDE.md data rules). Replaces a former bar of
             unsourced figures (950 kWh/kWp / 9–12 Jahre / 25+ Jahre). */}
@@ -143,7 +165,7 @@ export default function Hero() {
               <span style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 600, color: theme.color.accent, lineHeight: 1 }}>{s.num}</span>
               <span style={{ fontSize: 11.5, color: "rgba(255,255,255,0.92)", lineHeight: 1.35 }}>
                 {s.text}<br />
-                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>{s.sub}</span>
+                <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{s.sub}</span>
               </span>
             </div>
           ))}

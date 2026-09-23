@@ -9,27 +9,35 @@ export default function DachformCard({ item, selected, onSelect }) {
   // Für die Anzeige den Effekt als äquivalente "Nutzbarkeit" relativ zum Schrägdach ausdrücken,
   // damit die Karte nicht irreführend "~100% nutzbar" zeigt.
   const anzeigeFaktor = item.label === "Flachdach" ? M2_PRO_KWP / M2_PRO_KWP_FLACHDACH : item.factor;
+  const pct = Math.round(anzeigeFaktor * 100);
   return (
     <TiltButton
       onClick={() => onSelect(item.label)}
+      aria-pressed={active}
       style={{
-        padding: "14px 6px 10px",
+        padding: active ? "15px 11px 13px" : "16px 12px 14px",
         borderRadius: theme.radius.lg,
-        border: active ? `2px solid ${theme.color.accent}` : `1.5px solid ${theme.color.border}`,
+        border: active ? `2px solid ${theme.color.accent}` : `1px solid ${theme.color.border}`,
         background: active ? theme.color.accentSubtle : theme.color.white,
         cursor: "pointer",
         textAlign: "center",
+        width: "100%",
+        height: "100%",
         transition: "border-color 0.15s, background-color 0.15s",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
-        <RoofIcon item={item} active={active} size={72} />
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
+        <RoofIcon item={item} active={active} size={96} />
       </div>
-      <div style={{ fontSize: 14, fontWeight: 700, color: active ? theme.color.accentHover : theme.color.textPrimary }}>
+      <div style={{ fontFamily: theme.font.display, fontSize: 16, fontWeight: 600, color: theme.color.textPrimary }}>
         {item.label}
       </div>
-      <div style={{ fontSize: 11, fontWeight: 500, color: active ? theme.color.accentHover : theme.color.textMuted, marginTop: 2 }}>
-        ~{Math.round(anzeigeFaktor * 100)}% nutzbar
+      <div style={{ fontSize: 13, color: theme.color.textSecondary, marginTop: 3 }}>
+        ca. <strong style={{ color: active ? theme.color.accentText : theme.color.textPrimary }}>{pct} %</strong> nutzbar
+      </div>
+      {/* Anteil nutzbarer Dachfläche als Mini-Balken — vergleichbar auf einen Blick */}
+      <div aria-hidden="true" style={{ height: 4, borderRadius: 2, background: active ? theme.color.white : theme.color.bg, marginTop: 10, overflow: "hidden" }}>
+        <div style={{ width: `${pct}%`, height: "100%", borderRadius: 2, background: active ? theme.color.accent : theme.color.textMuted }} />
       </div>
     </TiltButton>
   );

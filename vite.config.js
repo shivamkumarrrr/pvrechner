@@ -9,6 +9,21 @@ import react from '@vitejs/plugin-react'
 // the location-independent estimate.
 export default defineConfig({
   plugins: [react()],
+  // Default build (Vercel, domain root) uses absolute "/" asset URLs. The
+  // WordPress plugin build sets VITE_BASE=./ instead: WordPress serves the
+  // app from a plugin subdirectory whose exact path isn't known at build
+  // time, and a relative base makes Vite resolve JS-imported assets (hero
+  // photos, logos, ...) via import.meta.url — i.e. relative to wherever the
+  // script itself ends up loaded from — instead of the domain root. Without
+  // this, every imported image 404s under WordPress (confirmed via local
+  // wp-env test, Aug 2026).
+  base: process.env.VITE_BASE || '/',
+  // Emits .vite/manifest.json (entry -> hashed filename) so non-Vite consumers
+  // (the WordPress plugin's PHP enqueue code, see wordpress-plugin/) can look up
+  // the current build's asset filenames instead of hardcoding or globbing them.
+  build: {
+    manifest: true,
+  },
   server: {
     proxy: {
       '/api/pvgis': {

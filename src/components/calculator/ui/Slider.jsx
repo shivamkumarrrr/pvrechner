@@ -23,6 +23,7 @@ export default function Slider({ value, onChange, min, max, step, unit, label })
           <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
             <input
               autoFocus
+              aria-label={label}
               value={temp}
               onChange={(e) => setTemp(e.target.value)}
               onBlur={commit}
@@ -66,6 +67,8 @@ export default function Slider({ value, onChange, min, max, step, unit, label })
       </div>
       <input
         type="range"
+        aria-label={label}
+        aria-valuetext={`${value.toLocaleString("de-DE")} ${unit}`}
         min={min}
         max={max}
         step={step}

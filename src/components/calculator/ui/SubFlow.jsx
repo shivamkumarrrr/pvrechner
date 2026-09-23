@@ -6,7 +6,7 @@ import { usePrefersReducedMotion } from "../../../lib/usePrefersReducedMotion.js
 // Entscheidung pro Screen). Gemeinsame UI:
 //  - Dünner Mini-Fortschrittsbalken (3px, Akzentfarbe) — bewusst OHNE
 //    "Unterschritt X von Y"-Text.
-//  - Dezenter Text-Link "← Zurück" oben links ab dem zweiten Sub-Screen.
+//  - Zurück läuft über den einen Textlink unten in der Wizard-Card.
 //  - Horizontale Slide+Fade-Transition (~350ms ease-out); bei
 //    prefers-reduced-motion nur Fade (kein Versatz).
 //
@@ -76,25 +76,8 @@ export default function SubFlow({ total, children, onReadyChange, onIndexChange,
         @keyframes subFadeIn { from { opacity: 0; } to { opacity: 1; } }
       `}</style>
       <div style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 22, marginBottom: 14 }}>
-        {index > 0 ? (
-          <button
-            onClick={back}
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              fontSize: 12,
-              fontWeight: 500,
-              color: theme.color.textSecondary,
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-            }}
-          >
-            ← Zurück
-          </button>
-        ) : (
-          <span />
-        )}
+        {/* Zurück nur noch als Textlink unten in der Wizard-Card (der ruft
+            dieselbe back()-Funktion) — kein zweiter Link neben dem Fortschritt. */}
         <div style={{ display: "flex", gap: 4, flex: 1 }}>
           {Array.from({ length: total }).map((_, i) => (
             <div

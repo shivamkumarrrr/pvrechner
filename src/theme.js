@@ -14,15 +14,29 @@ const theme = {
     textSecondary: "#5A6570",
     // Derived (not in the spec doc verbatim): one lightness step below
     // textSecondary, for fine print / placeholder-level text only.
-    textMuted: "#8A9099",
+    textMuted: "#6B737D", // darkened from #8A9099 for WCAG AA (4.8:1 on white)
 
     accent: "#F79E1C", // real Photovoltaik.Marketing brand orange — exact value from the official logo file
     accentHover: "#D6840F",
     accentSubtle: "#FEF1DD",
+    // Text-safe accent: brand orange itself is only ~2:1 on white, so orange
+    // TEXT uses this darker shade (4.8:1 on white, 4.9:1 on accentSubtle).
+    accentText: "#9A5B08",
+    // Text/icon color ON an accent-filled surface (buttons). White on
+    // #F79E1C is ~2:1; dark text is ~8:1.
+    onAccent: "#141B22",
 
     // Photovoltaik.Marketing wordmark navy — a real brand color (not a logo backdrop).
     // Usable for dark-on-light headline/text treatments if desired.
     brandNavy: "#2C358F",
+    // Deep brand navy for the ONE dark band on the landing page (Prozess).
+    // Darker than the wordmark navy so white text sits at ~14:1.
+    navyDeep: "#1B2160",
+    onNavy: "#FFFFFF",
+    onNavyMuted: "#C9CDE6", // secondary text on navyDeep (~9:1)
+    // Pale morning-sky wash behind the calculator — atmosphere only, fades
+    // into bg. Derived from sky, not a new hue.
+    skyWash: "#E6EEF5",
 
     // Secondary accent, sparingly, for things genuinely about data/sky
     // (e.g. the monthly yield chart) — never mixed with `accent`. #1C7FA6 (a
@@ -31,10 +45,17 @@ const theme = {
     sky: "#1F6E8C",
     skySubtle: "#E7EFF3", // derived light tint
 
-    success: "#1E8A5F",
+    success: "#18774F", // darkened from #1E8A5F for AA on successSubtle
     successSubtle: "#E3F3EC", // derived light tint
     danger: "#C4432B",
     dangerSubtle: "#FBEAE5", // derived light tint
+
+    // Chart series for the monthly energy balance — validated with the dataviz
+    // palette checker (lightness band, chroma, CVD ΔE ≥ 13, 3:1 vs white).
+    // Chart-only: not for text or UI chrome.
+    chartEigen: "#D97A06",   // Eigenverbrauch (brand-orange family)
+    chartEinspeisung: "#3070C4", // Einspeisung
+    chartNetz: "#A0526E",    // Netzbezug
 
     border: "#E1E5E4", // deliberately not Tailwind's #e2e8f0
 

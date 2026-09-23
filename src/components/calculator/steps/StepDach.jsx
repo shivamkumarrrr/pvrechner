@@ -25,7 +25,7 @@ export default function StepDach({ dachform, setDachform, dach, setDach, ausrich
                   Mobile-Breiten (409px Inhalt in 390px Viewport, letzte Karte
                   wurde abgeschnitten) — reflowt jetzt selbst auf 2 Spalten,
                   ohne Breakpoint/JS nötig, bleibt auf breiteren Screens 4-spaltig. */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 10 }}>
                 {DACHFORM.map((d) => (
                   <DachformCard key={d.label} item={d} selected={dachform} onSelect={(label) => autoAdvance(() => setDachform(label))} />
                 ))}

@@ -13,7 +13,31 @@
 import photovoltaikMarketingLogo from "./assets/photovoltaik-marketing-logo.png";
 import { configureEconomics } from "./lib/calculate.js";
 
-export const siteConfig = {
+// Rekursiver Merge für Laufzeit-Overrides aus dem WordPress-Plugin
+// (`window.PV_RECHNER_CONFIG`, von includes/admin-settings.php per
+// wp_localize_script injiziert). Leere Strings/undefined überschreiben den
+// Default NICHT — ein leer gelassenes Admin-Feld soll den Standardwert
+// durchreichen, nicht ihn löschen. Ermöglicht White-Label pro WP-Kunde ohne
+// Rebuild: nur das Admin-Formular ausfüllen statt config.js zu editieren.
+function mergeConfig(base, overrides) {
+  if (!overrides) return base;
+  const merged = { ...base };
+  for (const key of Object.keys(overrides)) {
+    const value = overrides[key];
+    if (value === undefined || value === "" || value === null) continue;
+    if (value && typeof value === "object" && !Array.isArray(value) && base[key]) {
+      merged[key] = mergeConfig(base[key], value);
+    } else {
+      merged[key] = value;
+    }
+  }
+  return merged;
+}
+
+const runtimeOverrides =
+  typeof window !== "undefined" ? window.PV_RECHNER_CONFIG : undefined;
+
+const defaultSiteConfig = {
   // Metadaten für <title>, Meta-Description und theme-color (siehe App.jsx).
   // OG-Tags bleiben pro Build statisch (index.html) — pro Tenant-Build anpassen.
   meta: {
@@ -50,7 +74,7 @@ export const siteConfig = {
     phone: "",
     email: "",
     // Calendly-Booking ist die Kern-Konversion des Lead-Systems.
-    calendlyUrl: "https://calendly.com/ppc-beratung/solaranlage",
+    calendlyUrl: "https://calendly.com/kumarpalzconsulting",
   },
 
   // Lead-Formular: wohin gehen die Leads? Genau einer der Modi:
@@ -81,6 +105,8 @@ export const siteConfig = {
     mwstBeispiel: true,
   },
 };
+
+export const siteConfig = mergeConfig(defaultSiteConfig, runtimeOverrides);
 
 // Kundenspezifische Wirtschaftlichkeits-Konstanten in calculate.js übernehmen
 // (Injection, damit calculate.js selbst seiten-/asset-frei bleibt).

@@ -14,13 +14,21 @@ const SCHRITTE = [
 // for exactly this case). Horizontal rail on desktop, vertical on mobile.
 export default function ProzessSchritte() {
   return (
-    <section style={{ background: theme.color.bg }} aria-labelledby="prozess-heading">
-      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "56px 20px" }}>
+    <section
+      aria-labelledby="prozess-heading"
+      style={{
+        // Das EINE dunkle Band der Seite, in der echten Marken-Navy des Logos.
+        // Ein weicher Sonnen-Schein oben rechts (Markenorange, sehr niedrige
+        // Deckkraft) ist das Signature-Element — keine weiteren Dekorationen.
+        background: `radial-gradient(640px 360px at 88% -10%, rgba(247,158,28,0.22), rgba(247,158,28,0) 70%), ${theme.color.navyDeep}`,
+      }}
+    >
+      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "72px 20px" }}>
         <Reveal>
-          <h2 id="prozess-heading" style={{ fontFamily: theme.font.display, fontSize: 26, fontWeight: 600, color: theme.color.textPrimary, textAlign: "center", margin: "0 0 8px" }}>
+          <h2 id="prozess-heading" style={{ fontFamily: theme.font.display, fontSize: "clamp(26px, 3.2vw, 34px)", fontWeight: 700, letterSpacing: -0.4, color: theme.color.onNavy, textAlign: "center", margin: "0 0 10px" }}>
             Von der Anfrage bis zur Montage
           </h2>
-          <p style={{ fontSize: 14, color: theme.color.textSecondary, textAlign: "center", margin: "0 auto 36px", maxWidth: 480 }}>
+          <p style={{ fontSize: 16, color: theme.color.onNavyMuted, textAlign: "center", margin: "0 auto 44px", maxWidth: 480 }}>
             Vier Schritte, ein fester Ansprechpartner.
           </p>
         </Reveal>
@@ -29,8 +37,8 @@ export default function ProzessSchritte() {
             <Reveal key={s.n} delay={i * 90} as="li" className="prozess-step">
               <div className="prozess-step__marker" aria-hidden="true">{s.n}</div>
               <div className="prozess-step__card">
-                <h3 style={{ fontSize: 14.5, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 6px" }}>{s.title}</h3>
-                <p style={{ fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.6, margin: 0 }}>{s.text}</p>
+                <h3 style={{ fontFamily: theme.font.display, fontSize: 17, fontWeight: 600, color: theme.color.onNavy, margin: "0 0 6px" }}>{s.title}</h3>
+                <p style={{ fontSize: 14, color: theme.color.onNavyMuted, lineHeight: 1.6, margin: 0 }}>{s.text}</p>
               </div>
             </Reveal>
           ))}
@@ -48,11 +56,11 @@ export default function ProzessSchritte() {
           .prozess-timeline::before {
             content: "";
             position: absolute;
-            top: 23px;
+            top: 26px;
             left: 12.5%;
             right: 12.5%;
             height: 2px;
-            background: ${theme.color.border};
+            background: rgba(255,255,255,0.18);
           }
           .prozess-step {
             display: flex;
@@ -63,9 +71,10 @@ export default function ProzessSchritte() {
             width: 46px;
             height: 46px;
             border-radius: 50%;
-            background: ${theme.color.accentSubtle};
-            border: 2px solid ${theme.color.accent};
-            color: ${theme.color.accentHover};
+            background: ${theme.color.accent};
+            border: 4px solid ${theme.color.navyDeep};
+            box-sizing: content-box;
+            color: ${theme.color.onAccent};
             font-family: ${theme.font.display};
             font-size: 16px;
             font-weight: 700;
@@ -78,11 +87,8 @@ export default function ProzessSchritte() {
           }
           .prozess-step__card {
             width: 100%;
-            background: ${theme.color.white};
-            border: 1.5px solid ${theme.color.border};
-            border-radius: ${theme.radius.lg}px;
-            padding: 18px 16px;
-            margin-top: 14px;
+            padding: 0 6px;
+            margin-top: 16px;
             text-align: center;
             box-sizing: border-box;
           }
@@ -91,7 +97,7 @@ export default function ProzessSchritte() {
             .prozess-timeline::before {
               top: 0;
               bottom: 0;
-              left: 23px;
+              left: 26px;
               right: auto;
               width: 2px;
               height: auto;
@@ -102,8 +108,9 @@ export default function ProzessSchritte() {
               margin-bottom: 14px;
             }
             .prozess-step__card {
-              margin-top: 0;
-              margin-left: 14px;
+              margin-top: 2px;
+              margin-left: 16px;
+              padding: 0;
               text-align: left;
             }
           }

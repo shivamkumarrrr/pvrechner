@@ -36,7 +36,7 @@ export default function MonthlyChart({ monthly, compact }) {
                 borderRadius: "4px 4px 0 0",
               }}
             />
-            {!compact && <span style={{ fontSize: 9, color: theme.color.textMuted }}>{MONTH_LABELS[i]}</span>}
+            {!compact && <span style={{ fontSize: 11, color: theme.color.textMuted }}>{MONTH_LABELS[i]}</span>}
           </div>
         ))}
       </div>

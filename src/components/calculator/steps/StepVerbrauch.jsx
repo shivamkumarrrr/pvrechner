@@ -8,29 +8,104 @@ import ContinueButton from "../ui/ContinueButton.jsx";
 import { HAUSHALT, TAGESZEITEN, E_AUTO_PROFILE, WAERMEPUMPE_KWH } from "../../../lib/calculate.js";
 import { IconPerson, IconClock } from "../../Icons.jsx";
 
+// Himmel-Szene je Tageszeit: Sonnenstand auf einem Tagesbogen (tief am
+// Morgen, hoch am Mittag, tief am Abend), nachts Mond. Zeigt ohne Worte,
+// wann die Anlage Strom liefert.
+function DaySky({ label, active }) {
+  const sun = active ? theme.color.accent : "#C9CED3";
+  const line = active ? theme.color.accentText : theme.color.textMuted;
+  const pos = { Morgens: [18, 34], Mittags: [40, 12], Abends: [62, 34] }[label];
+  return (
+    <svg viewBox="0 0 80 48" width="80" height="48" aria-hidden="true" style={{ display: "block", marginBottom: 4 }}>
+      <path d="M8 42 Q40 -6 72 42" fill="none" stroke={line} strokeWidth="1.2" strokeDasharray="2 3" opacity="0.6" />
+      <line x1="4" y1="42" x2="76" y2="42" stroke={line} strokeWidth="1.5" strokeLinecap="round" opacity="0.7" />
+      {pos ? (
+        <g>
+          <circle cx={pos[0]} cy={pos[1]} r={label === "Mittags" ? 7.5 : 6} fill={sun} />
+          {label === "Mittags" && [0, 45, 90, 135, 180, 225, 270, 315].map((d) => {
+            const r1 = 10.5, r2 = 14, rr = (d * Math.PI) / 180;
+            return <line key={d} x1={pos[0] + r1 * Math.cos(rr)} y1={pos[1] + r1 * Math.sin(rr)} x2={pos[0] + r2 * Math.cos(rr)} y2={pos[1] + r2 * Math.sin(rr)} stroke={sun} strokeWidth="1.8" strokeLinecap="round" />;
+          })}
+        </g>
+      ) : (
+        <g>
+          <path d="M46 10a11 11 0 1 0 8 19 9 9 0 1 1-8-19z" fill={active ? theme.color.brandNavy : "#C9CED3"} />
+          <circle cx="22" cy="14" r="1.4" fill={line} />
+          <circle cx="30" cy="26" r="1" fill={line} />
+          <circle cx="64" cy="18" r="1.2" fill={line} />
+        </g>
+      )}
+    </svg>
+  );
+}
+
+// Haushalts-Gruppe als eigene Illustration: überlappende Figuren (Kopf +
+// Schultern), abwechselnd groß/klein, damit ein Haushalt statt einer
+// Icon-Reihe entsteht. Ab 5 Personen: 4 Figuren + "+".
+function PeopleGroup({ count, active }) {
+  const n = Math.min(count, 4);
+  const sizes = [1, 0.82, 0.92, 0.74];
+  const fills = active
+    ? [theme.color.accent, theme.color.accentText, "#E9A441", "#B8721A"]
+    : [theme.color.textSecondary, theme.color.textMuted, "#9AA1A9", "#B7BDC3"];
+  const step = 17;
+  const width = 28 + (n - 1) * step + (count > 4 ? 14 : 0);
+  return (
+    <svg viewBox={`0 0 ${width} 44`} height="44" width={width} aria-hidden="true" style={{ display: "block", overflow: "visible" }}>
+      {Array.from({ length: n }).map((_, i) => {
+        const k = sizes[i];
+        const cx = 14 + i * step;
+        const base = 44;
+        const headR = 6.2 * k;
+        const shoulderW = 12 * k;
+        const bodyTop = base - 22 * k;
+        return (
+          <g key={i}>
+            <path
+              d={`M${cx - shoulderW} ${base} Q${cx - shoulderW} ${bodyTop} ${cx} ${bodyTop} Q${cx + shoulderW} ${bodyTop} ${cx + shoulderW} ${base} Z`}
+              fill={fills[i]} stroke={theme.color.white} strokeWidth="2"
+            />
+            <circle cx={cx} cy={bodyTop - headR - 2} r={headR} fill={fills[i]} stroke={theme.color.white} strokeWidth="2" />
+          </g>
+        );
+      })}
+      {count > 4 && (
+        <text x={width - 4} y={24} textAnchor="middle" fontSize="16" fontWeight="700" fill={active ? theme.color.accentText : theme.color.textSecondary}>+</text>
+      )}
+    </svg>
+  );
+}
+
+const HAUSHALT_MAX_KWH = Math.max(...HAUSHALT.map((h) => h.kwh));
+
 function PersonOption({ opt, active, onClick }) {
-  const icons = Math.min(opt.persons, 4);
+  const pct = (opt.kwh / HAUSHALT_MAX_KWH) * 100;
   return (
     <TiltButton
       onClick={onClick}
+      aria-pressed={active}
+      className={`hh-card${active ? " is-active" : ""}`}
       style={{
-        padding: "12px 6px",
-        borderRadius: 10,
-        border: active ? `2px solid ${theme.color.accent}` : `1.5px solid ${theme.color.border}`,
+        borderRadius: theme.radius.lg,
+        border: active ? `2px solid ${theme.color.accent}` : `1px solid ${theme.color.border}`,
         background: active ? theme.color.accentSubtle : theme.color.white,
         cursor: "pointer",
-        transition: "all 0.15s",
+        transition: "border-color 0.15s, background-color 0.15s",
       }}
     >
-      <div style={{ display: "flex", gap: 2, justifyContent: "center", marginBottom: 8 }}>
-        {Array.from({ length: icons }).map((_, i) => (
-          <span key={i} style={{ color: active ? theme.color.accentHover : theme.color.textMuted, display: "flex" }}>
-            <IconPerson size={24} />
-          </span>
-        ))}
+      <div className="hh-card__art"><PeopleGroup count={opt.persons} active={active} /></div>
+      <div className="hh-card__text">
+        <div style={{ fontFamily: theme.font.display, fontSize: 15, fontWeight: 600, color: theme.color.textPrimary, whiteSpace: "nowrap" }}>{opt.label}</div>
+        <div style={{ fontSize: 13, marginTop: 2, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+          <strong style={{ color: active ? theme.color.accentText : theme.color.textPrimary, fontWeight: 600 }}>{opt.kwh.toLocaleString("de-DE")} kWh</strong>
+          <span className="hh-card__per" style={{ color: theme.color.textMuted }}> pro Jahr</span>
+        </div>
+        {/* Mini-Balken: Verbrauch relativ zum größten Haushalt — macht die
+            Unterschiede zwischen den Karten auf einen Blick vergleichbar. */}
+        <div aria-hidden="true" style={{ height: 4, borderRadius: 2, background: active ? theme.color.white : theme.color.bg, marginTop: 10, overflow: "hidden" }}>
+          <div style={{ width: `${pct}%`, height: "100%", borderRadius: 2, background: active ? theme.color.accent : theme.color.textMuted }} />
+        </div>
       </div>
-      <div style={{ fontSize: 12, fontWeight: 600, color: active ? theme.color.accentHover : theme.color.textPrimary }}>{opt.label}</div>
-      <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 2 }}>{opt.kwh.toLocaleString("de-DE")} kWh/Jahr</div>
     </TiltButton>
   );
 }
@@ -41,7 +116,7 @@ function PersonOption({ opt, active, onClick }) {
 // statt nur einem Icon + Text.
 
 function CarChargeScene({ active }) {
-  const s = active ? theme.color.accentHover : theme.color.textMuted;
+  const s = active ? theme.color.accentText : theme.color.textMuted;
   const f = active ? theme.color.accentSubtle : theme.color.bg;
   return (
     <svg viewBox="0 0 100 80" style={{ width: 74, height: 56, flexShrink: 0 }} role="img" aria-label="E-Auto an Ladesäule">
@@ -59,7 +134,7 @@ function CarChargeScene({ active }) {
 }
 
 function HeatpumpScene({ active }) {
-  const s = active ? theme.color.accentHover : theme.color.textMuted;
+  const s = active ? theme.color.accentText : theme.color.textMuted;
   const f = active ? theme.color.accentSubtle : theme.color.bg;
   return (
     <svg viewBox="0 0 100 80" style={{ width: 74, height: 56, flexShrink: 0 }} role="img" aria-label="Wärmepumpe mit Wärmewellen">
@@ -73,23 +148,36 @@ function HeatpumpScene({ active }) {
   );
 }
 
-function VerbraucherCard({ Illustration, title, sub, active, children }) {
+function VerbraucherCard({ Illustration, title, sub, active, badge, children }) {
   return (
     <TiltButton
       as="div"
       style={{
-        border: active ? `1.5px solid ${theme.color.accent}` : `1.5px solid ${theme.color.border}`,
+        border: active ? `2px solid ${theme.color.accent}` : `1px solid ${theme.color.border}`,
         borderRadius: theme.radius.lg,
-        padding: "14px 14px 12px",
+        padding: active ? "15px" : "16px",
         background: theme.color.white,
         marginBottom: 12,
+        transition: "border-color 0.15s",
       }}
     >
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 10 }}>
-        <Illustration active={active} />
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: theme.color.textPrimary }}>{title}</div>
-          <div style={{ fontSize: 11.5, color: theme.color.textMuted, lineHeight: 1.4, marginTop: 2 }}>{sub}</div>
+      <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 14 }}>
+        <div style={{
+          width: 88, height: 68, flexShrink: 0, borderRadius: theme.radius.md,
+          background: active ? theme.color.accentSubtle : theme.color.bg,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          transition: "background-color 0.2s",
+        }}>
+          <Illustration active={active} />
+        </div>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <div style={{ fontFamily: theme.font.display, fontSize: 16, fontWeight: 600, color: theme.color.textPrimary }}>{title}</div>
+            {badge && (
+              <span style={{ fontSize: 12, fontWeight: 600, padding: "2px 8px", borderRadius: theme.radius.pill, background: theme.color.accentSubtle, color: theme.color.accentText, whiteSpace: "nowrap" }}>{badge}</span>
+            )}
+          </div>
+          <div style={{ fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.45, marginTop: 3 }}>{sub}</div>
         </div>
       </div>
       {children}
@@ -134,7 +222,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
   const eautoProfilWert = E_AUTO_PROFILE.find((p) => p.label === eautoProfil) || E_AUTO_PROFILE[1];
 
   const hintBox = (text) => (
-    <div style={{ fontSize: 12, color: theme.color.textSecondary, background: theme.color.bg, borderRadius: 10, padding: "10px 12px", marginTop: 8, lineHeight: 1.6 }}>
+    <div style={{ fontSize: 13, color: theme.color.textSecondary, background: theme.color.bg, borderRadius: theme.radius.md, padding: "10px 14px", marginTop: 10, lineHeight: 1.55 }}>
       {text}
     </div>
   );
@@ -145,8 +233,21 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
         <>
           {index === 0 && (
             <div>
-              <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 10 }}>Wie viele Personen leben in Ihrem Haushalt?</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(84px, 1fr))", gap: 8 }}>
+              <style>{`
+                .hh-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+                .hh-card { width: 100%; display: flex; align-items: center; gap: 16px; padding: 12px 16px; text-align: left; font-family: inherit; }
+                .hh-card__art { width: 96px; flex-shrink: 0; display: flex; justify-content: center; }
+                .hh-card__text { flex: 1; min-width: 0; }
+                @media (min-width: 640px) {
+                  .hh-grid { grid-template-columns: repeat(5, 1fr); gap: 10px; }
+                  .hh-card { flex-direction: column; align-items: stretch; gap: 12px; padding: 18px 8px 16px; text-align: center; height: 100%; }
+                  .hh-card__art { width: auto; height: 48px; align-items: flex-end; }
+                  .hh-card__per { display: block; }
+                }
+              `}</style>
+              <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 4 }}>Wie viele Personen leben in Ihrem Haushalt?</div>
+              <div style={{ fontSize: 13, color: theme.color.textMuted, marginBottom: 14 }}>Typischer Jahresverbrauch — im nächsten Schritt können Sie ihn anpassen.</div>
+              <div className="hh-grid">
                 {HAUSHALT.map((opt) => (
                   <PersonOption key={opt.label} opt={opt} active={haushalt === opt.label} onClick={() => autoAdvance(() => onHaushaltChange(opt.label))} />
                 ))}
@@ -164,6 +265,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                     type="text"
                     inputMode="numeric"
                     placeholder="z.B. 3800"
+                    aria-label="Jahresverbrauch in kWh genau eingeben"
                     value={customKwh}
                     onChange={(e) => setCustomKwh(e.target.value.replace(/[^0-9]/g, ""))}
                     onFocus={(e) => { setCustomKwhFocused(true); e.target.style.borderColor = theme.color.accent; }}
@@ -186,13 +288,14 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
           {index === 2 && (
             <div>
               <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 4 }}>Zusätzliche Verbraucher</div>
-              <div style={{ fontSize: 12, color: theme.color.textMuted, marginBottom: 12 }}>Rechnet den Mehrverbrauch in Ihre Anlage ein — „Geplant" bleibt außen vor.</div>
+              <div style={{ fontSize: 13, color: theme.color.textMuted, marginBottom: 14 }}>Rechnet den Mehrverbrauch in Ihre Anlage ein — „Geplant" bleibt außen vor.</div>
 
               <VerbraucherCard
                 Illustration={CarChargeScene}
                 title="Elektroauto / Wallbox"
                 sub="Rechnet den Ladebedarf nach Ihrem Nutzungsprofil ein."
                 active={eauto !== "nein"}
+                badge={eauto === "ja" ? "wird eingerechnet" : eauto === "geplant" ? "noch nicht eingerechnet" : null}
               >
                 <Segmented
                   options={[
@@ -205,7 +308,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                 />
                 {eauto === "ja" && (
                   <>
-                    <div style={{ fontSize: 12, color: theme.color.textSecondary, margin: "10px 0 6px" }}>Wie stark ist das Auto in Nutzung?</div>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: theme.color.textSecondary, margin: "14px 0 8px" }}>Wie stark ist das Auto in Nutzung?</div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
                       {E_AUTO_PROFILE.map((p) => {
                         const active = eautoProfil === p.label;
@@ -214,17 +317,17 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                             key={p.label}
                             onClick={() => setEautoProfil(p.label)}
                             style={{
-                              padding: "10px 6px",
-                              borderRadius: 10,
-                              border: active ? `2px solid ${theme.color.accent}` : `1.5px solid ${theme.color.border}`,
+                              padding: "10px 8px",
+                              borderRadius: theme.radius.md,
+                              border: active ? `2px solid ${theme.color.accent}` : `1px solid ${theme.color.border}`,
                               background: active ? theme.color.accentSubtle : theme.color.white,
                               cursor: "pointer",
                               transition: "all 0.15s",
                             }}
                           >
-                            <div style={{ fontSize: 12, fontWeight: 600, color: active ? theme.color.accentHover : theme.color.textPrimary }}>{p.label}</div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: theme.color.textPrimary }}>{p.label}</div>
                             <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 1 }}>{p.kwh.toLocaleString("de-DE")} kWh/Jahr</div>
-                            <div style={{ fontSize: 10, color: theme.color.textMuted }}>{p.sub}</div>
+                            <div style={{ fontSize: 12, color: theme.color.textMuted }}>{p.sub}</div>
                           </button>
                         );
                       })}
@@ -239,6 +342,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                 title="Wärmepumpe oder Heizstab"
                 sub={`Heizung + Warmwasser · +${WAERMEPUMPE_KWH.toLocaleString("de-DE")} kWh/Jahr`}
                 active={waermepumpe !== "nein"}
+                badge={waermepumpe === "ja" ? "wird eingerechnet" : waermepumpe === "geplant" ? "noch nicht eingerechnet" : null}
               >
                 <Segmented
                   options={[
@@ -258,40 +362,58 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
 
           {index === 3 && (
             <div>
+              <style>{`
+                .tz-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+                @media (min-width: 640px) { .tz-grid { grid-template-columns: repeat(4, 1fr); } }
+                .tz-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 10px 14px; border-radius: ${theme.radius.lg}px; cursor: pointer; font-family: inherit; text-align: center; transition: border-color 0.15s, background-color 0.15s; }
+                .tz-card:focus-visible { outline: 2px solid ${theme.color.accent}; outline-offset: 2px; }
+              `}</style>
               <div style={{ fontSize: 14, color: theme.color.textSecondary, fontWeight: 500, marginBottom: 4 }}>Wann nutzen Sie den meisten Strom?</div>
-              <div style={{ fontSize: 12, color: theme.color.textMuted, marginBottom: 10 }}>Mehrfachauswahl möglich — mittags verbrauchter Strom erhöht Ihren Eigenverbrauch.</div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ fontSize: 13, color: theme.color.textMuted, marginBottom: 14 }}>Mehrfachauswahl möglich — mittags verbrauchter Strom erhöht Ihren Eigenverbrauch.</div>
+              <div className="tz-grid">
                 {TAGESZEITEN.map((t) => {
                   const active = tageszeit.includes(t.label);
+                  const solar = t.label === "Mittags";
                   return (
                     <button
                       key={t.label}
+                      className="tz-card"
+                      aria-pressed={active}
                       onClick={() => toggleTageszeit(t.label)}
                       style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 6,
-                        padding: "9px 12px",
-                        borderRadius: 999,
-                        border: active ? `2px solid ${theme.color.accent}` : `1.5px solid ${theme.color.border}`,
+                        border: active ? `2px solid ${theme.color.accent}` : `1px solid ${theme.color.border}`,
                         background: active ? theme.color.accentSubtle : theme.color.white,
-                        color: active ? theme.color.accentHover : theme.color.textSecondary,
-                        fontWeight: active ? 600 : 400,
-                        fontSize: 12.5,
-                        cursor: "pointer",
-                        transition: "all 0.15s",
+                        padding: active ? "13px 9px 13px" : undefined,
                       }}
                     >
-                      <span style={{ color: active ? theme.color.accentHover : theme.color.textSecondary, display: "flex" }}><IconClock size={14} /></span>
-                      <span>{t.label}</span>
-                      <span style={{ fontSize: 10, color: theme.color.textMuted }}>{t.zeiten}</span>
+                      {/* Mehrfachauswahl-Häkchen */}
+                      <span aria-hidden="true" style={{
+                        position: "absolute", top: 8, right: 8, width: 20, height: 20, borderRadius: 6,
+                        border: active ? "none" : `1.5px solid ${theme.color.border}`,
+                        background: active ? theme.color.accent : theme.color.white,
+                        color: theme.color.onAccent, display: "flex", alignItems: "center", justifyContent: "center",
+                      }}>
+                        {active && <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2.5 6.2l2.3 2.3 4.7-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                      </span>
+                      <DaySky label={t.label} active={active} />
+                      <span style={{ fontFamily: theme.font.display, fontSize: 16, fontWeight: 600, color: theme.color.textPrimary }}>{t.label}</span>
+                      <span style={{ fontSize: 13, color: theme.color.textSecondary, fontVariantNumeric: "tabular-nums" }}>{t.zeiten}</span>
+                      {solar && (
+                        <span style={{ marginTop: 4, fontSize: 11.5, fontWeight: 600, whiteSpace: "nowrap", padding: "2px 8px", borderRadius: theme.radius.pill, background: active ? theme.color.white : theme.color.accentSubtle, color: theme.color.accentText }}>
+                          beste Solarzeit
+                        </span>
+                      )}
                     </button>
                   );
                 })}
               </div>
               {eauto === "ja" && (
-                <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 10 }}>
-                  Ihr Haushalt verbraucht inkl. E-Auto ({eautoProfilWert.label}, +{eautoProfilWert.kwh.toLocaleString("de-DE")} kWh/Jahr) ca. {(verbrauch + (waermepumpe === "ja" ? WAERMEPUMPE_KWH : 0) + eautoProfilWert.kwh).toLocaleString("de-DE")} kWh pro Jahr.
+                <div style={{ display: "flex", gap: 10, alignItems: "flex-start", fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.55, marginTop: 14, padding: "12px 14px", borderRadius: theme.radius.md, background: theme.color.bg }}>
+                  <span style={{ color: theme.color.accentText, display: "flex", marginTop: 1, flexShrink: 0 }}><IconClock size={16} /></span>
+                  <span>
+                    Ihr Haushalt verbraucht inkl. E-Auto ({eautoProfilWert.label}, +{eautoProfilWert.kwh.toLocaleString("de-DE")} kWh/Jahr) ca.{" "}
+                    <strong style={{ color: theme.color.textPrimary }}>{(verbrauch + (waermepumpe === "ja" ? WAERMEPUMPE_KWH : 0) + eautoProfilWert.kwh).toLocaleString("de-DE")} kWh</strong> pro Jahr.
+                  </span>
                 </div>
               )}
             </div>

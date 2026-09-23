@@ -3,7 +3,7 @@ import theme from "../../theme.js";
 import { getCity, getCoords } from "../../lib/plz.js";
 import { geocodeAddress } from "../../lib/geocode.js";
 import { fetchPVGIS, PVGIS_ASPECT, PVGIS_ANGLE } from "../../lib/pvgis.js";
-import { calculate, computeKwp, computeGesamtVerbrauch, HAUSHALT, SPEICHER_KWH_PRO_1000_VERBRAUCH } from "../../lib/calculate.js";
+import { calculate, formatSpan, computeKwp, computeGesamtVerbrauch, HAUSHALT, SPEICHER_KWH_PRO_1000_VERBRAUCH } from "../../lib/calculate.js";
 import StepStandort from "./steps/StepStandort.jsx";
 import StepDach from "./steps/StepDach.jsx";
 import StepVerbrauch from "./steps/StepVerbrauch.jsx";
@@ -270,9 +270,32 @@ export default function Wizard({ onResult }) {
     );
   }
 
+  // Live-Vorschau zeigt erst Zahlen, wenn Dachform und Haushalt gewählt sind —
+  // vorher würden reine Default-Werte wie ein persönliches Ergebnis wirken.
+  // Reine Anzeige-Logik, die Berechnung selbst bleibt unverändert.
+  const vorschauBereit = dachform != null && haushalt != null;
+
   return (
     <Layout
       main={(
+        <>
+        {/* Mobile: kompakte, mitlaufende Vorschau-Zeile — das volle Live-Panel
+            steht auf schmalen Screens erst unter dem Wizard. */}
+        <style>{`
+          .calc-mini-preview { display: flex; }
+          @media (min-width: 960px) { .calc-mini-preview { display: none; } }
+        `}</style>
+        <div className="calc-mini-preview" aria-live="polite" style={{
+          position: "sticky", top: 68, zIndex: 5,
+          justifyContent: "space-between", alignItems: "baseline", gap: 12,
+          background: theme.color.white, border: `1px solid ${theme.color.border}`,
+          borderRadius: theme.radius.md, padding: "10px 14px", marginBottom: 10,
+        }}>
+          <span style={{ fontSize: 13, color: theme.color.textSecondary }}>Geschätzte Ersparnis</span>
+          <span style={{ fontSize: 16, fontWeight: 700, color: vorschauBereit ? theme.color.textPrimary : theme.color.textMuted, fontVariantNumeric: "tabular-nums", whiteSpace: "nowrap" }}>
+            {vorschauBereit ? `${formatSpan(result.jahresErsparnis)} € / Jahr` : "nach Schritt 3"}
+          </span>
+        </div>
         <div style={{
           background: theme.color.white,
           borderRadius: theme.radius.lg,
@@ -308,8 +331,8 @@ export default function Wizard({ onResult }) {
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               {["Standort", "Dach", "Verbrauch", "Speicher"].map((label, i) => (
                 <div key={label} style={{
-                  fontSize: 10,
-                  color: i <= step ? theme.color.accentHover : theme.color.border,
+                  fontSize: 12,
+                  color: i <= step ? theme.color.accentText : theme.color.textMuted,
                   fontWeight: i === step ? 600 : 400,
                   textAlign: "center",
                   flex: 1,
@@ -321,7 +344,7 @@ export default function Wizard({ onResult }) {
 
           {/* Step Header */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 11, color: theme.color.accent, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+            <div style={{ fontSize: 11, color: theme.color.accentText, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
               Schritt {step + 1} von {steps.length}
             </div>
             <div style={{ fontSize: 18, fontWeight: 600, color: theme.color.textPrimary }}>{steps[step].title}</div>
@@ -393,8 +416,8 @@ export default function Wizard({ onResult }) {
                   padding: "14px 28px",
                   borderRadius: 12,
                   border: "none",
-                  background: step === steps.length - 1 ? theme.color.accent : theme.color.textPrimary,
-                  color: theme.color.white,
+                  background: theme.color.accent,
+                  color: theme.color.onAccent,
                   fontSize: 14,
                   fontWeight: 600,
                   cursor: "pointer",
@@ -408,6 +431,7 @@ export default function Wizard({ onResult }) {
             )}
           </div>
         </div>
+        </>
       )}
       sidebar={(
         <>
@@ -427,7 +451,7 @@ export default function Wizard({ onResult }) {
                   border: `1px solid ${theme.color.border}`,
                   borderRadius: 10,
                 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, color: theme.color.textMuted, marginBottom: 2 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, color: theme.color.textMuted, marginBottom: 2 }}>
                     <span style={{ color: theme.color.textSecondary, display: "flex" }}>{c.icon}</span>
                     {c.label}
                   </div>
@@ -435,7 +459,7 @@ export default function Wizard({ onResult }) {
                 </div>
               ))}
             </div>
-            <LivePanel result={result} speicherKwh={speicherKwh} flashKey={pvgisVersion} />
+            <LivePanel result={result} speicherKwh={speicherKwh} flashKey={pvgisVersion} bereit={vorschauBereit} />
           </div>
         </>
       )}

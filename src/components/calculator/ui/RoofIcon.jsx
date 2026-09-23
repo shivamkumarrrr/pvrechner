@@ -1,44 +1,82 @@
 import theme from "../../../theme.js";
 
-// Handgezeichnetes Dach-SVG im Stil der Dachform-Karten (viewBox 100×80,
-// dünne Striche, Akzenttöne). Wird von DachformCard (Auswahl-Karten) und
-// Roof3DPreview (Neigungs-Vorschau) gemeinsam genutzt — ein Icon, zwei
-// Kontexte. `item` ist ein DACHFORM-Eintrag (label + icon-Pfad).
+// Eigene, klar lesbare Dachform-Illustrationen (viewBox 100×80): weiße
+// Hauswand mit dunkler Kontur, Dachfläche als kräftige Form, Module in
+// Marken-Navy genau dort, wo sie bei dieser Dachform typischerweise liegen.
+// Aktiv: Dach in Markenorange.
 export default function RoofIcon({ item, active, size = 60 }) {
-  const bodyStroke = active ? theme.color.accentHover : theme.color.textMuted;
-  const bodyFill = active ? theme.color.accentSubtle : theme.color.bg;
+  const ink = active ? theme.color.textPrimary : theme.color.textSecondary;
+  const roof = active ? theme.color.accent : "#D5DADF";
+  const panel = active ? theme.color.brandNavy : "#8A93A0";
+  const wall = theme.color.white;
+  const win = active ? theme.color.skySubtle : theme.color.bg;
+  const common = { stroke: ink, strokeWidth: 2, strokeLinejoin: "round" };
+
+  const windows = (y) => (
+    <>
+      <rect x="28" y={y} width="10" height="8" rx="1.5" fill={win} stroke={ink} strokeWidth="1.5" />
+      <rect x="62" y={y} width="10" height="8" rx="1.5" fill={win} stroke={ink} strokeWidth="1.5" />
+      <rect x="45" y="56" width="10" height="12" rx="1.5" fill={win} stroke={ink} strokeWidth="1.5" />
+    </>
+  );
+
+  let body;
+  switch (item.label) {
+    case "Pultdach":
+      body = (
+        <>
+          <path d="M20 68 L20 30 L80 44 L80 68 Z" fill={wall} {...common} />
+          <path d="M13 27 L87 44 L87 49 L13 32 Z" fill={roof} {...common} />
+          <path d="M24 26.5 L76 38.4 L76 34.4 L24 22.5 Z" fill={panel} />
+          {[37, 50, 63].map((x) => <line key={x} x1={x} y1={22.5 + (x - 24) * 0.229 - 0.5} x2={x} y2={26.5 + (x - 24) * 0.229 + 0.5} stroke={wall} strokeWidth="1.2" />)}
+          {windows(50)}
+        </>
+      );
+      break;
+    case "Flachdach":
+      body = (
+        <>
+          <rect x="18" y="38" width="64" height="30" fill={wall} {...common} />
+          <rect x="14" y="33" width="72" height="6" rx="1" fill={roof} {...common} />
+          {/* aufgeständerte Module */}
+          {[22, 42, 62].map((x) => (
+            <g key={x}>
+              <path d={`M${x} 32 L${x + 14} 24 L${x + 16} 27 L${x + 2} 33 Z`} fill={panel} />
+              <line x1={x + 14} y1={27} x2={x + 14} y2={33} stroke={ink} strokeWidth="1.2" />
+            </g>
+          ))}
+          {windows(46)}
+        </>
+      );
+      break;
+    case "Walmdach":
+      body = (
+        <>
+          <rect x="20" y="44" width="60" height="24" fill={wall} {...common} />
+          <path d="M12 47 L34 20 L66 20 L88 47 Z" fill={roof} {...common} />
+          <path d="M36 26 L64 26 L70 38 L30 38 Z" fill={panel} />
+          <line x1="50" y1="26" x2="50" y2="38" stroke={wall} strokeWidth="1.2" />
+          {windows(50)}
+        </>
+      );
+      break;
+    default: // Satteldach
+      body = (
+        <>
+          <path d="M20 68 L20 44 L50 20 L80 44 L80 68 Z" fill={wall} {...common} />
+          <path d="M12 48 L50 16 L88 48 L83 51 L50 23 L17 51 Z" fill={roof} {...common} />
+          <path d="M55 24.5 L79 44.5 L83.5 41 L59.5 21 Z" fill={panel} />
+          <line x1="63" y1="31.2" x2="67.5" y2="27.6" stroke={wall} strokeWidth="1.2" />
+          <line x1="71" y1="37.9" x2="75.5" y2="34.3" stroke={wall} strokeWidth="1.2" />
+          {windows(50)}
+        </>
+      );
+  }
+
   return (
     <svg viewBox="0 0 100 80" style={{ width: size, height: Math.round(size * 0.8), display: "block" }} role="img" aria-label={`${item.label}-Illustration`}>
-      {/* Ground line */}
-      <line x1="5" y1="68" x2="95" y2="68" stroke={bodyStroke} strokeWidth="2" />
-      {/* House body */}
-      <rect x="15" y="45" width="70" height="23" fill={bodyFill} stroke={bodyStroke} strokeWidth="2" rx="1" />
-      {/* Window */}
-      <rect x="25" y="51" width="10" height="8" rx="1" fill={active ? theme.color.accent : theme.color.border} opacity="0.6" />
-      <rect x="55" y="51" width="10" height="8" rx="1" fill={active ? theme.color.accent : theme.color.border} opacity="0.6" />
-      {/* Door */}
-      <rect x="40" y="55" width="8" height="13" rx="1" fill={active ? theme.color.accentHover : theme.color.textMuted} opacity="0.5" />
-      {/* Roof shape */}
-      <path d={item.icon} fill={active ? theme.color.accent : theme.color.border} stroke={active ? theme.color.accentHover : theme.color.textMuted} strokeWidth="2" strokeLinejoin="round" opacity="0.85" />
-      {/* Solar panel lines on roof */}
-      {item.label === "Satteldach" && <>
-        <rect x="22" y="30" width="8" height="5" fill={active ? theme.color.sky : theme.color.textSecondary} opacity="0.6" transform="rotate(-30 26 32)" rx="0.5" />
-        <rect x="33" y="26" width="8" height="5" fill={active ? theme.color.sky : theme.color.textSecondary} opacity="0.6" transform="rotate(-30 37 28)" rx="0.5" />
-      </>}
-      {item.label === "Pultdach" && <>
-        <rect x="20" y="30" width="10" height="5" fill={active ? theme.color.sky : theme.color.textSecondary} opacity="0.6" transform="rotate(-12 25 32)" rx="0.5" />
-        <rect x="40" y="33" width="10" height="5" fill={active ? theme.color.sky : theme.color.textSecondary} opacity="0.6" transform="rotate(-12 45 35)" rx="0.5" />
-        <rect x="60" y="36" width="10" height="5" fill={active ? theme.color.sky : theme.color.textSecondary} opacity="0.6" transform="rotate(-12 65 38)" rx="0.5" />
-      </>}
-      {item.label === "Flachdach" && <>
-        <rect x="25" y="36" width="10" height="4" fill={active ? theme.color.sky : theme.color.textSecondary} opacity="0.6" rx="0.5" />
-        <rect x="40" y="36" width="10" height="4" fill={active ? theme.color.sky : theme.color.textSecondary} opacity="0.6" rx="0.5" />
-        <rect x="55" y="36" width="10" height="4" fill={active ? theme.color.sky : theme.color.textSecondary} opacity="0.6" rx="0.5" />
-      </>}
-      {item.label === "Walmdach" && <>
-        <rect x="35" y="28" width="8" height="5" fill={active ? theme.color.sky : theme.color.textSecondary} opacity="0.6" rx="0.5" />
-        <rect x="50" y="32" width="8" height="5" fill={active ? theme.color.sky : theme.color.textSecondary} opacity="0.6" rx="0.5" />
-      </>}
+      <line x1="6" y1="68" x2="94" y2="68" stroke={ink} strokeWidth="2" strokeLinecap="round" />
+      {body}
     </svg>
   );
 }

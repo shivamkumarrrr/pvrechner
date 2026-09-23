@@ -15,7 +15,7 @@ function AutarkieBalken({ pct, bereit = true }) {
     <div style={{ marginTop: 8 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 7, fontSize: 12, color: theme.color.textSecondary }}>
         <span>
-          <span style={{ fontSize: 17, fontWeight: 700, color: bereit ? theme.color.accentHover : theme.color.textMuted, fontVariantNumeric: "tabular-nums" }}>{bereit ? `${eigen} %` : "–"}</span>{" "}
+          <span style={{ fontSize: 17, fontWeight: 700, color: bereit ? theme.color.accentText : theme.color.textMuted, fontVariantNumeric: "tabular-nums" }}>{bereit ? `${eigen} %` : "–"}</span>{" "}
           vom eigenen Dach
         </span>
         <span>
@@ -114,7 +114,7 @@ export default function LivePanel({ result, speicherKwh, flashKey, bereit = true
           style={{
             fontSize: 27,
             fontWeight: 700,
-            color: bereit ? theme.color.accentHover : theme.color.textMuted,
+            color: bereit ? theme.color.accentText : theme.color.textMuted,
             fontVariantNumeric: "tabular-nums",
             lineHeight: 1.15,
             whiteSpace: "nowrap",

@@ -5,12 +5,12 @@ import { IconPlug, IconLeaf, IconTrendingUp } from "../Icons.jsx";
 const VORTEILE = [
   {
     Icon: IconPlug,
-    title: "Unabhängigkeit vom Netz",
+    title: "Weniger Strom zukaufen",
     text: "Mit eigener Erzeugung und Speicher entscheiden Sie selbst, wie viel Strom Sie zukaufen — statt vollständig auf den Netzbetreiber angewiesen zu sein.",
   },
   {
     Icon: IconLeaf,
-    title: "100 % erneuerbar",
+    title: "Sauberer Strom vom eigenen Dach",
     text: "Jede selbst erzeugte Kilowattstunde ersetzt Strom aus fossilen Quellen — messbar in der CO₂-Einsparung, die Ihnen der Rechner oben ausgibt.",
   },
   {
@@ -25,35 +25,33 @@ export default function VorteileCards() {
     <section style={{ background: theme.color.white }} aria-labelledby="vorteile-heading">
       <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "56px 20px" }}>
         <Reveal>
-          <h2 id="vorteile-heading" style={{ fontFamily: theme.font.display, fontSize: 26, fontWeight: 600, color: theme.color.textPrimary, textAlign: "center", margin: "0 0 8px" }}>
+          <h2 id="vorteile-heading" style={{ fontFamily: theme.font.display, fontSize: 26, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 8px" }}>
             Vorteile einer eigenen PV-Anlage
           </h2>
-          <p style={{ fontSize: 14, color: theme.color.textSecondary, textAlign: "center", margin: "0 auto 36px", maxWidth: 480 }}>
+          <p style={{ fontSize: 14, color: theme.color.textSecondary, margin: "0 0 32px", maxWidth: 560, lineHeight: 1.6 }}>
             Strompreise steigen, Solarmodule werden günstiger — eine durchschnittliche Anlage amortisiert sich heute in 9 bis 12 Jahren.
           </p>
         </Reveal>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20 }}>
+        {/* Bewusst KEINE Karten: drei offene Spalten mit Trennlinie, damit die
+            Seite nicht Sektion für Sektion dieselbe weiße Box wiederholt. */}
+        <style>{`
+          .vorteile-row { display: grid; grid-template-columns: 1fr; }
+          .vorteile-item { padding: 20px 0; border-top: 1px solid ${theme.color.border}; }
+          @media (min-width: 820px) {
+            .vorteile-row { grid-template-columns: repeat(3, 1fr); }
+            .vorteile-item { padding: 4px 28px 4px 0; border-top: none; }
+            .vorteile-item + .vorteile-item { padding-left: 28px; border-left: 1px solid ${theme.color.border}; }
+          }
+        `}</style>
+        <div className="vorteile-row">
           {VORTEILE.map((v, i) => (
-            <Reveal key={v.title} delay={i * 90}>
-              <div style={{
-                background: theme.color.white,
-                border: `1px solid ${theme.color.border}`,
-                borderRadius: theme.radius.lg,
-                padding: "26px 22px",
-                textAlign: "center",
-                height: "100%",
-                boxSizing: "border-box",
-              }}>
-                <div style={{
-                  width: 52, height: 52, borderRadius: 26,
-                  background: theme.color.accentSubtle, color: theme.color.accent,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  margin: "0 auto 14px",
-                }}>
-                  <v.Icon size={24} />
+            <Reveal key={v.title} delay={i * 90} className="vorteile-item">
+              <div>
+                <div style={{ color: theme.color.accentText, marginBottom: 12 }}>
+                  <v.Icon size={26} />
                 </div>
-                <h3 style={{ fontSize: 15, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 8px" }}>{v.title}</h3>
-                <p style={{ fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.6, margin: 0 }}>{v.text}</p>
+                <h3 style={{ fontFamily: theme.font.display, fontSize: 18, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 8px" }}>{v.title}</h3>
+                <p style={{ fontSize: 14, color: theme.color.textSecondary, lineHeight: 1.65, margin: 0 }}>{v.text}</p>
               </div>
             </Reveal>
           ))}

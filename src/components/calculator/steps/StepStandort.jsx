@@ -40,7 +40,7 @@ export default function StepStandort({
             </div>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: pvgisLoading ? theme.color.accent : pvgisData ? theme.color.success : theme.color.textMuted, marginTop: 5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: pvgisLoading ? theme.color.accentText : pvgisData ? theme.color.success : theme.color.textMuted, marginTop: 5 }}>
           {pvgisLoading ? (
             <><IconLoader size={12} /> Lade Solardaten vom EU Science Hub...</>
           ) : pvgisData ? (

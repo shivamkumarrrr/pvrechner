@@ -23,7 +23,7 @@ export default function ResultCard({ label, value, unit, highlight, sub }) {
         background: highlight ? theme.color.accent : theme.color.white,
         borderRadius: theme.radius.lg,
         padding: "18px 16px",
-        border: highlight ? "none" : `1.5px solid ${theme.color.border}`,
+        border: highlight ? "none" : `1px solid ${theme.color.border}`,
         textAlign: "center",
         cursor: "pointer",
         transition: reduced ? "none" : "transform 0.12s ease",

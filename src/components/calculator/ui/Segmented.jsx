@@ -10,9 +10,9 @@ export default function Segmented({ options, value, onChange }) {
         display: "flex",
         background: theme.color.bg,
         border: `1px solid ${theme.color.border}`,
-        borderRadius: 10,
-        padding: 3,
-        gap: 2,
+        borderRadius: theme.radius.pill,
+        padding: 4,
+        gap: 4,
       }}
     >
       {options.map((opt) => {
@@ -29,13 +29,14 @@ export default function Segmented({ options, value, onChange }) {
               alignItems: "center",
               justifyContent: "center",
               gap: 6,
-              padding: "9px 6px",
-              borderRadius: 8,
+              minHeight: 40,
+              padding: "8px 10px",
+              borderRadius: theme.radius.pill,
               border: "none",
-              background: active ? theme.color.white : "transparent",
-              color: active ? theme.color.accentHover : theme.color.textSecondary,
-              fontWeight: active ? 600 : 400,
-              fontSize: 13,
+              background: active ? theme.color.textPrimary : "transparent",
+              color: active ? theme.color.white : theme.color.textSecondary,
+              fontWeight: 600,
+              fontSize: 14,
               cursor: "pointer",
               transition: "all 0.15s",
             }}

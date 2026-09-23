@@ -38,7 +38,14 @@ export default function LandingPage() {
           Anker-Scroll ("Jetzt berechnen") — ohne das richtete scrollIntoView die
           Oberkante von #rechner exakt am Viewport-Rand aus, der Header lag dann
           genau darüber und schnitt den Wizard-Kopf ab. */}
-      <div id="rechner" style={{ paddingTop: 28, scrollMarginTop: 80 }}>
+      <div id="rechner" style={{
+        paddingTop: 28,
+        paddingBottom: 24,
+        scrollMarginTop: 80,
+        // Heller "Morgenhimmel"-Verlauf hinter dem Rechner: hebt den
+        // wichtigsten Bereich der Seite leise von den Sektionen darunter ab.
+        background: `linear-gradient(180deg, ${theme.color.bg} 0px, ${theme.color.skyWash} 140px, ${theme.color.bg} 100%)`,
+      }}>
         <Wizard onResult={setWizardResult} />
       </div>
       {!wizardResult && (
