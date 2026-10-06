@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import theme from "../../theme.js";
 import { getCity, getCoords } from "../../lib/plz.js";
 import { geocodeAddress } from "../../lib/geocode.js";
+import { track } from "../../lib/analytics.js";
 import { fetchPVGIS, PVGIS_ASPECT, PVGIS_ANGLE } from "../../lib/pvgis.js";
 import { calculate, formatSpan, computeKwp, computeGesamtVerbrauch, HAUSHALT, SPEICHER_KWH_PRO_1000_VERBRAUCH } from "../../lib/calculate.js";
 import StepStandort from "./steps/StepStandort.jsx";
@@ -12,6 +13,9 @@ import ResultScreen from "./ResultScreen.jsx";
 import Layout from "./Layout.jsx";
 import LivePanel from "./LivePanel.jsx";
 import { IconMapPin, IconRuler, IconSun, IconBolt, IconBattery } from "../Icons.jsx";
+
+// Schrittnamen für das Tracking (step_index 1–4 = Standort/Dach/Verbrauch/Speicher).
+const STEP_NAMES = ["standort", "dach", "verbrauch", "speicher"];
 
 export default function Wizard({ onResult }) {
   const [step, setStep] = useState(0);
@@ -138,6 +142,7 @@ export default function Wizard({ onResult }) {
   }, [plz, address, resolvedCity]);
 
   const goStep = (newStep) => {
+    track("wizard_step", { step_index: newStep + 1, step_name: STEP_NAMES[newStep] });
     setAnimDir(newStep > step ? "right" : "left");
     setAnimKey((k) => k + 1);
     setStep(newStep);
@@ -149,6 +154,7 @@ export default function Wizard({ onResult }) {
   };
 
   const goResult = () => {
+    track("result_viewed", { kwp, speicher: speicherKwh > 0 ? "ja" : "nein" });
     setAnimDir("right");
     setAnimKey((k) => k + 1);
     setShowResult(true);

@@ -1,6 +1,7 @@
 import theme from "../../theme.js";
 import BrandLogo from "../BrandLogo.jsx";
 import { siteConfig } from "../../config.js";
+import { analyticsEnabled, openConsentDialog } from "../../lib/analytics.js";
 
 const COMPANY_NAME = siteConfig.brand.name;
 
@@ -25,6 +26,15 @@ export default function Footer() {
             <a href="#rechner" style={link} onClick={(e) => { e.preventDefault(); document.getElementById("rechner")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Zum Rechner</a>
             <a href="/impressum.html" style={link}>Impressum</a>
             <a href="/datenschutz.html" style={link}>Datenschutz</a>
+            {analyticsEnabled() && (
+              <button
+                type="button"
+                onClick={openConsentDialog}
+                style={{ ...link, background: "none", border: "none", padding: 0, cursor: "pointer", fontFamily: "inherit" }}
+              >
+                Cookie-Einstellungen
+              </button>
+            )}
           </nav>
         </div>
         <div className="ft-bottom">

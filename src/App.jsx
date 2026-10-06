@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import LandingPage from "./components/LandingPage.jsx";
+import CookieBanner from "./components/CookieBanner.jsx";
 import { siteConfig } from "./config.js";
 
 export default function App() {
@@ -20,5 +21,10 @@ export default function App() {
     setMeta("theme-color", siteConfig.meta.themeColor);
   }, []);
 
-  return <LandingPage />;
+  return (
+    <>
+      <LandingPage />
+      <CookieBanner />
+    </>
+  );
 }

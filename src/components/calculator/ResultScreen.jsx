@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import theme from "../../theme.js";
 import ResultCard from "./ui/ResultCard.jsx";
 import BarCompare from "./ui/BarCompare.jsx";
@@ -14,6 +14,7 @@ import { useCountUpOnView } from "../../lib/useCountUpOnView.js";
 //   mode "web3forms" → web3formsKey, "formspree" → formspreeId,
 //   "webhook" → webhookUrl (POST als JSON ins Kundensystem/CRM), "demo" → ohne Backend.
 import { siteConfig } from "../../config.js";
+import { track } from "../../lib/analytics.js";
 
 // Kreis-Badge statt nacktem "?"-Zeichen mit Dashed-Underline — ein bloßes "?"
 // direkt nach einem Satzende (z.B. "...eingespeist.?") liest sich wie kaputte
@@ -181,6 +182,18 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
   const [showForm, setShowForm] = useState(false);
   const [showCalendly, setShowCalendly] = useState(false);
   const [formSent, setFormSent] = useState(false);
+
+  // Calendly meldet eine gebuchte Terminbuchung per postMessage aus dem iframe.
+  useEffect(() => {
+    if (!showCalendly) return undefined;
+    const onMessage = (e) => {
+      if (e.origin === "https://calendly.com" && e.data?.event === "calendly.event_scheduled") {
+        track("calendly_booked");
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [showCalendly]);
   const [formSending, setFormSending] = useState(false);
   const [formError, setFormError] = useState(null);
   const [form, setForm] = useState({ name: "", email: "", telefon: "", nachricht: "" });
@@ -262,6 +275,7 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
       }
 
       if (success) {
+        track("lead_submitted");
         setFormSent(true);
       } else {
         setFormError("Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.");
@@ -741,7 +755,7 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
         <div>
           {/* Primary CTA: Book appointment */}
           <button
-            onClick={() => setShowCalendly(true)}
+            onClick={() => { track("calendly_opened"); setShowCalendly(true); }}
             style={{
               width: "100%",
               padding: "18px",
