@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Analytics + Einwilligung (Google Tag Manager, Consent Mode v2).
+// Messung + Einwilligung (Google Tag Manager, Consent Mode v2).
 //
 // Prinzipien:
 //   • Ohne `siteConfig.analytics.gtmId` passiert NICHTS: kein Skript, kein

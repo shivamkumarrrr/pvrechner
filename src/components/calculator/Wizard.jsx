@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import theme from "../../theme.js";
 import { getCity, getCoords } from "../../lib/plz.js";
 import { geocodeAddress } from "../../lib/geocode.js";
-import { track } from "../../lib/analytics.js";
+import { track } from "../../lib/events.js";
 import { fetchPVGIS, PVGIS_ASPECT, PVGIS_ANGLE } from "../../lib/pvgis.js";
 import { calculate, formatSpan, computeKwp, computeGesamtVerbrauch, HAUSHALT, SPEICHER_KWH_PRO_1000_VERBRAUCH } from "../../lib/calculate.js";
 import StepStandort from "./steps/StepStandort.jsx";

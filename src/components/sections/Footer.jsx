@@ -1,7 +1,7 @@
 import theme from "../../theme.js";
 import BrandLogo from "../BrandLogo.jsx";
 import { siteConfig } from "../../config.js";
-import { analyticsEnabled, openConsentDialog } from "../../lib/analytics.js";
+import { analyticsEnabled, openConsentDialog } from "../../lib/events.js";
 
 const COMPANY_NAME = siteConfig.brand.name;
 

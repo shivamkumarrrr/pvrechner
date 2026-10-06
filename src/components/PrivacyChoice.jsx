@@ -6,13 +6,13 @@ import {
   setConsent,
   CONSENT_OPEN_EVENT,
   CONSENT_CHANGE_EVENT,
-} from "../lib/analytics.js";
+} from "../lib/events.js";
 
 // Einwilligungs-Banner für Statistik (Google Analytics über GTM).
 // Erscheint nur, wenn eine GTM-ID konfiguriert ist UND noch keine
 // Entscheidung vorliegt (oder sie älter als 12 Monate ist). "Ablehnen" und
 // "Zustimmen" sind gleich groß und gleich gut erreichbar — kein Nudging.
-export default function CookieBanner() {
+export default function PrivacyChoice() {
   const [open, setOpen] = useState(() => analyticsEnabled() && readConsent() === null);
   const ref = useRef(null);
   const openedByUser = useRef(false);
@@ -64,7 +64,7 @@ export default function CookieBanner() {
       ref={ref}
       role="dialog"
       aria-modal="false"
-      aria-labelledby="cookie-banner-title"
+      aria-labelledby="privacy-choice-title"
       tabIndex={-1}
       style={{
         position: "fixed",
@@ -83,7 +83,7 @@ export default function CookieBanner() {
         outline: "none",
       }}
     >
-      <div id="cookie-banner-title" style={{ fontFamily: theme.font.display, fontSize: 16, fontWeight: 600, marginBottom: 6 }}>
+      <div id="privacy-choice-title" style={{ fontFamily: theme.font.display, fontSize: 16, fontWeight: 600, marginBottom: 6 }}>
         Nutzung messen?
       </div>
       <p style={{ margin: "0 0 14px", fontSize: 14, lineHeight: 1.55, color: theme.color.textSecondary }}>

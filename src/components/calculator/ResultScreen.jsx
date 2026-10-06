@@ -14,7 +14,7 @@ import { useCountUpOnView } from "../../lib/useCountUpOnView.js";
 //   mode "web3forms" → web3formsKey, "formspree" → formspreeId,
 //   "webhook" → webhookUrl (POST als JSON ins Kundensystem/CRM), "demo" → ohne Backend.
 import { siteConfig } from "../../config.js";
-import { track } from "../../lib/analytics.js";
+import { track } from "../../lib/events.js";
 
 // Kreis-Badge statt nacktem "?"-Zeichen mit Dashed-Underline — ein bloßes "?"
 // direkt nach einem Satzende (z.B. "...eingespeist.?") liest sich wie kaputte

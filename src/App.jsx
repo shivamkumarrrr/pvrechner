@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import LandingPage from "./components/LandingPage.jsx";
-import CookieBanner from "./components/CookieBanner.jsx";
+import PrivacyChoice from "./components/PrivacyChoice.jsx";
 import { siteConfig } from "./config.js";
 
 export default function App() {
@@ -24,7 +24,7 @@ export default function App() {
   return (
     <>
       <LandingPage />
-      <CookieBanner />
+      <PrivacyChoice />
     </>
   );
 }

@@ -102,7 +102,7 @@ const defaultSiteConfig = {
 
   // Tracking. Leere `gtmId` = komplett aus (kein Skript, kein Cookie-Banner).
   // Mit ID (Format GTM-XXXXXXX): Banner erscheint, GTM lädt erst nach
-  // Zustimmung (src/lib/analytics.js). VOR dem Eintragen muss die
+  // Zustimmung (src/lib/events.js). VOR dem Eintragen muss die
   // Datenschutzerklärung (public/datenschutz.html) Google Analytics nennen.
   analytics: {
     gtmId: "",
