@@ -45,7 +45,7 @@ const defaultSiteConfig = {
     description:
       "Berechnen Sie in 60 Sekunden Anlagengröße, Jahresertrag, Ersparnis und Amortisation Ihrer Solaranlage — auf Basis realer PVGIS-Satellitendaten für Ihren Standort, bundesweit.",
     themeColor: "#141B22",
-    canonicalUrl: "https://solarrechner.example/",
+    canonicalUrl: "https://rechner.photovoltaik.marketing/",
   },
 
   // Marke/Absender der Seite. `logo` = transparentes PNG, das direkt auf der
