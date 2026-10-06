@@ -40,7 +40,7 @@ const HERO_IMAGES = [
   mk(hInstallationTeam800, hInstallationTeam1280, hInstallationTeam1920),
   mk(hFreiburgHouse800, hFreiburgHouse1280, hFreiburgHouse1920),
 ];
-const HERO_SIZES = "(max-width: 1212px) 100vw, 1180px";
+const HERO_SIZES = "(max-width: 1080px) 100vw, 1040px";
 
 // Preload the first hero photo immediately on page load so the initial view
 // never sits on an empty background while a ~700KB image downloads.
@@ -99,7 +99,7 @@ export default function Hero() {
   const reducedMotion = usePrefersReducedMotion();
 
   return (
-    <div style={{ padding: "18px 16px 0" }}>
+    <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "18px 20px 0", boxSizing: "border-box" }}>
       <style>{`
         .hero-photo {
           position: relative;
@@ -107,8 +107,6 @@ export default function Hero() {
           overflow: hidden;
           border-radius: ${theme.radius.lg}px;
           width: 100%;
-          max-width: 1180px;
-          margin: 0 auto;
           min-height: min(560px, 88vh);
           color: ${theme.color.white};
           text-align: center;

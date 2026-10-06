@@ -13,7 +13,7 @@ export default function Layout({ main, sidebar }) {
           align-items: start;
           max-width: ${theme.maxWidthWide}px;
           margin: 0 auto;
-          padding: 0 16px;
+          padding: 0 20px;
         }
         .calc-layout__main { display: flex; flex-direction: column; }
         /* Mobil: weniger Kopf über jeder Frage — Kartentitel und die zweite

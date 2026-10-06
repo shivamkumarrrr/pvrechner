@@ -31,7 +31,7 @@ export default function Header() {
       <div style={{
         maxWidth: theme.maxWidthWide,
         margin: "0 auto",
-        padding: "12px 16px",
+        padding: "12px 20px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
