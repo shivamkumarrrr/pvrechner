@@ -29,8 +29,19 @@ const gtmId = () => siteConfig.analytics?.gtmId || "";
 // Die ID landet in einer Skript-URL — nur das exakte GTM-Format zulassen.
 export const analyticsEnabled = () => GTM_ID_PATTERN.test(gtmId());
 
+// Letzte Entscheidung in DIESEM Tab. Hat Vorrang vor localStorage: ist der
+// Speicher gesperrt oder voll, würde sonst nach einem Widerruf weiter der alte
+// Wert "granted" gelesen (Tracking liefe trotz "Ablehnen" weiter).
+// undefined = in diesem Tab noch nichts entschieden.
+let memoryConsent;
+
 // "granted" | "denied" | null (noch keine Entscheidung / abgelaufen)
 export function readConsent() {
+  if (memoryConsent !== undefined) return memoryConsent;
+  return readStoredConsent();
+}
+
+function readStoredConsent() {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
@@ -71,8 +82,20 @@ function loadGtm() {
   document.head.appendChild(script);
 }
 
+// Was dieser Tab GTM zuletzt tatsächlich gemeldet hat. Getrennt von
+// readConsent(), weil localStorage schon vom anderen Tab überschrieben sein
+// kann, bevor dieser Tab reagiert hat.
+let grantedApplied = false;
+
+function revokeAnalytics() {
+  gtag("consent", "update", { analytics_storage: "denied" });
+  if (grantedApplied) clearGaCookies();
+  grantedApplied = false;
+}
+
 function grantAnalytics() {
   gtag("consent", "update", { analytics_storage: "granted" });
+  grantedApplied = true;
   loadGtm();
 }
 
@@ -107,15 +130,26 @@ export function initAnalytics() {
 
 export function setConsent(granted) {
   if (!analyticsEnabled()) return;
-  const before = readConsent();
-  writeConsent(granted ? "granted" : "denied");
-  if (granted) {
-    grantAnalytics();
-  } else {
-    gtag("consent", "update", { analytics_storage: "denied" });
-    if (before === "granted") clearGaCookies();
-  }
+  memoryConsent = granted ? "granted" : "denied";
+  writeConsent(memoryConsent);
+  if (granted) grantAnalytics();
+  else revokeAnalytics();
   window.dispatchEvent(new Event(CONSENT_CHANGE_EVENT));
+}
+
+// Entscheidung in einem anderen Tab übernehmen: Widerruf dort muss auch hier
+// sofort greifen (GTM-Consent auf denied, Cookies weg), nicht erst nach Reload.
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key !== null && e.key !== STORAGE_KEY) return;
+    if (!analyticsEnabled()) return;
+    memoryConsent = readStoredConsent();
+    const nowGranted = memoryConsent === "granted";
+    if (nowGranted === grantedApplied) return;
+    if (nowGranted) grantAnalytics();
+    else revokeAnalytics();
+    window.dispatchEvent(new Event(CONSENT_CHANGE_EVENT));
+  });
 }
 
 // Für den Footer-Link "Cookie-Einstellungen": Banner erneut öffnen.

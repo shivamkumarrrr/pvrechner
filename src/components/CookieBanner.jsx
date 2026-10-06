@@ -5,6 +5,7 @@ import {
   readConsent,
   setConsent,
   CONSENT_OPEN_EVENT,
+  CONSENT_CHANGE_EVENT,
 } from "../lib/analytics.js";
 
 // Einwilligungs-Banner für Statistik (Google Analytics über GTM).
@@ -22,8 +23,14 @@ export default function CookieBanner() {
       openedByUser.current = true;
       setOpen(true);
     };
+    // Entscheidung in einem anderen Tab: Banner hier schließen.
+    const close = () => { if (readConsent() !== null) setOpen(false); };
     window.addEventListener(CONSENT_OPEN_EVENT, reopen);
-    return () => window.removeEventListener(CONSENT_OPEN_EVENT, reopen);
+    window.addEventListener(CONSENT_CHANGE_EVENT, close);
+    return () => {
+      window.removeEventListener(CONSENT_OPEN_EVENT, reopen);
+      window.removeEventListener(CONSENT_CHANGE_EVENT, close);
+    };
   }, []);
 
   // Wer das Banner bewusst über den Footer öffnet, bekommt den Fokus darauf
