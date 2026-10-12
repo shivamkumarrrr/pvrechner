@@ -105,7 +105,7 @@ const defaultSiteConfig = {
   // Zustimmung (src/lib/events.js). VOR dem Eintragen muss die
   // Datenschutzerklärung (public/datenschutz.html) Google Analytics nennen.
   analytics: {
-    gtmId: "",
+    gtmId: "GTM-MGLQLGJ7",
   },
 
   // Landingpage-Sektionen ein-/ausblenden (White-Label pro Kunde).
