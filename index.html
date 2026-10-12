@@ -32,16 +32,15 @@
          Vite ersetzt den Pfad beim Build durch die gehashte Datei. -->
     <link rel="preload" as="image" href="/src/assets/hero/hero-panels-sky-800.webp" media="(max-width: 700px)" fetchpriority="high" />
     <link rel="preload" as="image" href="/src/assets/hero/hero-panels-sky-1280.webp" media="(min-width: 701px)" fetchpriority="high" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Nicht render-blockierend laden (media=print → onload all): die Seite
-         erscheint sofort mit der Fallback-Schrift, Space Grotesk tauscht per
-         display=swap nach. Spart ~1 s bis zum ersten Inhalt auf Mobil. -->
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" /></noscript>
+    <!-- Space Grotesk (SIL OFL, public/fonts/) wird selbst ausgeliefert: kein Aufruf
+         bei Google, damit keine IP-Weitergabe (DSGVO). Die Überschrift (700)
+         wird vorab geladen; font-display: swap zeigt sofort die Fallback-Schrift. -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/space-grotesk-700.woff2" crossorigin />
 
     <style>
+      @font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/space-grotesk-500.woff2') format('woff2'); }
+      @font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/space-grotesk-600.woff2') format('woff2'); }
+      @font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/space-grotesk-700.woff2') format('woff2'); }
       /* Kein grauer/weißer Tipp-Blitz auf Mobilgeräten und kein Fokusring nach
          Maus-/Touch-Klick — der Tastatur-Fokus (focus-visible) bleibt sichtbar. */
       button, a { -webkit-tap-highlight-color: transparent; }
