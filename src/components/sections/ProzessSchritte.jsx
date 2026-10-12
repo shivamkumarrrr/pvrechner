@@ -1,5 +1,6 @@
 import theme from "../../theme.js";
 import Reveal from "../Reveal.jsx";
+import { SECTION_PAD } from "./sectionSpacing.js";
 
 const SCHRITTE = [
   { n: "1", title: "Anfrage & Berechnung", text: "Sie nutzen unseren Rechner oder fordern direkt ein Angebot an — mit Ihrer Berechnung als Ausgangspunkt." },
@@ -23,7 +24,7 @@ export default function ProzessSchritte() {
         background: `radial-gradient(640px 360px at 88% -10%, rgba(247,158,28,0.22), rgba(247,158,28,0) 70%), ${theme.color.navyDeep}`,
       }}
     >
-      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "72px 20px" }}>
+      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${SECTION_PAD} 20px` }}>
         <Reveal>
           <h2 id="prozess-heading" style={{ fontFamily: theme.font.display, fontSize: "clamp(26px, 3.2vw, 34px)", fontWeight: 700, letterSpacing: -0.4, color: theme.color.onNavy, textAlign: "center", margin: "0 0 10px" }}>
             Von der Anfrage bis zur Montage

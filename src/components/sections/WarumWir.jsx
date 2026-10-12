@@ -4,6 +4,7 @@ import { IconChart, IconContact, IconDocumentCheck, IconWrench } from "../Icons.
 import { siteConfig } from "../../config.js";
 import warumWir640 from "../../assets/warum-wir-640.webp";
 import warumWir1200 from "../../assets/warum-wir-1200.webp";
+import { SECTION_PAD } from "./sectionSpacing.js";
 
 const BRAND = siteConfig.brand.name;
 
@@ -46,7 +47,7 @@ export default function WarumWir() {
         .warum-icon{ width: 52px; height: 52px; flex-shrink: 0; border-radius: ${theme.radius.lg}px; background: ${theme.color.accent}; color: ${theme.color.onAccent}; display: flex; align-items: center; justify-content: center; }
         .warum-icon svg{ stroke-width: 2.4; }
       `}</style>
-      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "72px 20px" }}>
+      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${SECTION_PAD} 20px` }}>
         <Reveal className="warum-head">
           <div>
             <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: theme.color.accentText, marginBottom: 10 }}>

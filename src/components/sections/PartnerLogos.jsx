@@ -9,6 +9,7 @@ import sonnenLogo from "../../assets/partners/sonnen.svg";
 import canadianSolarLogo from "../../assets/partners/canadian-solar.png";
 import trinaSolarLogo from "../../assets/partners/trina-solar.svg";
 import wallboxLogo from "../../assets/partners/wallbox.svg";
+import { STRIP_PAD } from "./sectionSpacing.js";
 
 // Reale, bestätigte Partner-Marken (offizielle Logos aus Press-/Brand-Assets
 // der Hersteller, unverändert in Original-Farben). Nicht ohne Freigabe neue
@@ -43,7 +44,7 @@ export default function PartnerLogos() {
         .partner-grid{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
         @media (min-width: 720px){ .partner-grid{ grid-template-columns: repeat(4, minmax(0, 1fr)); } }
       `}</style>
-      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "40px 20px" }}>
+      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${STRIP_PAD} 20px` }}>
         <Reveal>
           <h2 id="partner-heading" style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 600, color: theme.color.textPrimary, textAlign: "center", margin: "0 0 28px" }}>
             Komponenten namhafter Hersteller

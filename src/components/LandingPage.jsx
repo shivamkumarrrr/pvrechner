@@ -39,8 +39,10 @@ export default function LandingPage() {
           Oberkante von #rechner exakt am Viewport-Rand aus, der Header lag dann
           genau darüber und schnitt den Wizard-Kopf ab. */}
       <div id="rechner" style={{
-        paddingTop: 28,
-        paddingBottom: 24,
+        // Oben ein Sektions-Abstand zum Hero; unten 0, weil die Folge-Sektion
+        // ihren eigenen oberen Abstand mitbringt (sonst doppelter Abstand).
+        paddingTop: "clamp(32px, 5vw, 40px)",
+        paddingBottom: 0,
         scrollMarginTop: 80,
         // Heller "Morgenhimmel"-Verlauf hinter dem Rechner: hebt den
         // wichtigsten Bereich der Seite leise von den Sektionen darunter ab.

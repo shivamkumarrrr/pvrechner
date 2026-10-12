@@ -1,6 +1,7 @@
 import theme from "../../theme.js";
 import Reveal from "../Reveal.jsx";
 import { IconPlug, IconLeaf, IconTrendingUp } from "../Icons.jsx";
+import { SECTION_PAD } from "./sectionSpacing.js";
 
 const VORTEILE = [
   {
@@ -23,7 +24,7 @@ const VORTEILE = [
 export default function VorteileCards() {
   return (
     <section style={{ background: theme.color.white }} aria-labelledby="vorteile-heading">
-      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "56px 20px" }}>
+      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${SECTION_PAD} 20px` }}>
         <Reveal>
           <h2 id="vorteile-heading" style={{ fontFamily: theme.font.display, fontSize: 26, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 8px" }}>
             Vorteile einer eigenen PV-Anlage

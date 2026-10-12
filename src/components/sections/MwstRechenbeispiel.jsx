@@ -1,6 +1,7 @@
 import theme from "../../theme.js";
 import Reveal from "../Reveal.jsx";
 import { KOSTEN_PRO_KWP } from "../../lib/calculate.js";
+import { SECTION_PAD } from "./sectionSpacing.js";
 
 // Seit 01.01.2023 gilt für die Lieferung und Installation kleiner PV-Anlagen
 // (bis 30 kWp) an/auf Wohngebäuden der Nullsteuersatz (§12 Abs. 3 UStG) —
@@ -26,7 +27,7 @@ export default function MwstRechenbeispiel() {
         .mwst-bar > div { height: 100%; border-radius: 6px; }
         @media (max-width: 899px) { .mwst-card { padding: 22px 18px 18px; } }
       `}</style>
-      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "72px 20px" }}>
+      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${SECTION_PAD} 20px` }}>
         <div className="mwst-grid">
           <Reveal>
             <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: theme.color.accentText, marginBottom: 10 }}>

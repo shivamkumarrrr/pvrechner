@@ -4,6 +4,7 @@ import Reveal from "../Reveal.jsx";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion.js";
 import { EINSPEISEVERGUETUNG_TEIL, EINSPEISEVERGUETUNG_VOLL } from "../../lib/calculate.js";
 import { IconSun, IconHouse, IconPlug, IconChevronDown } from "../Icons.jsx";
+import { SECTION_PAD } from "./sectionSpacing.js";
 
 // EEG-Degression: laut Quellen-Kommentar zu EINSPEISE in calculate.js sinkt der
 // Satz halbjährlich um 1% (nächster Schritt 1.8.2026 → 7,70 Ct/kWh). Die Zeitachse
@@ -82,7 +83,7 @@ export default function EinspeiseverguetungInfo({ wizardResult }) {
         .einspeise-more > summary::after { content: "+"; font-size: 20px; font-weight: 400; color: ${theme.color.textSecondary}; }
         .einspeise-more[open] > summary::after { content: "–"; }
       `}</style>
-      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "56px 20px" }}>
+      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${SECTION_PAD} 20px` }}>
         <Reveal>
           <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: theme.color.accentText, marginBottom: 10 }}>
             Aktueller Stand

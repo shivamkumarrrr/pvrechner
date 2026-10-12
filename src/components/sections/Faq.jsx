@@ -3,6 +3,7 @@ import theme from "../../theme.js";
 import Reveal from "../Reveal.jsx";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion.js";
 import { IconChevronDown } from "../Icons.jsx";
+import { SECTION_PAD } from "./sectionSpacing.js";
 
 const FAQS = [
   // Reihenfolge nach Einwänden: Genauigkeit/Kosten zuerst. Die frühere
@@ -87,7 +88,7 @@ export default function Faq({ wizardResult }) {
         .faq-a { padding: 0 56px 24px 0; }
         @media (max-width: 899px) { .faq-q { font-size: 16px; padding: 18px 0; } .faq-a { padding: 0 0 20px; } }
       `}</style>
-      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: "72px 20px" }}>
+      <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${SECTION_PAD} 20px` }}>
         <div className="faq-grid">
           <Reveal className="faq-intro">
             <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: theme.color.accentText, marginBottom: 10 }}>
