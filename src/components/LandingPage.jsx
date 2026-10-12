@@ -8,7 +8,7 @@ import VorteileCards from "./sections/VorteileCards.jsx";
 import MwstRechenbeispiel from "./sections/MwstRechenbeispiel.jsx";
 import ProzessSchritte from "./sections/ProzessSchritte.jsx";
 import PartnerLogos from "./sections/PartnerLogos.jsx";
-import EinspeiseverguetungInfo from "./sections/EinspeiseverguetungInfo.jsx";
+import SmartEnergySystem from "./sections/SmartEnergySystem.jsx";
 import Faq from "./sections/Faq.jsx";
 import Footer from "./sections/Footer.jsx";
 import { siteConfig } from "../config.js";
@@ -22,7 +22,7 @@ import { siteConfig } from "../config.js";
 export default function LandingPage() {
   // Nach abgeschlossenem Wizard-Durchlauf: { result, speicherKwh, plz, kwp },
   // sonst null. Wird vom Wizard über onResult gemeldet und an die Sektionen
-  // gereicht, die sich personalisieren (Einspeisevergütung, FAQ).
+  // gereicht, die sich personalisieren (FAQ).
   const [wizardResult, setWizardResult] = useState(null);
 
   return (
@@ -52,12 +52,12 @@ export default function LandingPage() {
       </div>
       {!wizardResult && (
         <>
+          <SmartEnergySystem />
           <WarumWir />
           <VorteileCards />
           {siteConfig.sections.mwstBeispiel !== false && <MwstRechenbeispiel />}
           <ProzessSchritte />
           <PartnerLogos />
-          <EinspeiseverguetungInfo wizardResult={wizardResult} />
         </>
       )}
       <Faq wizardResult={wizardResult} />

@@ -71,14 +71,11 @@ const COLORS = {
 ## Typography
 
 ```css
-/* Body */
-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-
-/* Display (headlines, the big savings number) — pick ONE, load as needed */
-font-family: 'Space Grotesk', -apple-system, sans-serif;
+/* One family for display AND body (self-hosted variable font, public/fonts/) */
+font-family: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
 ```
 
-Rationale: a geometric sans for display type gives the "big number" a technical/data-forward character fitting a calculator, without reaching for the serif-plus-warm-palette combination already flagged as a tell elsewhere. Body stays on the plain system stack — no webfont load needed for 90% of the page, keeps performance good.
+Rationale (updated 12.10.2026): Space Grotesk + system stack read as a generic AI-built page. Replaced by one neutral grotesk in the spirit of sap.com's typography: heavy, tight headlines (800, -0.025 to -0.03em) over calm regular body text. Hierarchy comes from weight and size, not from a second family. Role tokens live in `theme.type`.
 
 Target scale (adapt during implementation, doesn't need to be exact):
 

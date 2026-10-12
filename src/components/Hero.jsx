@@ -153,11 +153,11 @@ export default function Hero() {
           boxSizing: "border-box",
           textAlign: "left",
         }}>
-        <h1 style={{ fontFamily: theme.font.display, fontSize: "clamp(30px, 4.2vw, 46px)", fontWeight: 700, margin: "0 0 12px", lineHeight: 1.12, letterSpacing: -0.5, color: theme.color.white }}>
-          Lohnt sich Photovoltaik<br />für Ihr Dach?
+        <h1 style={{ ...theme.type.h1, margin: "0 0 12px", color: theme.color.white }}>
+          Solarstrom, der<br />mitdenkt.
         </h1>
         <p style={{ fontSize: "clamp(13.5px, 1.3vw, 15px)", color: "rgba(255,255,255,0.9)", margin: "0 0 26px", lineHeight: 1.6, maxWidth: 460 }}>
-          Berechnen Sie in 60 Sekunden Ertrag, Ersparnis und Amortisation — auf Basis realer Satellitendaten für Ihren Standort, nicht bundesweiter Durchschnittswerte.
+          Produzieren war gestern — speichern, steuern und intelligent nutzen ist die Zukunft. Berechnen Sie in 60 Sekunden, was Ihre Solaranlage mit Speicher bringt, mit echten Satellitendaten für Ihren Standort.
         </p>
         <button
           id="hero-cta"
@@ -179,7 +179,7 @@ export default function Hero() {
           onPointerEnter={(e) => { if (e.pointerType !== "mouse") return; e.currentTarget.style.background = theme.color.accentHover; if (!reducedMotion) e.currentTarget.style.transform = "translateY(-1px)"; }}
           onPointerLeave={(e) => { e.currentTarget.style.background = theme.color.accent; e.currentTarget.style.transform = "translateY(0)"; }}
         >
-          Ersparnis für mein Dach berechnen
+          Meine Ersparnis berechnen
         </button>
         {/* Sourced reference values — each number maps to a documented source
             (Quelle + Stand in CLAUDE.md data rules). Replaces a former bar of
@@ -187,7 +187,7 @@ export default function Hero() {
         <div style={{ display: "flex", flexWrap: "wrap", columnGap: 26, rowGap: 14 }}>
           {[
             { num: "0,37 €", text: "Strompreis je kWh", sub: "BDEW 2026" },
-            { num: "8–13", text: "Jahre bis Amortisation", sub: "ADAC" },
+            { num: "9–15", text: "Jahre bis Amortisation mit Speicher", sub: "ADAC 2026" },
             { num: "0,344 kg", text: "CO₂ je kWh", sub: "UBA 2025" },
           ].map((s, i) => (
             <div key={s.sub} className="hero-stat" style={{
@@ -197,8 +197,8 @@ export default function Hero() {
               borderRight: i < 2 ? "1px solid rgba(255,255,255,0.25)" : "none",
               paddingRight: i < 2 ? 26 : 0,
             }}>
-              <span className="hero-stat__num" style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 600, color: theme.color.accent, lineHeight: 1 }}>{s.num}</span>
-              <span className="hero-stat__text" style={{ fontSize: 11.5, color: "rgba(255,255,255,0.92)", lineHeight: 1.35 }}>
+              <span className="hero-stat__num" style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 800, color: theme.color.accent, lineHeight: 1 }}>{s.num}</span>
+              <span className="hero-stat__text" style={{ fontSize: 12, color: "rgba(255,255,255,0.92)", lineHeight: 1.35 }}>
                 {s.text}<br />
                 <span className="hero-stat__sub" style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>{s.sub}</span>
               </span>

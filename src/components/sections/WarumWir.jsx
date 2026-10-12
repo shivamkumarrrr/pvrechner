@@ -50,10 +50,7 @@ export default function WarumWir() {
       <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${SECTION_PAD} 20px` }}>
         <Reveal className="warum-head">
           <div>
-            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: theme.color.accentText, marginBottom: 10 }}>
-              Was uns unterscheidet
-            </div>
-            <h2 id="warum-wir-heading" style={{ fontFamily: theme.font.display, fontSize: "clamp(28px, 3.6vw, 40px)", fontWeight: 700, color: theme.color.textPrimary, margin: 0, letterSpacing: -0.6, lineHeight: 1.1 }}>
+            <h2 id="warum-wir-heading" style={{ ...theme.type.h2, color: theme.color.textPrimary, margin: 0 }}>
               Warum {BRAND}?
             </h2>
           </div>
@@ -74,8 +71,8 @@ export default function WarumWir() {
                   <p.Icon size={26} />
                 </div>
                 <div>
-                  <h3 style={{ fontFamily: theme.font.display, fontSize: 18, fontWeight: 600, color: theme.color.textPrimary, margin: "2px 0 6px", letterSpacing: -0.2 }}>{p.title}</h3>
-                  <p style={{ fontSize: 15, color: theme.color.textSecondary, lineHeight: 1.6, margin: 0 }}>{p.text}</p>
+                  <h3 style={{ ...theme.type.h3, color: theme.color.textPrimary, margin: "2px 0 6px" }}>{p.title}</h3>
+                  <p style={{ fontSize: 16, color: theme.color.textSecondary, lineHeight: 1.6, margin: 0 }}>{p.text}</p>
                 </div>
               </Reveal>
             ))}

@@ -328,7 +328,7 @@ export default function Wizard({ onResult }) {
           {/* Wizard Header — auf Mobil ausgeblendet (Layout.jsx), damit die
               Frage selbst schneller sichtbar ist. */}
           <div className="calc-card__title" style={{ textAlign: "center", marginBottom: 20 }}>
-            <h2 style={{ fontFamily: theme.font.display, fontSize: 19, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 4px" }}>
+            <h2 style={{ fontFamily: theme.font.display, fontSize: 18, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 4px" }}>
               Ihr persönlicher Photovoltaik-Rechner
             </h2>
           </div>
@@ -365,7 +365,7 @@ export default function Wizard({ onResult }) {
 
           {/* Step Header */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 11, color: theme.color.accentText, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>
+            <div style={{ fontSize: 13, color: theme.color.accentText, fontWeight: 600, marginBottom: 4 }}>
               Schritt {step + 1} von {steps.length}
             </div>
             <div style={{ fontSize: 18, fontWeight: 600, color: theme.color.textPrimary }}>{steps[step].title}</div>

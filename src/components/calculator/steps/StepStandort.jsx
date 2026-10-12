@@ -40,7 +40,7 @@ export default function StepStandort({
             </div>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: pvgisLoading ? theme.color.accentText : pvgisData ? theme.color.success : theme.color.textMuted, marginTop: 5 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: pvgisLoading ? theme.color.accentText : pvgisData ? theme.color.success : theme.color.textMuted, marginTop: 5 }}>
           {pvgisLoading ? (
             <><IconLoader size={12} /> Lade Solardaten vom EU Science Hub...</>
           ) : pvgisData ? (
@@ -75,7 +75,7 @@ export default function StepStandort({
           onFocus={(e) => e.target.style.borderColor = theme.color.accent}
           onBlur={(e) => e.target.style.borderColor = theme.color.border}
         />
-        <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 4 }}>Für eine genauere Lokalisierung auf der Karte</div>
+        <div style={{ fontSize: 12, color: theme.color.textMuted, marginTop: 4 }}>Für eine genauere Lokalisierung auf der Karte</div>
       </div>
       {(plz.length === 5) && (
         <LocationMap lat={coords?.lat} lon={coords?.lon} address={address} plz={plz} onLocationChange={onLocationChange} />

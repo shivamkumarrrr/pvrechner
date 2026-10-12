@@ -18,7 +18,7 @@ export default function MonthlyChart({ monthly, compact }) {
         Monatlicher Solarertrag
       </div>
       {!compact && (
-        <div style={{ fontSize: 11, color: theme.color.textMuted, marginBottom: 14 }}>Prognose in kWh, basierend auf realen PVGIS-Satellitendaten für Ihren Standort</div>
+        <div style={{ fontSize: 12, color: theme.color.textMuted, marginBottom: 14 }}>Prognose in kWh, basierend auf realen PVGIS-Satellitendaten für Ihren Standort</div>
       )}
       <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: compact ? 64 : 120 }}>
         {monthly.map((m, i) => (
@@ -36,7 +36,7 @@ export default function MonthlyChart({ monthly, compact }) {
                 borderRadius: "4px 4px 0 0",
               }}
             />
-            {!compact && <span style={{ fontSize: 11, color: theme.color.textMuted }}>{MONTH_LABELS[i]}</span>}
+            {!compact && <span style={{ fontSize: 12, color: theme.color.textMuted }}>{MONTH_LABELS[i]}</span>}
           </div>
         ))}
       </div>

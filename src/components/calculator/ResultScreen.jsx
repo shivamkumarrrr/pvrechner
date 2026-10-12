@@ -5,7 +5,7 @@ import BarCompare from "./ui/BarCompare.jsx";
 import MonthlyChart from "./ui/MonthlyChart.jsx";
 import MonthlyBalanceChart from "./ui/MonthlyBalanceChart.jsx";
 import { IconSearch, IconCheck, IconCalendar, IconMail, IconLoader, IconLock, IconClock } from "../Icons.jsx";
-import { STROMPREIS, EINSPEISE, M2_PRO_KWP, M2_PRO_KWP_FLACHDACH, PVGIS_SYSTEM_LOSS, DEGRADATION_PRO_JAHR, WARTUNG_PROZENT_PRO_JAHR, wechselrichterKosten, STROMPREIS_STEIGERUNG_PRO_JAHR, formatSpan, einspeiseStaffel } from "../../lib/calculate.js";
+import { STROMPREIS, EINSPEISE, M2_PRO_KWP, M2_PRO_KWP_FLACHDACH, PVGIS_SYSTEM_LOSS, DEGRADATION_PRO_JAHR, WARTUNG_PROZENT_PRO_JAHR, wechselrichterKosten, STROMPREIS_STEIGERUNG_PRO_JAHR, formatSpan, einspeiseStaffel, EEG2027_UEBERGANG, EEG2027_UEBERGANG_JAHRE, EEG2027_DV_BONUS, EEG2027_DV_BONUS_JAHRE, MARKTWERT_SOLAR } from "../../lib/calculate.js";
 import { usePrefersReducedMotion } from "../../lib/usePrefersReducedMotion.js";
 import { useCountUpOnView } from "../../lib/useCountUpOnView.js";
 
@@ -57,6 +57,7 @@ function spanBounds(v, pct) {
   if (v > 0) lo = Math.max(0, lo);
   return [lo, hi];
 }
+const ct1 = (eurProKwh) => (eurProKwh * 100).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const eurSigned = (n) => `${n < 0 ? "\u2212" : ""}${Math.abs(n).toLocaleString("de-DE")}`;
 
 // Kumulierte Nettoersparnis als Spannen-Balken um eine Null-Linie: im Minus
@@ -75,7 +76,7 @@ function CumulativeRange({ items }) {
       <div style={{ position: "relative", height: H, margin: "4px 0 10px" }}>
         <div aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, top: zero, height: 1, background: "rgba(255,255,255,0.35)" }} />
         {maxNeg > 0 && (
-          <div aria-hidden="true" style={{ position: "absolute", left: 0, top: zero - 16, fontSize: 11, color: theme.color.onNavyMuted }}>0 €</div>
+          <div aria-hidden="true" style={{ position: "absolute", left: 0, top: zero - 16, fontSize: 12, color: theme.color.onNavyMuted }}>0 €</div>
         )}
         <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: `repeat(${rows.length}, 1fr)` }}>
           {rows.map((r) => {
@@ -110,7 +111,7 @@ function CumulativeRange({ items }) {
               <div style={{ fontFamily: theme.font.display, fontSize: "clamp(13px, 2.3vw, 16px)", fontWeight: 700, color: plus ? theme.color.onNavy : theme.color.onNavyMuted, fontVariantNumeric: "tabular-nums", lineHeight: 1.25, marginTop: 2 }}>
                 {eurSigned(lo)} bis<br />{eurSigned(hi)} €
               </div>
-              <div style={{ display: "inline-block", marginTop: 6, fontSize: 11, fontWeight: 600, padding: "2px 8px", borderRadius: 999, background: plus ? "rgba(247,158,28,0.18)" : "rgba(255,255,255,0.10)", color: plus ? theme.color.accent : theme.color.onNavyMuted }}>
+              <div style={{ display: "inline-block", marginTop: 6, fontSize: 12, fontWeight: 600, padding: "2px 8px", borderRadius: 999, background: plus ? "rgba(247,158,28,0.18)" : "rgba(255,255,255,0.10)", color: plus ? theme.color.accent : theme.color.onNavyMuted }}>
                 {plus ? "im Plus" : hi <= 0 ? "noch im Minus" : "um die Null"}
               </div>
             </div>
@@ -140,11 +141,11 @@ function SpeicherVergleich({ ohne, mit, mitKwh, gewaehlt }) {
       <div className="sv-col" style={{ background: aktiv ? theme.color.accentSubtle : theme.color.white, border: aktiv ? `2px solid ${theme.color.accent}` : `1px solid ${theme.color.border}`, padding: aktiv ? 15 : 16 }}>
         <div style={{ display: "flex", flexWrap: "wrap-reverse", justifyContent: "space-between", alignItems: "center", gap: 6, marginBottom: 12, minHeight: 24 }}>
           <div style={{ fontFamily: theme.font.display, fontSize: 16, fontWeight: 600, color: theme.color.textPrimary }}>{titel}</div>
-          {aktiv && <span style={{ fontSize: 11.5, fontWeight: 600, padding: "2px 8px", borderRadius: theme.radius.pill, background: theme.color.accent, color: theme.color.onAccent, whiteSpace: "nowrap" }}>Ihre Wahl</span>}
+          {aktiv && <span style={{ fontSize: 12, fontWeight: 600, padding: "2px 8px", borderRadius: theme.radius.pill, background: theme.color.accent, color: theme.color.onAccent, whiteSpace: "nowrap" }}>Ihre Wahl</span>}
         </div>
         {rows.map(([label, f]) => (
           <div key={label} className="sv-row">
-            <div style={{ fontSize: 12.5, color: theme.color.textSecondary }}>{label}</div>
+            <div style={{ fontSize: 13, color: theme.color.textSecondary }}>{label}</div>
             <div style={{ fontFamily: theme.font.display, fontSize: 16, fontWeight: 600, color: theme.color.textPrimary, fontVariantNumeric: "tabular-nums" }}>{f(r)}</div>
           </div>
         ))}
@@ -168,8 +169,47 @@ function SpeicherVergleich({ ohne, mit, mitKwh, gewaehlt }) {
       <div style={{ fontSize: 12, color: theme.color.textMuted, marginTop: 10, lineHeight: 1.5 }}>
         {mit.amortisation > ohne.amortisation + 0.5
           ? "Der Speicher verlängert die Amortisation etwas, macht Sie aber deutlich unabhängiger vom Netz."
-          : "Beide Varianten amortisieren sich ähnlich schnell — der Speicher macht Sie vor allem unabhängiger vom Netz."}
+          : mit.amortisation < ohne.amortisation - 0.5
+            ? "Der Speicher amortisiert sich hier etwas schneller: Jede gespeicherte Kilowattstunde ersetzt teuren Netzstrom, statt für wenige Cent eingespeist zu werden."
+            : "Beide Varianten amortisieren sich ähnlich schnell — der Speicher macht Sie vor allem unabhängiger vom Netz."}
       </div>
+    </div>
+  );
+}
+
+// Erklärt das Vergütungsmodell, mit dem gerechnet wurde (EEG 2027, Regierungsentwurf —
+// Quellen im Block "EEG 2027" in calculate.js), und die neuen Möglichkeiten durch die
+// MiSpeL-Festlegung der Bundesnetzagentur (1.10.2026). Bewusst OHNE €-Zahl für
+// Speicher-Arbitrage/dynamische Tarife: dafür gibt es keine belastbare Quelle, und der
+// Erlös hängt von Tarif, Steuerung und Netzbetreiber ab.
+function Einspeisung2027Box({ result }) {
+  if (result.eegModell === "2026") return null;
+  const kleinanlage = result.kwp < 25;
+  return (
+    <div style={{ border: `1px solid ${theme.color.border}`, borderRadius: theme.radius.lg, padding: "16px 18px", marginBottom: 16, background: theme.color.white }}>
+      <div style={{ fontFamily: theme.font.display, fontSize: 16, fontWeight: 600, color: theme.color.textPrimary, marginBottom: 6 }}>
+        Einspeisung ab 2027: So haben wir gerechnet
+      </div>
+      <p style={{ fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.65, margin: "0 0 10px" }}>
+        Für neue Anlagen ab 1.1.2027 soll die feste Einspeisevergütung über 20 Jahre entfallen. Nach dem
+        Regierungsentwurf gibt es zunächst {ct1(EEG2027_UEBERGANG)} Ct/kWh für {EEG2027_UEBERGANG_JAHRE} Jahre, danach wird
+        der Überschuss über einen Direktvermarkter zum Marktwert verkauft (Solar 2025: {ct1(MARKTWERT_SOLAR)} Ct/kWh){kleinanlage
+          ? <>, bis zu {EEG2027_DV_BONUS_JAHRE} Jahre lang mit {ct1(EEG2027_DV_BONUS)} Ct/kWh Bonus</>
+          : null}. Für Ihre Anlage ergibt das im Schnitt rund <strong style={{ color: theme.color.textPrimary }}>{ct1(result.einspeiseRate)} Ct/kWh</strong>.
+        Das Gesetz ist noch nicht beschlossen — Details können sich ändern.
+      </p>
+      <p style={{ fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.65, margin: "0 0 10px" }}>
+        Daraus folgt: Selbst genutzter Strom ist rund {Math.round(STROMPREIS / result.einspeiseRate)}-mal so viel wert wie eingespeister — jede Kilowattstunde
+        spart {(STROMPREIS * 100).toFixed(0)} Ct Netzstrom, statt für wenige Cent ins Netz zu gehen. Speicher, Wallbox und
+        Wärmepumpe, die Ihren Solarstrom zur richtigen Zeit nutzen, werden damit wichtiger als die Vergütung.
+      </p>
+      <p style={{ fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.65, margin: 0 }}>
+        Neu seit Oktober 2026: Ein Speicher darf unter bestimmten Voraussetzungen auch günstigen Netzstrom laden, ohne
+        die Förderung für den gespeicherten Solarstrom zu verlieren (MiSpeL-Festlegung der Bundesnetzagentur). Zusammen
+        mit einem dynamischen Stromtarif und einem Energiemanagement entstehen so zusätzliche Sparmöglichkeiten.
+        Diese sind in der Berechnung oben <strong style={{ color: theme.color.textPrimary }}>nicht</strong> enthalten — wie viel
+        sie bringen, hängt von Tarif, Steuerung und Netzbetreiber ab.
+      </p>
     </div>
   );
 }
@@ -297,24 +337,23 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
         @media (max-width: 560px) {
           .res-hero { padding: 28px 18px 22px; }
         }
-        .res-autarkie { background: ${theme.color.white}; border: 1px solid ${theme.color.border}; border-radius: ${theme.radius.lg}px; margin-bottom: 16px; display: grid; grid-template-columns: 1fr; }
-        @media (min-width: 620px) { .res-autarkie { grid-template-columns: 1.15fr 1fr; } }
-        .res-autarkie__main { display: flex; gap: 20px; align-items: center; padding: 22px 22px; }
-        .res-autarkie__side { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid ${theme.color.border}; }
-        @media (min-width: 620px) { .res-autarkie__side { grid-template-columns: 1fr; border-top: none; border-left: 1px solid ${theme.color.border}; } }
-        .res-stat { padding: 16px 20px; }
-        .res-stat + .res-stat { border-left: 1px solid ${theme.color.border}; }
-        @media (min-width: 620px) { .res-stat + .res-stat { border-left: none; border-top: 1px solid ${theme.color.border}; } }
-        @keyframes ringEnter {
-          from { opacity: 0.25; transform: rotate(-90deg) scale(0.92); }
-          to { opacity: 1; transform: rotate(-90deg) scale(1); }
-        }
+        .res-flow { background: ${theme.color.white}; border: 1px solid ${theme.color.border}; border-radius: ${theme.radius.lg}px; padding: 22px 22px 20px; margin-bottom: 16px; }
+        .res-flow__head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+        .res-flow__big { font-family: ${theme.font.display}; font-size: 44px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: ${theme.color.textPrimary}; font-variant-numeric: tabular-nums; }
+        .res-flow__row + .res-flow__row { margin-top: 18px; }
+        .res-flow__label { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; white-space: nowrap; font-size: 14px; margin-bottom: 7px; }
+        .res-flow__bar { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: ${theme.color.bg}; gap: 2px; }
+        .res-flow__bar > span { display: block; height: 100%; transition: flex-grow 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+        .res-flow__legend { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin-top: 7px; font-size: 13px; color: ${theme.color.textSecondary}; font-variant-numeric: tabular-nums; }
+        .res-flow__legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+        @media (max-width: 420px) { .res-flow { padding: 18px 16px; } .res-flow__big { font-size: 38px; } }
+        @media (prefers-reduced-motion: reduce) { .res-flow__bar > span { transition: none; } }
       `}</style>
       {/* Result Header — dieselbe Marken-Navy + Sonnenschein wie das Prozess-
           Band der Landingpage, damit das Ergebnis zur Seite gehört. */}
       <div className="res-hero">
-        <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1.6, color: theme.color.accent, marginBottom: 10 }}>Ihr Ergebnis</div>
-        <div ref={savingsRef} style={{ fontFamily: theme.font.display, fontSize: "clamp(38px, 7vw, 56px)", fontWeight: 700, letterSpacing: -1.2, lineHeight: 1.05, fontVariantNumeric: "tabular-nums", color: theme.color.onNavy }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: theme.color.accent, marginBottom: 8 }}>Ihr Ergebnis</div>
+        <div ref={savingsRef} style={{ fontFamily: theme.font.display, fontSize: "clamp(38px, 7vw, 56px)", fontWeight: 800, letterSpacing: -1.2, lineHeight: 1.05, fontVariantNumeric: "tabular-nums", color: theme.color.onNavy }}>
           {formatSpan(savingsCount)} €
         </div>
         <div style={{ fontSize: 15, color: theme.color.onNavyMuted, marginTop: 8 }}>
@@ -345,57 +384,63 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
         </a>
       </div>
 
-      {/* Autarkiegrad Ring + zwei getrennte Kennzahlen (Autarkie ≠ Eigenverbrauchsanteil) */}
-      <div className="res-autarkie">
-        <div className="res-autarkie__main">
-          <div style={{ position: "relative", width: 104, height: 104, flexShrink: 0 }}>
-            <svg viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)", width: 104, height: 104, animation: reduced ? "none" : "ringEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1)" }} role="img" aria-label={`Autarkiegrad ${result.autarkie}%`}>
-              <circle cx="50" cy="50" r="42" fill="none" stroke={theme.color.bg} strokeWidth="9" />
-              <circle
-                cx="50" cy="50" r="42" fill="none"
-                stroke={result.autarkie >= 50 ? theme.color.success : theme.color.accent}
-                strokeWidth="9"
-                strokeDasharray={`${result.autarkie * 2.64} ${264 - result.autarkie * 2.64}`}
-                strokeLinecap="round"
-                style={{ transition: reduced ? "none" : "stroke-dasharray 1s ease" }}
-              />
-            </svg>
-            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ fontFamily: theme.font.display, fontSize: 26, fontWeight: 700, color: theme.color.textPrimary, lineHeight: 1 }}>{result.autarkie}%</div>
-              <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 3, display: "flex", alignItems: "center", gap: 2 }}>
-                Autarkie
-                <HelpTip title="Modellierte Kennlinie, kein Lastgang Ihres Haushalts. Reale Werte hängen stark davon ab, wann Sie tatsächlich Strom verbrauchen — laut HTW Berlin können auch verschiedene seriöse Online-Rechner bei identischen Eingaben um 20 Prozentpunkte und mehr voneinander abweichen." />
+      {/* Autarkie und Eigenverbrauchsanteil als zwei Balken mit derselben
+          orangen Teilmenge (selbst genutzter Solarstrom): oben bezogen auf den
+          Verbrauch (= Autarkie), unten bezogen auf den Ertrag (= Eigenverbrauchs-
+          anteil). Farben wie in der Monatsbilanz (chartEigen/-Einspeisung/-Netz). */}
+      {(() => {
+        const nf = (v) => Math.round(v).toLocaleString("de-DE");
+        const netz = Math.max(0, result.gesamtVerbrauch - result.eigenverbrauch);
+        const evPct = Math.round(result.eigenverbrauchsquote * 100);
+        const Legende = ({ farbe, text }) => <span><i style={{ background: farbe }} />{text}</span>;
+        return (
+          <div className="res-flow">
+            <div className="res-flow__head">
+              <div className="res-flow__big">{result.autarkie}%</div>
+              <div style={{ fontSize: 15, color: theme.color.textSecondary, lineHeight: 1.4, flex: "1 1 220px" }}>
+                Ihres Stromverbrauchs deckt die Anlage selbst
+                <HelpTip title="Schätzung aus einer Kennlinie, kein Lastgang Ihres Haushalts. Reale Werte hängen stark davon ab, wann Sie Strom verbrauchen — laut HTW Berlin weichen selbst seriöse Online-Rechner bei identischen Eingaben um 20 Prozentpunkte und mehr voneinander ab." />
               </div>
             </div>
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontFamily: theme.font.display, fontSize: 17, fontWeight: 600, lineHeight: 1.3, color: theme.color.textPrimary, marginBottom: 6 }}>
-              {result.autarkie >= 60 ? "Hohe Unabhängigkeit (Schätzung)" : result.autarkie >= 40 ? "Gute Unabhängigkeit" : "Teilweise unabhängig"}
+
+            <div className="res-flow__row">
+              <div className="res-flow__label">
+                <span style={{ fontWeight: 700, color: theme.color.textPrimary }}>Ihr Verbrauch</span>
+                <span style={{ color: theme.color.textMuted }}>{nf(result.gesamtVerbrauch)} kWh/Jahr</span>
+              </div>
+              <div className="res-flow__bar" role="img" aria-label={`Verbrauch: ${nf(result.eigenverbrauch)} kWh vom Dach, ${nf(netz)} kWh aus dem Netz`}>
+                <span style={{ flexGrow: result.eigenverbrauch, background: theme.color.chartEigen }} />
+                <span style={{ flexGrow: netz, background: theme.color.chartNetz }} />
+              </div>
+              <div className="res-flow__legend">
+                <Legende farbe={theme.color.chartEigen} text={`${nf(result.eigenverbrauch)} kWh vom Dach`} />
+                <Legende farbe={theme.color.chartNetz} text={`${nf(netz)} kWh aus dem Netz`} />
+              </div>
             </div>
-            <div style={{ fontSize: 14, color: theme.color.textSecondary, lineHeight: 1.55 }}>
-              {result.autarkie}% Ihres <strong style={{ color: theme.color.textPrimary }}>gesamten Verbrauchs</strong> deckt die Anlage — der Rest kommt aus dem Netz.
-              {!speicherKwh && result.autarkie < 50 && " Mit einem Batteriespeicher steigt Ihre Autarkie spürbar — 100% sind mit einem realistisch dimensionierten Speicher allerdings nicht erreichbar."}
+
+            <div className="res-flow__row">
+              <div className="res-flow__label">
+                <span style={{ fontWeight: 700, color: theme.color.textPrimary }}>Ihr Solarstrom</span>
+                <span style={{ color: theme.color.textMuted }}>{nf(result.jahresertrag)} kWh/Jahr</span>
+              </div>
+              <div className="res-flow__bar" role="img" aria-label={`Solarstrom: ${nf(result.eigenverbrauch)} kWh selbst genutzt, ${nf(result.einspeisung)} kWh eingespeist`}>
+                <span style={{ flexGrow: result.eigenverbrauch, background: theme.color.chartEigen }} />
+                <span style={{ flexGrow: result.einspeisung, background: theme.color.chartEinspeisung }} />
+              </div>
+              <div className="res-flow__legend">
+                <Legende farbe={theme.color.chartEigen} text={`${nf(result.eigenverbrauch)} kWh selbst genutzt (${evPct}%)`} />
+                <Legende farbe={theme.color.chartEinspeisung} text={`${nf(result.einspeisung)} kWh eingespeist`} />
+              </div>
             </div>
+
+            {!speicherKwh && result.autarkie < 50 && (
+              <div style={{ fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.5, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${theme.color.border}` }}>
+                Mit einem Batteriespeicher nutzen Sie mehr Ihres Solarstroms selbst — den Vergleich sehen Sie direkt darunter.
+              </div>
+            )}
           </div>
-        </div>
-        <div className="res-autarkie__side">
-          <div className="res-stat">
-            <div style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 700, color: theme.color.textPrimary, fontVariantNumeric: "tabular-nums" }}>{Math.round(result.eigenverbrauchsquote * 100)}%</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: theme.color.textPrimary, marginTop: 2, display: "flex", alignItems: "center", gap: 2 }}>
-              Eigenverbrauchsanteil
-              {result.eigenverbrauchsquote < 0.5 && (
-                <HelpTip title="Der Eigenverbrauchsanteil sinkt, wenn Ihre Anlage deutlich mehr produziert als Sie verbrauchen — ein niedriger Wert bedeutet nicht, dass sich die Anlage nicht lohnt, sondern dass ein großer Teil ins Netz eingespeist wird." />
-              )}
-            </div>
-            <div style={{ fontSize: 12.5, color: theme.color.textSecondary, lineHeight: 1.45, marginTop: 2 }}>Anteil des <strong>selbst erzeugten</strong> Stroms, den Sie nutzen — der Rest wird eingespeist.</div>
-          </div>
-          <div className="res-stat">
-            <div style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 700, color: theme.color.textPrimary, fontVariantNumeric: "tabular-nums" }}>{(result.gesamtVerbrauch - result.eigenverbrauch).toLocaleString("de-DE")} <span style={{ fontSize: 14, fontWeight: 600 }}>kWh</span></div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: theme.color.textPrimary, marginTop: 2 }}>Netzbezug pro Jahr</div>
-            <div style={{ fontSize: 12.5, color: theme.color.textSecondary, lineHeight: 1.45, marginTop: 2 }}>Anteil Ihres Verbrauchs, der trotz Anlage aus dem Netz kommt.</div>
-          </div>
-        </div>
-      </div>
+        );
+      })()}
 
       <SpeicherVergleich {...(speicherVergleich || {})} gewaehlt={speicherKwh > 0 ? "mit" : "ohne"} />
 
@@ -411,7 +456,7 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
           alignItems: "flex-start",
         }}>
           <span style={{ color: theme.color.textSecondary, marginTop: 2, display: "flex", flexShrink: 0 }}><IconClock size={16} /></span>
-          <div style={{ fontSize: 12.5, color: theme.color.textSecondary, lineHeight: 1.6 }}>
+          <div style={{ fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.6 }}>
             <strong style={{ color: theme.color.textPrimary }}>Geplant, aber noch nicht eingerechnet:</strong>{" "}
             {[eauto === "geplant" && "E-Auto", waermepumpe === "geplant" && "Wärmepumpe"].filter(Boolean).join(" und ")} ist in Ihrer Berechnung noch nicht enthalten, da der Verbrauch erst mit der Installation entsteht. Planen Sie die Anlage im Zweifel etwas größer — das besprechen Sie am besten im Beratungsgespräch.
           </div>
@@ -444,7 +489,7 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
       }}>
         <div>
           <div style={{ fontSize: 12, color: theme.color.success, fontWeight: 500 }}>Monatliche Ersparnis</div>
-          <div style={{ fontSize: 11, color: theme.color.success }}>Durchschnitt über das Jahr</div>
+          <div style={{ fontSize: 12, color: theme.color.success }}>Durchschnitt über das Jahr</div>
         </div>
         <div style={{ fontSize: 28, fontWeight: 700, color: theme.color.success }}>
           {result.monatlich} €<span style={{ fontSize: 13, fontWeight: 500 }}>/Monat</span>
@@ -481,12 +526,14 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
           <span>Ersparnis Eigenverbrauch</span><span style={{ fontWeight: 600, color: theme.color.textPrimary }}>{Math.round(result.eigenverbrauch * STROMPREIS).toLocaleString("de-DE")} €</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span>Einspeisevergütung</span><span style={{ fontWeight: 600, color: theme.color.textPrimary }}>{Math.round(result.einspeisung * einspeiseStaffel(result.kwp)).toLocaleString("de-DE")} € <span style={{ fontSize: 11, fontWeight: 400, color: theme.color.textMuted }}>(staffelt nach EEG)</span></span>
+          <span>Einspeiseerlös</span><span style={{ fontWeight: 600, color: theme.color.textPrimary }}>{result.einspeiseErloes.toLocaleString("de-DE")} € <span style={{ fontSize: 12, fontWeight: 400, color: theme.color.textMuted }}>({result.eegModell === "2026" ? "feste EEG-Vergütung" : "Ø, Modell ab 2027"})</span></span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", borderTop: `1px solid ${theme.color.border}`, paddingTop: 8, marginTop: 8 }}>
           <span>Geschätzte Investition</span><span style={{ fontWeight: 600, color: theme.color.textPrimary }}>{result.investition.toLocaleString("de-DE")} €</span>
         </div>
       </div>
+
+      <Einspeisung2027Box result={result} />
 
       {/* Transparency: how the numbers came to be — nur gezeigt, solange noch
           KEINE PLZ eingegeben wurde (dann erklären die Texte den Schätzwert).
@@ -496,7 +543,7 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
           <summary style={{ padding: "12px 16px", fontSize: 13, fontWeight: 600, color: theme.color.textPrimary, cursor: "pointer", background: theme.color.bg, display: "flex", alignItems: "center", gap: 7 }}>
           <IconSearch size={15} /> So haben wir das berechnet
         </summary>
-        <div style={{ padding: "4px 16px 16px", fontSize: 12.5, color: theme.color.textSecondary, lineHeight: 1.7 }}>
+        <div style={{ padding: "4px 16px 16px", fontSize: 13, color: theme.color.textSecondary, lineHeight: 1.7 }}>
           <p style={{ margin: "8px 0" }}>
             {result.dataSource?.includes("PVGIS")
               ? `Der Jahresertrag basiert auf echten Satellitendaten des EU-Programms PVGIS (Photovoltaic Geographical Information System, EU Science Hub) für Ihren genauen Standort — nicht auf einem deutschlandweiten Pauschalwert. PVGIS rechnet dabei mit ${PVGIS_SYSTEM_LOSS}% Systemverlusten (Kabel, Wechselrichter, Verschmutzung, Temperatur).`
@@ -505,7 +552,9 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
           <p style={{ margin: "8px 0" }}>
             {dachform === "Flachdach"
               ? `Für die Anlagengröße rechnen wir auf dem Flachdach mit ca. ${M2_PRO_KWP_FLACHDACH.toLocaleString("de-DE")} m² Dachfläche pro kWp Modulleistung — deutlich mehr als die ca. ${M2_PRO_KWP.toLocaleString("de-DE")} m²/kWp auf dem Schrägdach, weil aufgeständerte Module zur Verschattungsvermeidung Reihenabstand brauchen.`
-              : `Für die Anlagengröße rechnen wir mit ca. ${M2_PRO_KWP.toLocaleString("de-DE")} m² Dachfläche pro kWp Modulleistung, abhängig von Ihrer Dachform.`} Ihre geschätzte Autarkie von {result.autarkie}% (Anteil Ihres Verbrauchs, den die Anlage selbst deckt) ergibt sich aus dem Verhältnis von Anlagengröße zu Verbrauch{speicherKwh > 0 ? ` und Ihrer Speicherkapazität von ${Number(speicherKwh).toLocaleString("de-DE")} kWh` : ""} — keine feste Pauschale: Eine im Verhältnis zum Verbrauch größere Anlage deckt tendenziell einen größeren Teil davon selbst ab. Wir orientieren uns dabei an den offiziell kommunizierten Spannen von 30–55% ohne und bis zu 85% mit Speicher. {tageszeit && tageszeit.length > 0 && `Zusätzlich fließt ein, dass Sie den Strom überwiegend ${tageszeit.join(", ").toLowerCase()} nutzen — Verbrauch in den Produktionszeiten (Mittag) erhöht den Eigenverbrauch, Abend-/Nachtverbrauch senkt ihn.`} Ihre Ersparnis: Eigenverbrauch zu Ihrem Strompreis von {(STROMPREIS * 100).toFixed(0)} Ct/kWh, der eingespeiste Rest zur aktuellen Einspeisevergütung von {(einspeiseStaffel(result.kwp) * 100).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Ct/kWh (staffelt nach EEG: Anlagen bis 10 kWp erhalten {(EINSPEISE * 100).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} Ct/kWh, größere Anlagen einen niedrigeren Satz für den Anteil über 10 kWp).
+              : `Für die Anlagengröße rechnen wir mit ca. ${M2_PRO_KWP.toLocaleString("de-DE")} m² Dachfläche pro kWp Modulleistung, abhängig von Ihrer Dachform.`} Ihre geschätzte Autarkie von {result.autarkie}% (Anteil Ihres Verbrauchs, den die Anlage selbst deckt) ergibt sich aus dem Verhältnis von Anlagengröße zu Verbrauch{speicherKwh > 0 ? ` und Ihrer Speicherkapazität von ${Number(speicherKwh).toLocaleString("de-DE")} kWh` : ""} — keine feste Pauschale: Eine im Verhältnis zum Verbrauch größere Anlage deckt tendenziell einen größeren Teil davon selbst ab. Grundlage sind die Simulationsdaten des Unabhängigkeitsrechners der HTW Berlin für einen Referenzhaushalt. {tageszeit && tageszeit.length > 0 && `Zusätzlich fließt ein, dass Sie den Strom überwiegend ${tageszeit.join(", ").toLowerCase()} nutzen — Verbrauch in den Produktionszeiten (Mittag) erhöht den Eigenverbrauch, Abend-/Nachtverbrauch senkt ihn.`} Ihre Ersparnis: Eigenverbrauch zu Ihrem Strompreis von {(STROMPREIS * 100).toFixed(0)} Ct/kWh, der eingespeiste Rest {result.eegModell === "2026"
+              ? <>zur festen Einspeisevergütung von {ct1(einspeiseStaffel(result.kwp))} Ct/kWh (staffelt nach EEG: Anlagen bis 10 kWp erhalten {ct1(EINSPEISE)} Ct/kWh, größere Anlagen einen niedrigeren Satz für den Anteil über 10 kWp).</>
+              : <>nach dem geplanten Modell für Neuanlagen ab 2027 — im Durchschnitt der ersten 20 Jahre {ct1(result.einspeiseRate)} Ct/kWh (Details im Kasten „Einspeisung ab 2027“ oben).</>}
           </p>
           <p style={{ margin: "8px 0" }}>
             Die 25-Jahres-Prognose berücksichtigt {(DEGRADATION_PRO_JAHR * 100).toLocaleString("de-DE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}% Ertragsverlust pro Jahr durch Moduldegradation, laufende Betriebskosten von ca. {(WARTUNG_PROZENT_PRO_JAHR * 100).toFixed(0)}% der Investitionssumme pro Jahr sowie einen einmaligen Wechselrichter-Austausch (ca. {Math.round(wechselrichterKosten(result.kwp)).toLocaleString("de-DE")} € nach 12–15 Jahren). Der Jahres-Ersparnis-Wert oben rechnet mit dem heutigen Strompreis; nur die 25-Jahres-Zahl unterstellt zusätzlich vorsichtig eine Strompreissteigerung von {(STROMPREIS_STEIGERUNG_PRO_JAHR * 100).toFixed(0)}%/Jahr.
@@ -731,7 +780,7 @@ export default function ResultScreen({ result, displayLocation, dach, dachform, 
             </div>
           )}
 
-          <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "center", fontSize: 11, color: theme.color.textMuted, marginTop: 8, lineHeight: 1.5 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "center", fontSize: 12, color: theme.color.textMuted, marginTop: 8, lineHeight: 1.5 }}>
             <IconLock size={13} /> Ihre Angaben gehen ausschließlich an den Fachbetrieb, der Ihr Angebot erstellt — kein Weiterverkauf an Dritte.
           </div>
 

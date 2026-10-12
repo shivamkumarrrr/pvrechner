@@ -76,7 +76,7 @@ export default function Slider({ value, onChange, min, max, step, unit, label })
         onChange={(e) => onChange(Number(e.target.value))}
         style={{ width: "100%", accentColor: theme.color.accent, height: 6, cursor: "pointer" }}
       />
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: theme.color.textMuted, marginTop: 4 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: theme.color.textMuted, marginTop: 4 }}>
         <span>{min.toLocaleString("de-DE")} {unit}</span>
         <span>{max.toLocaleString("de-DE")} {unit}</span>
       </div>

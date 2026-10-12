@@ -31,7 +31,7 @@ function AutarkieBalken({ pct, bereit = true }) {
         <div style={{ width: bereit ? `${eigen}%` : "0%", borderRadius: theme.radius.pill, background: theme.color.accent, transition: "width 0.4s ease" }} />
         <div style={{ flex: 1, borderRadius: theme.radius.pill, background: bereit ? theme.color.border : theme.color.bg }} />
       </div>
-      <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 6 }}>Autarkiegrad: Anteil Ihres Verbrauchs, den die Anlage deckt</div>
+      <div style={{ fontSize: 12, color: theme.color.textMuted, marginTop: 6 }}>Autarkiegrad: Anteil Ihres Verbrauchs, den die Anlage deckt</div>
     </div>
   );
 }
@@ -104,7 +104,7 @@ export default function LivePanel({ result, speicherKwh, flashKey, bereit = true
           </span>
           Live-Vorschau
         </div>
-        <div style={{ fontSize: 11, color: theme.color.textMuted }}>ändert sich mit jeder Eingabe</div>
+        <div style={{ fontSize: 12, color: theme.color.textMuted }}>ändert sich mit jeder Eingabe</div>
       </div>
 
       <div style={{ marginBottom: 4 }}>
@@ -112,7 +112,7 @@ export default function LivePanel({ result, speicherKwh, flashKey, bereit = true
         <div
           key={`flash-${flash}`}
           style={{
-            fontSize: 27,
+            fontSize: 28,
             fontWeight: 700,
             color: bereit ? theme.color.accentText : theme.color.textMuted,
             fontVariantNumeric: "tabular-nums",
@@ -126,14 +126,14 @@ export default function LivePanel({ result, speicherKwh, flashKey, bereit = true
         >
           {bereit ? `${formatSpan(Math.round(animatedErsparnis))} €` : "–"}
         </div>
-        <div style={{ fontSize: 11, color: theme.color.textMuted }}>
+        <div style={{ fontSize: 12, color: theme.color.textMuted }}>
           {bereit ? "pro Jahr" : "sobald Dachform und Verbrauch feststehen"}
         </div>
       </div>
 
       {/* Überschrift über dem Flussbild, damit die Zahlen darin eine Bezugsgröße
           haben — ohne sie stünde dort "9.831 kWh" ohne Zeitraum. */}
-      <div style={{ fontSize: 11, color: theme.color.textMuted, textAlign: "center", marginTop: 14 }}>
+      <div style={{ fontSize: 12, color: theme.color.textMuted, textAlign: "center", marginTop: 14 }}>
         So verteilt sich der Strom im Jahr
       </div>
       <Energiefluss result={result} speicherKwh={speicherKwh} bereit={bereit} />

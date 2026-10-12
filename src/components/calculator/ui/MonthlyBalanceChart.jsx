@@ -101,7 +101,7 @@ export default function MonthlyBalanceChart({ balance }) {
         {/* y-Achse */}
         <div style={{ position: "relative", width: 44, height: PLOT_H, flexShrink: 0 }} aria-hidden="true">
           {ticks.map((t) => (
-            <div key={t} style={{ position: "absolute", right: 0, top: zeroY - px(t) - 7, fontSize: 11, color: theme.color.textMuted, fontVariantNumeric: "tabular-nums" }}>
+            <div key={t} style={{ position: "absolute", right: 0, top: zeroY - px(t) - 7, fontSize: 12, color: theme.color.textMuted, fontVariantNumeric: "tabular-nums" }}>
               {Math.abs(t).toLocaleString("de-DE")}
             </div>
           ))}
@@ -146,7 +146,7 @@ export default function MonthlyBalanceChart({ balance }) {
           </div>
           <div style={{ display: "flex", marginTop: 8 }} aria-hidden="true">
             {balance.map((m, i) => (
-              <div key={m.month} style={{ flex: 1, fontSize: 11, textAlign: "center", color: active === i ? theme.color.textPrimary : theme.color.textMuted, fontWeight: active === i ? 600 : 400 }}>
+              <div key={m.month} style={{ flex: 1, fontSize: 12, textAlign: "center", color: active === i ? theme.color.textPrimary : theme.color.textMuted, fontWeight: active === i ? 600 : 400 }}>
                 {MONTH_LABELS[m.month - 1]}
               </div>
             ))}
@@ -162,7 +162,7 @@ export default function MonthlyBalanceChart({ balance }) {
               <span style={{ width: 12, height: 2, background: s.color, display: "inline-block" }} />{s.label}
             </div>
             <div style={{ fontFamily: theme.font.display, fontSize: "clamp(14px, 4vw, 17px)", fontWeight: 600, color: theme.color.textPrimary, fontVariantNumeric: "tabular-nums", marginTop: 2, overflowWrap: "anywhere" }}>{kwh(sum(s.key))}</div>
-            <div style={{ fontSize: 11, color: theme.color.textMuted }}>pro Jahr</div>
+            <div style={{ fontSize: 12, color: theme.color.textMuted }}>pro Jahr</div>
           </div>
         ))}
       </div>

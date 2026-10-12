@@ -26,7 +26,7 @@ export default function ProzessSchritte() {
     >
       <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${SECTION_PAD} 20px` }}>
         <Reveal>
-          <h2 id="prozess-heading" style={{ fontFamily: theme.font.display, fontSize: "clamp(26px, 3.2vw, 34px)", fontWeight: 700, letterSpacing: -0.4, color: theme.color.onNavy, textAlign: "center", margin: "0 0 10px" }}>
+          <h2 id="prozess-heading" style={{ ...theme.type.h2, color: theme.color.onNavy, textAlign: "center", margin: "0 0 10px" }}>
             Von der Anfrage bis zur Montage
           </h2>
           <p style={{ fontSize: 16, color: theme.color.onNavyMuted, textAlign: "center", margin: "0 auto 44px", maxWidth: 480 }}>
@@ -38,8 +38,8 @@ export default function ProzessSchritte() {
             <Reveal key={s.n} delay={i * 90} as="li" className="prozess-step">
               <div className="prozess-step__marker" aria-hidden="true">{s.n}</div>
               <div className="prozess-step__card">
-                <h3 style={{ fontFamily: theme.font.display, fontSize: 17, fontWeight: 600, color: theme.color.onNavy, margin: "0 0 6px" }}>{s.title}</h3>
-                <p style={{ fontSize: 14, color: theme.color.onNavyMuted, lineHeight: 1.6, margin: 0 }}>{s.text}</p>
+                <h3 style={{ ...theme.type.h3, color: theme.color.onNavy, margin: "0 0 6px" }}>{s.title}</h3>
+                <p style={{ fontSize: 15, color: theme.color.onNavyMuted, lineHeight: 1.65, margin: 0 }}>{s.text}</p>
               </div>
             </Reveal>
           ))}

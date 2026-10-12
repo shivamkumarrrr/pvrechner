@@ -11,7 +11,7 @@ export default function Testimonials() {
     <section aria-labelledby="testimonials-heading">
       <div style={{ maxWidth: theme.maxWidth, margin: "0 auto", padding: "48px 20px", textAlign: "center" }}>
         <Reveal>
-          <h2 id="testimonials-heading" style={{ fontFamily: theme.font.display, fontSize: 26, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 8px" }}>
+          <h2 id="testimonials-heading" style={{ ...theme.type.h2, color: theme.color.textPrimary, margin: "0 0 8px" }}>
             Was Kunden sagen
           </h2>
           <div style={{

@@ -41,9 +41,9 @@ const defaultSiteConfig = {
   // Metadaten für <title>, Meta-Description und theme-color (siehe App.jsx).
   // OG-Tags bleiben pro Build statisch (index.html) — pro Tenant-Build anpassen.
   meta: {
-    title: "Photovoltaik-Rechner | Lohnt sich Solar für Ihr Dach?",
+    title: "Photovoltaik-Rechner | Solaranlage mit Speicher berechnen",
     description:
-      "Berechnen Sie in 60 Sekunden Anlagengröße, Jahresertrag, Ersparnis und Amortisation Ihrer Solaranlage — auf Basis realer PVGIS-Satellitendaten für Ihren Standort, bundesweit.",
+      "Berechnen Sie in 60 Sekunden Ertrag, Ersparnis und Amortisation Ihrer Solaranlage mit Speicher — mit echten Satellitendaten für Ihren Standort, bundesweit und bereits nach den neuen Regeln ab 2027.",
     themeColor: "#141B22",
     canonicalUrl: "https://rechner.photovoltaik.marketing/",
   },
@@ -96,8 +96,14 @@ const defaultSiteConfig = {
     // strompreis: 0.37,            // €/kWh
     // einspeiseTeil: 0.077,        // €/kWh Teileinspeisung ≤10 kWp
     // einspeiseVoll: 0.123,        // €/kWh Volleinspeisung ≤10 kWp
-    // kostenProKwp: 1300,          // €/kWp schlüsselfertig
-    // speicherKostenProKwh: 400,   // €/kWh nutzbare Speicherkapazität
+    // kostenProKwp: 1300,          // €/kWp pauschal statt Größen-Preisindex (Verbraucherzentrale)
+    // speicherKostenProKwh: 400,   // €/kWh pauschal statt Größen-Staffel (Verbraucherzentrale-Index)
+    // Vergütungsmodell für eingespeisten Strom: "2027" = Neuanlage ab 1.1.2027
+    // nach Regierungsentwurf EEG 2027 (Übergangszahlung, dann Direktvermarktung),
+    // "2026" = Inbetriebnahme bis 31.12.2026 (feste Vergütung 20 Jahre).
+    // Details/Quellen: Block "EEG 2027" in src/lib/calculate.js. Nach
+    // Verabschiedung des Gesetzes prüfen.
+    eegModell: "2027",
   },
 
   // Tracking. Leere `gtmId` = komplett aus (kein Skript, kein Cookie-Banner).

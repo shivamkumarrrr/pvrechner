@@ -26,11 +26,11 @@ export default function VorteileCards() {
     <section style={{ background: theme.color.white }} aria-labelledby="vorteile-heading">
       <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${SECTION_PAD} 20px` }}>
         <Reveal>
-          <h2 id="vorteile-heading" style={{ fontFamily: theme.font.display, fontSize: 26, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 8px" }}>
+          <h2 id="vorteile-heading" style={{ ...theme.type.h2, color: theme.color.textPrimary, margin: "0 0 8px" }}>
             Vorteile einer eigenen PV-Anlage
           </h2>
-          <p style={{ fontSize: 14, color: theme.color.textSecondary, margin: "0 0 32px", maxWidth: 560, lineHeight: 1.6 }}>
-            Strompreise steigen, Solarmodule werden günstiger — eine durchschnittliche Anlage amortisiert sich heute in 9 bis 12 Jahren.
+          <p style={{ fontSize: 17, color: theme.color.textSecondary, margin: "0 0 36px", maxWidth: 560, lineHeight: 1.55 }}>
+            Strompreise steigen, Solarmodule werden günstiger — eine Anlage mit Speicher amortisiert sich laut ADAC meist in 9 bis 15 Jahren.
           </p>
         </Reveal>
         {/* Bewusst KEINE Karten: drei offene Spalten mit Trennlinie, damit die
@@ -51,8 +51,8 @@ export default function VorteileCards() {
                 <div style={{ color: theme.color.accentText, marginBottom: 12 }}>
                   <v.Icon size={26} />
                 </div>
-                <h3 style={{ fontFamily: theme.font.display, fontSize: 18, fontWeight: 600, color: theme.color.textPrimary, margin: "0 0 8px" }}>{v.title}</h3>
-                <p style={{ fontSize: 14, color: theme.color.textSecondary, lineHeight: 1.65, margin: 0 }}>{v.text}</p>
+                <h3 style={{ ...theme.type.h3, color: theme.color.textPrimary, margin: "0 0 8px" }}>{v.title}</h3>
+                <p style={{ fontSize: 16, color: theme.color.textSecondary, lineHeight: 1.6, margin: 0 }}>{v.text}</p>
               </div>
             </Reveal>
           ))}

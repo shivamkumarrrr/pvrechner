@@ -42,6 +42,7 @@ const theme = {
     // (e.g. the monthly yield chart) — never mixed with `accent`. #1C7FA6 (a
     // first attempt at richer than the original muted #2E6F95) came back as
     // too bright/saturated — this sits at a moderate midpoint between the two.
+    // feel free to tweak this if you want a more saturated "data accent" for charts, but keep it distinct from the brand accent.
     sky: "#1F6E8C",
     skySubtle: "#E7EFF3", // derived light tint
 
@@ -71,9 +72,22 @@ const theme = {
     floating: "0 2px 8px rgba(20,27,34,0.18)",
   },
 
+  // Eine Familie für alles (Hanken Grotesk, variabel, selbst gehostet — siehe
+  // index.html). Hierarchie entsteht über Gewicht und Größe, nicht über eine
+  // zweite Schrift: Überschriften/große Zahlen 800, Zwischentitel 700, Text 400.
+  // `display` bleibt als eigener Token, damit Tenants eine Headline-Schrift
+  // überschreiben können.
   font: {
-    family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-    display: "'Space Grotesk', -apple-system, sans-serif",
+    family: "'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif",
+    display: "'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif",
+  },
+
+  // Typo-Rollen: eine Rolle = ein Stil auf der ganzen Seite. Per Spread in
+  // Inline-Styles nutzen (`style={{ ...theme.type.h2, color }}`).
+  type: {
+    h1: { fontFamily: "'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif", fontSize: "clamp(34px, 4.6vw, 54px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.04 },
+    h2: { fontFamily: "'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif", fontSize: "clamp(28px, 3.4vw, 40px)", fontWeight: 800, letterSpacing: "-0.025em", lineHeight: 1.08 },
+    h3: { fontFamily: "'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif", fontSize: 18, fontWeight: 700, letterSpacing: "-0.01em", lineHeight: 1.3 },
   },
 
   maxWidth: 680,
@@ -84,6 +98,9 @@ const theme = {
 if (siteConfig.theme) {
   if (siteConfig.theme.color) theme.color = { ...theme.color, ...siteConfig.theme.color };
   if (siteConfig.theme.font) theme.font = { ...theme.font, ...siteConfig.theme.font };
+  if (siteConfig.theme.font?.display) {
+    for (const r of Object.values(theme.type)) r.fontFamily = theme.font.display;
+  }
 }
 
 export default theme;

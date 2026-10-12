@@ -15,27 +15,29 @@ const FAQS = [
   },
   {
     q: "Was kostet eine Photovoltaikanlage?",
-    a: "Eine typische Anlage für ein Einfamilienhaus (5–10 kWp) kostet zwischen 7.000 und 14.000 € ohne Speicher. Mit Batteriespeicher kommen ca. 5.000–8.000 € dazu. Seit 2023 fällt darauf keine Mehrwertsteuer mehr an. Bei guter Ausrichtung und passendem Verbrauch rechnet sich die Investition häufig innerhalb von 8–13 Jahren.",
+    a: "Eine typische Anlage für ein Einfamilienhaus (5–10 kWp) kostet laut Preisindex der Verbraucherzentrale (2026) rund 10.500–14.000 € ohne Speicher — kleine Anlagen sind je kWp deutlich teurer als große. Ein Batteriespeicher kostet laut Preisindex der Verbraucherzentrale je nach Größe rund 360–510 € pro kWh inklusive Installation, für typische 5–10 kWh also etwa 2.500–4.500 €. Seit 2023 fällt darauf keine Mehrwertsteuer mehr an. Mit Speicher amortisiert sich eine Anlage laut ADAC meist in 9 bis 15 Jahren — wie schnell genau, hängt von Ausrichtung, Verbrauch und Anlagengröße ab.",
+  },
+  // EEG-2027-Fragen: Stand = Regierungsentwurf vom 29.7.2026 (Quellen im Block
+  // "EEG 2027" in calculate.js). Nach Verabschiedung des Gesetzes prüfen.
+  {
+    q: "Was ändert sich 2027 bei der Einspeisevergütung?",
+    a: "Für neue Anlagen, die ab dem 1. Januar 2027 in Betrieb gehen, soll die feste Einspeisevergütung über 20 Jahre entfallen. Nach dem Regierungsentwurf zum EEG 2027 erhalten kleine Anlagen zunächst eine Übergangszahlung von 5,2 Ct/kWh für bis zu drei Jahre. Danach wird der überschüssige Strom über einen Direktvermarkter zum Marktwert verkauft, bei Anlagen unter 25 kW bis zu vier Jahre lang mit einem Bonus von 1,5 Ct/kWh. Anlagen, die vor dem 1. Januar 2027 in Betrieb gehen, behalten ihren festen Satz für 20 Jahre — maßgeblich ist die Inbetriebnahme, nicht die Bestellung. Wichtig: Das Gesetz ist noch nicht beschlossen, der Bundesrat hat Änderungen gefordert — Details können sich ändern.",
   },
   {
-    q: "Wie spare ich Geld mit einer Photovoltaik-Anlage?",
-    a: "Auf zwei Wegen. Erstens: Jede Kilowattstunde, die Sie selbst verbrauchen, spart Ihnen den vollen Strompreis von durchschnittlich rund 0,37 €/kWh — der Strom aus Ihrer eigenen Anlage kostet Sie übers Anlagenleben gerechnet nur wenige Cent pro Kilowattstunde. Zweitens: Den Strom, den Sie nicht selbst brauchen, speisen Sie ins Netz ein und erhalten dafür die gesetzlich garantierte Vergütung (die aktuellen Sätze weiter oben auf dieser Seite). Wie viel Sie insgesamt sparen, hängt von Dachgröße, Ausrichtung, Standort und Ihrem Verbrauch ab — bei gut geplanter Anlage summiert sich die Ersparnis über die übliche Lebensdauer von rund 25 Jahren auf mehrere tausend Euro. Die genaue Zahl für Ihre Situation liefert der Rechner oben.",
+    q: "Lohnt sich Photovoltaik ohne feste Einspeisevergütung?",
+    a: "In den meisten Fällen ja — denn der größte Teil der Ersparnis kam schon bisher aus dem Eigenverbrauch, nicht aus der Einspeisung. Jede selbst genutzte Kilowattstunde spart rund 37 Ct Netzstrom, eingespeist bringt sie nur wenige Cent. Entscheidend ist deshalb, wie viel Solarstrom im Haus bleibt: Speicher, Wallbox, Wärmepumpe und ein Energiemanagement, das sie zur richtigen Zeit einschaltet, werden wichtiger als die Vergütung. Unser Rechner rechnet für Neuanlagen bereits mit dem geplanten Modell ab 2027.",
+  },
+  {
+    q: "Was ist MiSpeL und was bringt es mir?",
+    a: "MiSpeL steht für die Festlegung der Bundesnetzagentur zur „Marktintegration von Speichern und Ladepunkten“, erlassen am 1. Oktober 2026. Sie regelt, dass ein Heimspeicher oder ein bidirektional ladendes E-Auto auch Netzstrom aufnehmen darf, ohne dass die Förderung für den gespeicherten Solarstrom verloren geht. Mit einem dynamischen Stromtarif kann der Speicher so zum Beispiel bei günstigen Börsenpreisen laden und teuren Netzstrom am Abend ersetzen. Bis Ende September 2027 gilt eine Übergangsphase, in der Netz- und Messstellenbetreiber zustimmen müssen. Feste Mehrerlöse lassen sich daraus nicht versprechen — wie viel es bringt, hängt von Stromtarif, Steuerung und Verbrauch ab.",
+  },
+  {
+    q: "Kann ich meinen Solarstrom als Privatperson direkt vermarkten?",
+    a: "Ja. Für neue Anlagen ab 2027 ist das nach dem Regierungsentwurf sogar der vorgesehene Weg: Nach der Übergangszahlung verkauft ein Direktvermarkter Ihren Überschuss zum Marktwert an der Strombörse und bündelt dafür viele kleine Anlagen. Er behält dafür eine Vermarktungsgebühr ein; bei negativen Börsenpreisen gibt es keine Zahlung. Ob es sich lohnt, die Einspeisung mit Speicher und Energiemanagement in teurere Stunden zu verschieben, hängt vom Vertrag ab: Manche Direktvermarkter rechnen mit einem Monatsmittel ab, andere steuern die Einspeisung aus dem Speicher nach den Börsenpreisen. Üblich sind eine monatliche Grundgebühr und rund 1 Ct pro verkaufter Kilowattstunde. Voraussetzung ist ein intelligentes Messsystem (Smart Meter) — für Solaranlagen über 7 kW ist es ohnehin Pflicht.",
   },
   {
     q: "Lohnt sich ein Batteriespeicher?",
-    a: "Ohne Speicher decken Sie je nach Anlagengröße ca. 30–55% Ihres Stromverbrauchs selbst — der Rest kommt aus dem Netz. Mit passend dimensioniertem Speicher steigt dieser Anteil auf bis zu 85%. Allerdings kostet der Speicher zusätzliches Geld, und diese Mehrinvestition verlängert die Amortisationszeit der Gesamtanlage in der Regel eher, als dass sie sie verkürzt — der Speicher rechnet sich vor allem dann, wenn ein großer Teil Ihres Verbrauchs in die Abend- und Nachtstunden fällt und sonst zu teurem Netzstrom-Preis zugekauft würde. Ob sich die Mehrinvestition für Sie wirtschaftlich lohnt, hängt von Ihrem Verbrauchsprofil ab — genau das zeigt Ihnen der ehrliche Speicher-Vergleich im Rechner oben.",
-  },
-  {
-    q: "Wie viel Strom erzeugt eine Solaranlage in Deutschland?",
-    a: "Im bundesweiten Durchschnitt produziert 1 kWp Solarleistung ca. 950–1.000 kWh Strom pro Jahr, je nach Region auch mehr. Eine typische 8-kWp-Anlage erzeugt also rund 7.600–8.000 kWh — genug für einen 4-Personen-Haushalt. Unser Rechner oben nutzt für Ihren genauen Standort echte PVGIS-Satellitendaten statt dieses bundesweiten Durchschnittswerts.",
-  },
-  {
-    q: "Welche Ausrichtung und Neigung ist optimal für meine Solaranlage?",
-    a: "Süd-Ausrichtung bei 25–35° Neigung bringt den höchsten Jahresertrag. Ost- oder West-Dächer verlieren dagegen nur ca. 10–15% Ertrag gegenüber Süd, liefern den Strom aber gleichmäßiger über den Tag verteilt — für den Eigenverbrauch morgens und abends oft ein Vorteil. Flachdächer (0–15°) verlieren durch die flachere Sonneneinstrahlung ebenfalls etwas Ertrag, lassen sich aber mit Aufständerung ausgleichen. Der Rechner oben berücksichtigt Ihre konkrete Ausrichtung und Neigung automatisch in der Ertragsberechnung.",
-  },
-  {
-    q: "Welche Finanzierungsmöglichkeiten gibt es?",
-    a: "Neben dem Kauf aus Eigenkapital sind zinsgünstige Kredite wie der KfW 270 (Erneuerbare Energien – Standard) verbreitet, ebenso Solar-Leasing- oder Pacht-Modelle ohne hohe Anfangsinvestition. Je nach Bundesland und Kommune gibt es zusätzlich regionale Förderprogramme. Ein Fachberater prüft mit Ihnen, welche Variante zu Ihrer Situation passt.",
+    a: "Ohne Speicher decken Sie mit einer typischen Anlage etwa 30–40 % Ihres Stromverbrauchs selbst — der Rest kommt aus dem Netz. Mit passend dimensioniertem Speicher sind meist 55–75 % möglich (Simulationen der HTW Berlin). Der Speicher kostet zusätzlich Geld, rechnet sich aber umso eher, je weniger eingespeister Strom einbringt: Für neue Anlagen ab 2027 ist jede gespeicherte Kilowattstunde, die abends teuren Netzstrom ersetzt, deutlich mehr wert als ihre Einspeisung. Seit Oktober 2026 darf ein Speicher zudem unter bestimmten Voraussetzungen auch günstigen Netzstrom laden (MiSpeL-Festlegung der Bundesnetzagentur) — mit dynamischem Stromtarif und Energiemanagement kann das zusätzlich sparen. Ob sich die Mehrinvestition für Sie lohnt, hängt von Ihrem Verbrauchsprofil ab — genau das zeigt Ihnen der Speicher-Vergleich im Rechner oben.",
   },
 ];
 
@@ -91,10 +93,7 @@ export default function Faq({ wizardResult }) {
       <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${SECTION_PAD} 20px` }}>
         <div className="faq-grid">
           <Reveal className="faq-intro">
-            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: theme.color.accentText, marginBottom: 10 }}>
-              FAQ
-            </div>
-            <h2 id="faq-heading" style={{ fontFamily: theme.font.display, fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 700, letterSpacing: -0.5, lineHeight: 1.12, color: theme.color.textPrimary, margin: "0 0 14px" }}>
+            <h2 id="faq-heading" style={{ ...theme.type.h2, color: theme.color.textPrimary, margin: "0 0 14px" }}>
               Häufig gestellte Fragen
             </h2>
             <p style={{ fontSize: 16, color: theme.color.textSecondary, lineHeight: 1.6, margin: "0 0 22px", maxWidth: 360 }}>
@@ -132,7 +131,7 @@ export default function Faq({ wizardResult }) {
                     transition: reduced ? "none" : "grid-template-rows 0.35s ease",
                   }}>
                     <div style={{ overflow: "hidden", minHeight: 0 }}>
-                      <p className="faq-a" style={{ margin: 0, fontSize: 15.5, color: theme.color.textSecondary, lineHeight: 1.7, maxWidth: 680 }}>
+                      <p className="faq-a" style={{ margin: 0, fontSize: 16, color: theme.color.textSecondary, lineHeight: 1.7, maxWidth: 680 }}>
                         {faq.q === SPEICHER_FAQ_Q ? antwortMitPersoenlich(faq.a, wizardResult) : faq.a}
                       </p>
                     </div>

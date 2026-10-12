@@ -46,7 +46,7 @@ export default function PartnerLogos() {
       `}</style>
       <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${STRIP_PAD} 20px` }}>
         <Reveal>
-          <h2 id="partner-heading" style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 600, color: theme.color.textPrimary, textAlign: "center", margin: "0 0 28px" }}>
+          <h2 id="partner-heading" style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 800, color: theme.color.textPrimary, textAlign: "center", margin: "0 0 28px" }}>
             Komponenten namhafter Hersteller
           </h2>
         </Reveal>

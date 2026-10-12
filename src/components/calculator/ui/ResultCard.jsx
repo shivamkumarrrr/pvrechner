@@ -29,13 +29,13 @@ export default function ResultCard({ label, value, unit, highlight, sub }) {
         transition: reduced ? "none" : "transform 0.12s ease",
       }}
     >
-      <div style={{ fontSize: 12, color: highlight ? "rgba(255,255,255,0.85)" : theme.color.textMuted, fontWeight: 500, marginBottom: 4, textTransform: "uppercase", letterSpacing: 0.5 }}>
+      <div style={{ fontSize: 12, color: highlight ? "rgba(255,255,255,0.85)" : theme.color.textMuted, fontWeight: 600, marginBottom: 4 }}>
         {label}
       </div>
       <div style={{ fontSize: 26, fontWeight: 700, color: highlight ? theme.color.white : theme.color.textPrimary, fontVariantNumeric: "tabular-nums" }}>
         {value} <span style={{ fontSize: 14, fontWeight: 500 }}>{unit}</span>
       </div>
-      {sub && <div style={{ fontSize: 11, color: highlight ? "rgba(255,255,255,0.7)" : theme.color.textMuted, marginTop: 4 }}>{sub}</div>}
+      {sub && <div style={{ fontSize: 12, color: highlight ? "rgba(255,255,255,0.7)" : theme.color.textMuted, marginTop: 4 }}>{sub}</div>}
     </div>
   );
 }

@@ -144,7 +144,7 @@ export default function LocationMap({ lat, lon, address, plz, onLocationChange }
             <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12 }}>Klicken für Kartenansicht auf OpenStreetMap →</div>
           </div>
         </a>
-        <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 4, textAlign: "center" }}>
+        <div style={{ fontSize: 12, color: theme.color.textMuted, marginTop: 4, textAlign: "center" }}>
           Im Vollbild mit interaktiver Karte
         </div>
       </div>
@@ -191,7 +191,7 @@ export default function LocationMap({ lat, lon, address, plz, onLocationChange }
               border: `1.5px solid ${theme.color.border}`,
               background: theme.color.white,
               color: theme.color.textSecondary,
-              fontSize: 11.5,
+              fontSize: 12,
               fontWeight: 600,
               cursor: "pointer",
               boxShadow: theme.shadow.floating,
@@ -203,7 +203,7 @@ export default function LocationMap({ lat, lon, address, plz, onLocationChange }
         )}
       </div>
       {mapReady && (
-        <div style={{ fontSize: 11, color: theme.color.textMuted, marginTop: 4, textAlign: "center" }}>
+        <div style={{ fontSize: 12, color: theme.color.textMuted, marginTop: 4, textAlign: "center" }}>
           Marker ziehen oder auf die Karte klicken, um Ihren genauen Standort zu markieren
         </div>
       )}

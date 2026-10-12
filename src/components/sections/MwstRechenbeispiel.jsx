@@ -1,13 +1,13 @@
 import theme from "../../theme.js";
 import Reveal from "../Reveal.jsx";
-import { KOSTEN_PRO_KWP } from "../../lib/calculate.js";
+import { pvAnlagenKosten } from "../../lib/calculate.js";
 import { SECTION_PAD } from "./sectionSpacing.js";
 
 // Seit 01.01.2023 gilt für die Lieferung und Installation kleiner PV-Anlagen
 // (bis 30 kWp) an/auf Wohngebäuden der Nullsteuersatz (§12 Abs. 3 UStG) —
 // keine Kalkulation mehr nötig, die 19% MwSt. fallen schlicht weg.
 const BEISPIEL_KWP = 8;
-const NETTOPREIS = BEISPIEL_KWP * KOSTEN_PRO_KWP;
+const NETTOPREIS = Math.round(pvAnlagenKosten(BEISPIEL_KWP) / 10) * 10;
 const PREIS_MIT_MWST = Math.round(NETTOPREIS * 1.19);
 const ERSPARNIS = PREIS_MIT_MWST - NETTOPREIS;
 
@@ -30,13 +30,10 @@ export default function MwstRechenbeispiel() {
       <div style={{ maxWidth: theme.maxWidthWide, margin: "0 auto", padding: `${SECTION_PAD} 20px` }}>
         <div className="mwst-grid">
           <Reveal>
-            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.4, textTransform: "uppercase", color: theme.color.accentText, marginBottom: 10 }}>
-              Steuervorteil seit 2023
-            </div>
-            <div style={{ fontFamily: theme.font.display, fontSize: "clamp(64px, 9vw, 104px)", fontWeight: 700, letterSpacing: -3, lineHeight: 0.95, color: theme.color.textPrimary }}>
+            <div style={{ fontFamily: theme.font.display, fontSize: "clamp(64px, 9vw, 104px)", fontWeight: 800, letterSpacing: -3, lineHeight: 0.95, color: theme.color.textPrimary }}>
               0<span style={{ color: theme.color.accent }}>%</span>
             </div>
-            <h2 id="mwst-heading" style={{ fontFamily: theme.font.display, fontSize: "clamp(22px, 2.6vw, 28px)", fontWeight: 600, letterSpacing: -0.3, color: theme.color.textPrimary, margin: "8px 0 14px" }}>
+            <h2 id="mwst-heading" style={{ fontFamily: theme.font.display, fontSize: "clamp(22px, 2.6vw, 28px)", fontWeight: 800, letterSpacing: -0.3, color: theme.color.textPrimary, margin: "8px 0 14px" }}>
               Mehrwertsteuer auf Ihre Solaranlage
             </h2>
             <p style={{ fontSize: 16, color: theme.color.textSecondary, lineHeight: 1.65, margin: 0, maxWidth: 480 }}>
@@ -74,7 +71,7 @@ export default function MwstRechenbeispiel() {
                 background: theme.color.successSubtle,
               }}>
                 <span style={{ fontSize: 15, fontWeight: 600, color: theme.color.success }}>Ihre Ersparnis</span>
-                <span style={{ fontFamily: theme.font.display, fontSize: 26, fontWeight: 700, color: theme.color.success, fontVariantNumeric: "tabular-nums" }}>{eur(ERSPARNIS)}</span>
+                <span style={{ fontFamily: theme.font.display, fontSize: 26, fontWeight: 800, color: theme.color.success, fontVariantNumeric: "tabular-nums" }}>{eur(ERSPARNIS)}</span>
               </div>
             </div>
           </Reveal>

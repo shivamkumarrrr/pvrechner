@@ -287,7 +287,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                     }}
                   />
                   <span style={{ fontSize: 14, color: theme.color.textSecondary }}>kWh/Jahr</span>
-                  <span style={{ fontSize: 11, color: theme.color.textMuted }}>Steht auf Ihrer Stromrechnung</span>
+                  <span style={{ fontSize: 12, color: theme.color.textMuted }}>Steht auf Ihrer Stromrechnung</span>
                 </div>
               </div>
               <ContinueButton onClick={forward} />
@@ -327,7 +327,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                         .ea-grid { grid-template-columns: 1fr; }
                         .ea-card { flex-direction: row; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 12px; text-align: left; }
                         .ea-card__label { white-space: nowrap; overflow-wrap: normal; font-size: 14px; }
-                        .ea-card__meta { text-align: right; font-size: 11.5px !important; }
+                        .ea-card__meta { text-align: right; font-size: 12px !important; }
                       }
                     `}</style>
                     <div className="ea-grid">
@@ -358,7 +358,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                   </>
                 )}
                 {eauto === "ja" && !eautoProfil && (
-                  <div style={{ fontSize: 12.5, color: theme.color.textMuted, marginTop: 8 }}>Ohne Auswahl rechnen wir mit einem Hauptwagen (ca. 1.800 kWh/Jahr).</div>
+                  <div style={{ fontSize: 13, color: theme.color.textMuted, marginTop: 8 }}>Ohne Auswahl rechnen wir mit einem Hauptwagen (ca. 1.800 kWh/Jahr).</div>
                 )}
                 {eauto === "geplant" && hintBox("E-Auto geplant: Wir rechnen aktuell noch ohne den Mehrverbrauch. Planen Sie die Anlage im Zweifel etwas größer — darum kümmern wir uns im Beratungsgespräch.")}
               </VerbraucherCard>
@@ -436,7 +436,7 @@ export default function StepVerbrauch({ haushalt, onHaushaltChange, verbrauch, s
                       <span style={{ fontFamily: theme.font.display, fontSize: 16, fontWeight: 600, color: theme.color.textPrimary }}>{t.label}</span>
                       <span style={{ fontSize: 13, color: theme.color.textSecondary, fontVariantNumeric: "tabular-nums" }}>{t.zeiten}</span>
                       {solar && (
-                        <span style={{ marginTop: 4, fontSize: 11.5, fontWeight: 600, whiteSpace: "nowrap", padding: "2px 8px", borderRadius: theme.radius.pill, background: active ? theme.color.white : theme.color.accentSubtle, color: theme.color.accentText }}>
+                        <span style={{ marginTop: 4, fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", padding: "2px 8px", borderRadius: theme.radius.pill, background: active ? theme.color.white : theme.color.accentSubtle, color: theme.color.accentText }}>
                           beste Solarzeit
                         </span>
                       )}

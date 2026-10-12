@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Photovoltaik-Rechner für Ihr Dach: Berechnen Sie Anlagengröße, Jahresertrag, Ersparnis und Amortisation auf Basis realer PVGIS-Satellitendaten für Ihren Standort — bundesweit, in 60 Sekunden, kostenlos." />
-    <title>Photovoltaik-Rechner | Lohnt sich Solar für Ihr Dach?</title>
+    <meta name="description" content="Berechnen Sie in 60 Sekunden Ertrag, Ersparnis und Amortisation Ihrer Solaranlage mit Speicher — mit echten Satellitendaten für Ihren Standort, bundesweit und bereits nach den neuen Regeln ab 2027." />
+    <title>Photovoltaik-Rechner | Solaranlage mit Speicher berechnen</title>
     <link rel="canonical" href="https://rechner.photovoltaik.marketing/" />
     <meta name="google-site-verification" content="wqgrwUiduvQpYb2Vd_loDA9Daci3qE_Xmyx_E2kjdkc" />
 
@@ -18,41 +18,42 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="de_DE" />
-    <meta property="og:title" content="Photovoltaik-Rechner | Lohnt sich Solar für Ihr Dach?" />
-    <meta property="og:description" content="Berechnen Sie in 60 Sekunden Ertrag, Ersparnis und Amortisation Ihrer Solaranlage — auf Basis echter EU-Satellitendaten für Ihren Standort." />
+    <meta property="og:title" content="Photovoltaik-Rechner | Solarstrom, der mitdenkt" />
+    <meta property="og:description" content="Was bringt Ihre Solaranlage mit Speicher? In 60 Sekunden berechnet — mit echten EU-Satellitendaten für Ihren Standort." />
     <meta property="og:image" content="https://rechner.photovoltaik.marketing/og-image.jpg" />
     <meta property="og:url" content="https://rechner.photovoltaik.marketing/" />
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Photovoltaik-Rechner: Lohnt sich Photovoltaik für Ihr Dach?" />
+    <meta property="og:image:alt" content="Photovoltaik-Rechner: Solaranlage mit Speicher berechnen" />
     <meta name="twitter:card" content="summary_large_image" />
 
     <meta name="theme-color" content="#141B22" />
 
-    <!-- Body text stays on the system font stack (no webfont load needed for
-         90% of the page) — only the display face (headlines, big numbers) is
-         a webfont. See PRODUCT_DESIGN.md. -->
     <!-- LCP: erstes Hero-Foto sofort mitladen, nicht erst nach dem JS-Bundle.
          Vite ersetzt den Pfad beim Build durch die gehashte Datei. -->
     <link rel="preload" as="image" href="/src/assets/hero/hero-panels-sky-800.webp" media="(max-width: 700px)" fetchpriority="high" />
     <link rel="preload" as="image" href="/src/assets/hero/hero-panels-sky-1280.webp" media="(min-width: 701px)" fetchpriority="high" />
-    <!-- Space Grotesk (SIL OFL, public/fonts/) wird selbst ausgeliefert: kein Aufruf
-         bei Google, damit keine IP-Weitergabe (DSGVO). Die Überschrift (700)
-         wird vorab geladen; font-display: swap zeigt sofort die Fallback-Schrift. -->
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/space-grotesk-700.woff2" crossorigin />
+    <!-- Hanken Grotesk (SIL OFL, public/fonts/) als EINE variable Schrift für
+         Überschriften und Fließtext (Gewichte 400–800 aus einer Datei, latin
+         inkl. Umlaute und €). Selbst ausgeliefert: kein Aufruf bei Google, damit
+         keine IP-Weitergabe (DSGVO). font-display: swap zeigt sofort die
+         Fallback-Schrift. -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/hanken-grotesk-latin-var.woff2" crossorigin />
 
     <style>
-      @font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 500; font-display: swap; src: url('/fonts/space-grotesk-500.woff2') format('woff2'); }
-      @font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 600; font-display: swap; src: url('/fonts/space-grotesk-600.woff2') format('woff2'); }
-      @font-face { font-family: 'Space Grotesk'; font-style: normal; font-weight: 700; font-display: swap; src: url('/fonts/space-grotesk-700.woff2') format('woff2'); }
+      @font-face { font-family: 'Hanken Grotesk'; font-style: normal; font-weight: 100 900; font-display: swap; src: url('/fonts/hanken-grotesk-latin-var.woff2') format('woff2'); }
       /* Kein grauer/weißer Tipp-Blitz auf Mobilgeräten und kein Fokusring nach
          Maus-/Touch-Klick — der Tastatur-Fokus (focus-visible) bleibt sichtbar. */
       button, a { -webkit-tap-highlight-color: transparent; }
       button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
       button:focus-visible, a:focus-visible { outline: 2px solid #1B2160; outline-offset: 2px; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F6F8F7; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+      body { font-family: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.55; color: #141B22; background: #F6F8F7; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; min-height: 100vh; }
+      h1, h2, h3 { text-wrap: balance; }
+      p { text-wrap: pretty; }
+      ::selection { background: #F79E1C; color: #141B22; }
+      input, select, textarea, button { font: inherit; }
 
       /* Global reduced-motion kill-switch: shuts transitions/animations off
          entirely rather than just shortening them, per CLAUDE.md. Component-
