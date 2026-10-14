@@ -47,7 +47,17 @@ export function reportError(error, source = "window", extra = {}) {
   }
 }
 
+// Verstöße gegen die Content-Security-Policy (siehe vercel.json). Läuft die
+// Policy noch im Report-Only-Modus, zeigt dieses Log, was sie später blocken würde.
+// Nur Direktive + Ziel ohne Query/Hash; Erweiterungen des Browsers werden ignoriert.
+function onCspViolation(e) {
+  const blocked = String(e.blockedURI || "").split(/[?#]/)[0];
+  if (/^(chrome|moz|safari|edge)-extension:/i.test(blocked) || /^(chrome|moz|safari)-extension:/i.test(e.sourceFile || "")) return;
+  reportError(`${e.effectiveDirective || e.violatedDirective}: ${blocked || "inline"}`, "csp");
+}
+
 export function initErrorReporting() {
+  document.addEventListener("securitypolicyviolation", onCspViolation);
   window.addEventListener("error", (e) => reportError(e.error ?? e.message, "window", { file: e.filename }));
   window.addEventListener("unhandledrejection", (e) => reportError(e.reason, "promise"));
 }

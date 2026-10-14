@@ -1,0 +1,21 @@
+# Prüft bei jedem Push auf main und jedem Pull Request, dass Tests und Build
+# laufen. Deployt wird nicht hier, sondern von Vercel (Git-Integration).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

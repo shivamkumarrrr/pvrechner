@@ -88,12 +88,18 @@ export default function LocationMap({ lat, lon, address, plz, onLocationChange }
         link.id = "leaflet-css";
         link.rel = "stylesheet";
         link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+        // SRI: der Browser lädt die Datei nur, wenn ihr Hash stimmt (Hashes der offiziellen
+        // Leaflet-1.9.4-Dateien, per sha256 nachgerechnet).
+        link.integrity = "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=";
+        link.crossOrigin = "anonymous";
         document.head.appendChild(link);
       }
       if (!document.getElementById("leaflet-js")) {
         const script = document.createElement("script");
         script.id = "leaflet-js";
         script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+        script.integrity = "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=";
+        script.crossOrigin = "anonymous";
         script.onload = () => setTimeout(initMap, 100);
         script.onerror = () => setTimedOut(true);
         document.head.appendChild(script);

@@ -5,7 +5,7 @@
 // Rate-Limit pro IP — das Log lässt sich so nicht beliebig fluten.
 import { rateLimited, NO_STORE } from "./_guard.js";
 
-const SOURCES = new Set(["window", "promise", "react"]);
+const SOURCES = new Set(["window", "promise", "react", "csp"]);
 const RATE_LIMIT_PER_MIN = 10;
 const MAX_BODY_BYTES = 6000;
 
