@@ -65,10 +65,11 @@ export default function StepSpeicher({ speicherKwh, setSpeicherKwh, speicherWahl
       </div>
       {EEG_MODELL === "2027" && (
         <div style={{ fontSize: 13, color: theme.color.textSecondary, marginTop: 10, lineHeight: 1.55, borderTop: `1px solid ${theme.color.border}`, paddingTop: 10 }}>
-          <strong style={{ color: theme.color.textPrimary }}>Neu ab 2027:</strong> Für neue Anlagen gibt es keine feste Einspeisevergütung mehr —
-          jede gespeicherte Kilowattstunde ist deshalb deutlich mehr wert als ihre Einspeisung. Seit der MiSpeL-Festlegung der
-          Bundesnetzagentur (Oktober 2026) darf ein Speicher außerdem unter bestimmten Voraussetzungen günstigen Netzstrom laden,
-          etwa mit einem dynamischen Stromtarif. Dieser Zusatznutzen ist in der Berechnung nicht enthalten.
+          <strong style={{ color: theme.color.textPrimary }}>Der Speicher wird wichtiger:</strong> Für neue Anlagen ab 2027 soll die
+          feste Vergütung durch Direktvermarktung ersetzt werden — selbst genutzter Solarstrom ist dann der größte Gewinn, und genau
+          den erhöht der Speicher. Seit Oktober 2026 (MiSpeL-Festlegung der Bundesnetzagentur) darf er unter bestimmten
+          Voraussetzungen zusätzlich günstigen Netzstrom laden, etwa mit einem dynamischen Stromtarif. Dieser Zusatznutzen ist in
+          der Berechnung nicht enthalten.
         </div>
       )}
     </>

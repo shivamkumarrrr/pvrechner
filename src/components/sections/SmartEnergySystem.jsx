@@ -162,7 +162,9 @@ export default function SmartEnergySystem() {
           </h3>
           <p style={{ fontSize: 16, lineHeight: 1.6, color: theme.color.textSecondary, margin: "0 0 28px", maxWidth: 680 }}>
             Smart Meter und Energiemanagement verbinden Solaranlage, Batteriespeicher, Wallbox und E-Auto, Wärmepumpe und
-            dynamischen Stromtarif. Sie müssen keine Strombörse beobachten — die Software entscheidet automatisch.
+            dynamischen Stromtarif. Sie müssen keine Strombörse beobachten — die Software entscheidet automatisch. Perspektivisch
+            kann auch ein bidirektional ladefähiges E-Auto als zusätzlicher Speicher dienen: Die MiSpeL-Festlegung stellt solche
+            Ladepunkte Batteriespeichern weitgehend gleich.
           </p>
 
           <div className="se-hirn">
@@ -188,7 +190,11 @@ export default function SmartEnergySystem() {
             </div>
           </div>
 
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 20, margin: "44px 0 0" }}>
+          <div style={{ fontFamily: theme.font.display, fontSize: 22, fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.25, color: theme.color.textPrimary, margin: "48px 0 0" }}>
+            Die nächste Generation Photovoltaik.<br />
+            <span style={{ color: theme.color.accentText }}>Heute planen, morgen intelligent nutzen.</span>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 20, margin: "18px 0 0" }}>
             <button type="button" className="se-cta" onClick={scrollToRechner}>Meine Anlage mit Speicher berechnen</button>
             <span style={{ fontSize: 15, color: theme.color.textSecondary }}>Ertrag, Ersparnis und Amortisation — in 60 Sekunden.</span>
           </div>
