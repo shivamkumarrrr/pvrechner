@@ -25,7 +25,10 @@ const PVGIS_ENDPOINT = import.meta.env.VITE_PVGIS_ENDPOINT || "/api/pvgis";
 
 export async function fetchPVGIS(lat, lon, peakpower, angle, aspect) {
   try {
-    const url = `${PVGIS_ENDPOINT}?lat=${lat}&lon=${lon}&peakpower=${peakpower}&loss=14&angle=${angle}&aspect=${aspect}`;
+    // Koordinaten auf 3 Nachkommastellen (~110 m): PVGIS rechnet auf einem Raster
+    // von mehreren km, die Rundung ändert das Ergebnis nicht, lässt aber gleiche
+    // Gegenden dieselbe URL (= denselben CDN-Cache-Eintrag) teilen.
+    const url = `${PVGIS_ENDPOINT}?lat=${Number(lat).toFixed(3)}&lon=${Number(lon).toFixed(3)}&peakpower=${peakpower}&loss=14&angle=${angle}&aspect=${aspect}`;
     const res = await fetch(url);
     if (!res.ok) {
       console.warn(`PVGIS-Fetch fehlgeschlagen (HTTP ${res.status}) für lat=${lat}, lon=${lon} — verwende Fallback-Schätzung.`);

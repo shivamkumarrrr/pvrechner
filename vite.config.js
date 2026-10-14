@@ -3,12 +3,39 @@ import react from '@vitejs/plugin-react'
 
 // PVGIS (re.jrc.ec.europa.eu) sends no Access-Control-Allow-Origin header,
 // so a direct browser fetch() is CORS-blocked (confirmed via real browser
-// testing, Aug 2026). In production this is proxied through api/pvgis.js
-// (Vercel serverless function, same-origin). This dev proxy mirrors that so
-// `npm run dev` also gets real PVGIS data instead of always falling back to
-// the location-independent estimate.
+// testing, Aug 2026). In production, /api/pvgis and /api/geocode are Vercel
+// serverless functions (api/), same-origin. The dev plugin below serves the
+// SAME handler files, so `npm run dev` exercises the real validation, caching
+// and rate limiting instead of a separate copy of the proxy logic.
+function localApi() {
+  const routes = { '/api/pvgis': './api/pvgis.js', '/api/geocode': './api/geocode.js' }
+  return {
+    name: 'local-api',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const url = new URL(req.url, 'http://localhost')
+        const file = routes[url.pathname]
+        if (!file) return next()
+        try {
+          const { default: handler } = await server.ssrLoadModule(file)
+          req.query = Object.fromEntries(
+            [...url.searchParams.keys()].map((k) => [k, url.searchParams.getAll(k).length > 1 ? url.searchParams.getAll(k) : url.searchParams.get(k)]),
+          )
+          res.status = (code) => { res.statusCode = code; return res }
+          res.json = (body) => { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(body)) }
+          await handler(req, res)
+        } catch (err) {
+          console.error('[local-api]', err)
+          res.statusCode = 500
+          res.end('{"error":"local api error"}')
+        }
+      })
+    },
+  }
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), localApi()],
   // Default build (Vercel, domain root) uses absolute "/" asset URLs. The
   // WordPress plugin build sets VITE_BASE=./ instead: WordPress serves the
   // app from a plugin subdirectory whose exact path isn't known at build
@@ -23,27 +50,5 @@ export default defineConfig({
   // the current build's asset filenames instead of hardcoding or globbing them.
   build: {
     manifest: true,
-  },
-  server: {
-    proxy: {
-      '/api/pvgis': {
-        target: 'https://re.jrc.ec.europa.eu',
-        changeOrigin: true,
-        rewrite: (path) => {
-          const query = path.split('?')[1] || '';
-          const params = new URLSearchParams(query);
-          const forward = new URLSearchParams({
-            lat: params.get('lat') ?? '',
-            lon: params.get('lon') ?? '',
-            peakpower: params.get('peakpower') ?? '1',
-            loss: params.get('loss') ?? '14',
-            angle: params.get('angle') ?? '30',
-            aspect: params.get('aspect') ?? '0',
-            outputformat: 'json',
-          });
-          return `/api/v5_2/PVcalc?${forward.toString()}`;
-        },
-      },
-    },
   },
 })
