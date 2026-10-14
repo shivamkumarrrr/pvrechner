@@ -1,5 +1,6 @@
 import { useState } from "react";
 import theme from "../theme.js";
+import ErrorBoundary from "./ErrorBoundary.jsx";
 import Header from "./Header.jsx";
 import Hero from "./Hero.jsx";
 import Wizard from "./calculator/Wizard.jsx";
@@ -48,19 +49,21 @@ export default function LandingPage() {
         // wichtigsten Bereich der Seite leise von den Sektionen darunter ab.
         background: `linear-gradient(180deg, ${theme.color.bg} 0px, ${theme.color.skyWash} 140px, ${theme.color.bg} 100%)`,
       }}>
-        <Wizard onResult={setWizardResult} />
+        <ErrorBoundary fallback="calculator">
+          <Wizard onResult={setWizardResult} />
+        </ErrorBoundary>
       </div>
       {!wizardResult && (
         <>
-          <SmartEnergySystem />
-          <WarumWir />
-          <VorteileCards />
-          {siteConfig.sections.mwstBeispiel !== false && <MwstRechenbeispiel />}
-          <ProzessSchritte />
-          <PartnerLogos />
+          <ErrorBoundary><SmartEnergySystem /></ErrorBoundary>
+          <ErrorBoundary><WarumWir /></ErrorBoundary>
+          <ErrorBoundary><VorteileCards /></ErrorBoundary>
+          {siteConfig.sections.mwstBeispiel !== false && <ErrorBoundary><MwstRechenbeispiel /></ErrorBoundary>}
+          <ErrorBoundary><ProzessSchritte /></ErrorBoundary>
+          <ErrorBoundary><PartnerLogos /></ErrorBoundary>
         </>
       )}
-      <Faq wizardResult={wizardResult} />
+      <ErrorBoundary><Faq wizardResult={wizardResult} /></ErrorBoundary>
       <Footer />
     </div>
   );

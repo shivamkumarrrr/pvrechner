@@ -8,7 +8,7 @@ import react from '@vitejs/plugin-react'
 // SAME handler files, so `npm run dev` exercises the real validation, caching
 // and rate limiting instead of a separate copy of the proxy logic.
 function localApi() {
-  const routes = { '/api/pvgis': './api/pvgis.js', '/api/geocode': './api/geocode.js' }
+  const routes = { '/api/pvgis': './api/pvgis.js', '/api/geocode': './api/geocode.js', '/api/log': './api/log.js' }
   return {
     name: 'local-api',
     configureServer(server) {
@@ -21,6 +21,13 @@ function localApi() {
           req.query = Object.fromEntries(
             [...url.searchParams.keys()].map((k) => [k, url.searchParams.getAll(k).length > 1 ? url.searchParams.getAll(k) : url.searchParams.get(k)]),
           )
+          if (req.method === 'POST') {
+            // Vercel parst den Body selbst; im Dev-Server lesen wir ihn hier (Text, max. 16 KB).
+            const chunks = []
+            let size = 0
+            for await (const c of req) { size += c.length; if (size > 16384) break; chunks.push(c) }
+            req.body = Buffer.concat(chunks).toString('utf8')
+          }
           res.status = (code) => { res.statusCode = code; return res }
           res.json = (body) => { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(body)) }
           await handler(req, res)
@@ -36,6 +43,11 @@ function localApi() {
 
 export default defineConfig({
   plugins: [react(), localApi()],
+  // Kurz-Hash des Commits (Vercel setzt ihn beim Build) — steht in Fehlermeldungen,
+  // damit klar ist, welche Version den Fehler erzeugt hat.
+  define: {
+    __COMMIT__: JSON.stringify((process.env.VERCEL_GIT_COMMIT_SHA || 'dev').slice(0, 7)),
+  },
   // Default build (Vercel, domain root) uses absolute "/" asset URLs. The
   // WordPress plugin build sets VITE_BASE=./ instead: WordPress serves the
   // app from a plugin subdirectory whose exact path isn't known at build

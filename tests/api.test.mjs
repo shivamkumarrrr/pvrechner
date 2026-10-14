@@ -8,6 +8,7 @@ function makeRes() {
   res.setHeader = (k, v) => { res.headers[k.toLowerCase()] = v; };
   res.status = (c) => { res.statusCode = c; return res; };
   res.json = (b) => { res.body = b; return res; };
+  res.end = () => res;
   return res;
 }
 let ipCounter = 0;
@@ -222,5 +223,61 @@ test("geocode: Rate-Limit je IP (15/min)", async () => {
   mockFetch(() => jsonRes(nomi));
   let last;
   for (let i = 0; i < 16; i += 1) { last = makeRes(); await geocode(req({ address: "limitstraße 1", plz: "40213" }, { ip: "7.7.7.7" }), last); }
+  assert.equal(last.statusCode, 429);
+});
+
+// ── Fehler-Log (api/log.js) ──────────────────────────────────────────────────
+const logHandler = (await import("../api/log.js")).default;
+const logReq = (body, { method = "POST", origin, host = "rechner.photovoltaik.marketing", ip } = {}) => ({
+  method, body, query: {}, headers: { host, ...(origin ? { origin } : {}), "x-real-ip": ip ?? `10.1.0.${++ipCounter}` },
+});
+function captureLog(fn) {
+  const lines = []; const orig = console.error;
+  console.error = (l) => lines.push(l);
+  return fn().then((r) => { console.error = orig; return { r, lines }; }, (e) => { console.error = orig; throw e; });
+}
+
+test("log: gültige Meldung → 204 und eine JSON-Zeile im Log", async () => {
+  const res = makeRes();
+  const { lines } = await captureLog(() => logHandler(logReq({ source: "react", message: "Boom", stack: "at x", path: "/", release: "abc1234", ua: "UA", component: "at Faq" }, { origin: "https://rechner.photovoltaik.marketing" }), res));
+  assert.equal(res.statusCode, 204);
+  assert.equal(lines.length, 1);
+  const row = JSON.parse(lines[0]);
+  assert.equal(row.type, "client-error");
+  assert.equal(row.message, "Boom");
+  assert.equal(row.release, "abc1234");
+});
+
+test("log: Body als String (sendBeacon) wird gelesen", async () => {
+  const res = makeRes();
+  await captureLog(() => logHandler(logReq(JSON.stringify({ source: "window", message: "x" })), res));
+  assert.equal(res.statusCode, 204);
+});
+
+test("log: fremde Origin → 403, GET → 405, kaputtes JSON → 400, unbekannte Quelle → 400, leere Meldung → 400", async () => {
+  const cases = [
+    [logReq({ source: "window", message: "x" }, { origin: "https://evil.example" }), 403],
+    [logReq({}, { method: "GET" }), 405],
+    [logReq("{kaputt"), 400],
+    [logReq({ source: "hack", message: "x" }), 400],
+    [logReq({ source: "window", message: "" }), 400],
+    [logReq([1, 2]), 400],
+  ];
+  for (const [r, status] of cases) {
+    const res = makeRes();
+    const { lines } = await captureLog(() => logHandler(r, res));
+    assert.equal(res.statusCode, status);
+    assert.equal(lines.length, 0);
+  }
+});
+
+test("log: Felder werden gekürzt, Steuerzeichen entfernt; Rate-Limit 10/min je IP", async () => {
+  const res = makeRes();
+  const { lines } = await captureLog(() => logHandler(logReq({ source: "window", message: "a\nb" + "x".repeat(900), stack: "y".repeat(9000) }), res));
+  const row = JSON.parse(lines[0]);
+  assert.ok(row.message.length <= 300 && !/[\u0000-\u001f]/.test(row.message));
+  assert.ok(row.stack.length <= 1500);
+  let last;
+  for (let i = 0; i < 11; i += 1) { last = makeRes(); await captureLog(() => logHandler(logReq({ source: "window", message: "m" }, { ip: "6.6.6.6" }), last)); }
   assert.equal(last.statusCode, 429);
 });

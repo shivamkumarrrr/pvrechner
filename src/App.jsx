@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import LandingPage from "./components/LandingPage.jsx";
 import PrivacyChoice from "./components/PrivacyChoice.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 import { siteConfig } from "./config.js";
 
 export default function App() {
@@ -23,7 +24,9 @@ export default function App() {
 
   return (
     <>
-      <LandingPage />
+      <ErrorBoundary fallback="page">
+        <LandingPage />
+      </ErrorBoundary>
       <PrivacyChoice />
     </>
   );
